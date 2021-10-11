@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 
 namespace VkScriptAnalyzer
@@ -12,7 +11,8 @@ namespace VkScriptAnalyzer
 		KeyWord,
 		DataType,
 		Assign,
-		String
+		String,
+		OneSymbol
 	}
 	enum Input_signal
 	{
@@ -58,6 +58,7 @@ namespace VkScriptAnalyzer
 			this.type = type;
 			this.finished_states = finished_states;
 			state = State.S0;
+			lex_value = string.Empty;
 		}
 
 		public void Parse(char symbol)
@@ -66,12 +67,19 @@ namespace VkScriptAnalyzer
 
 			if (signal != Input_signal.End)
 			{
-				lex_value += symbol;
-
 				if (!next_state.ContainsKey(signal))
+				{
 					state = State.S_error;
+				}
 				else if (state != State.S_error)
+				{
 					state = next_state[signal][state];
+				}
+
+				if (signal != Input_signal.Other)
+					lex_value += symbol;
+				else
+					state = State.S0;
 			}
 		}
 
@@ -166,10 +174,9 @@ namespace VkScriptAnalyzer
 
 	class MashineOneSymbol : Mashine
 	{
-
 		private const string enable_one_symbols = "+-=<>()";
 		public MashineOneSymbol(Dictionary<Input_signal, Dictionary<State, State>> next_state) :
-			base(next_state, Lex_type.Assign, new State[] { State.S1 })
+			base(next_state, Lex_type.OneSymbol, new State[] { State.S1 })
 		{ }
 
 		public override Input_signal DefineSignal(char symbol)
@@ -204,6 +211,7 @@ namespace VkScriptAnalyzer
 			"write",
 			"round",
 		};
+
 		static string[] dataTypes =
 		{
 			"integer",
@@ -275,7 +283,7 @@ namespace VkScriptAnalyzer
 						{  State.S1, State.S_error }
 					} },
 				}),
-			new MashineAssign(
+			/*new MashineAssign(
 				new Dictionary<Input_signal, Dictionary<State, State>>()
 				{
 					{ Input_signal.Colon,
@@ -319,20 +327,21 @@ namespace VkScriptAnalyzer
 							{ State.S1, State.S_error },
 							{ State.S2, State.S_error }
 					} },
-				}),
+				}),*/
 			new MashineOneSymbol(
 				new Dictionary<Input_signal, Dictionary<State, State>>()
 				{
 					{ Input_signal.Letter,
 						new Dictionary<State, State>() {
 						{  State.S0, State.S1 },
-						{  State.S1, State.S_error }
+						{  State.S1, State.S1 },
+						{  State.S_error, State.S1 }
 					} },
 					{ Input_signal.Other,
 						new Dictionary<State, State>() {
 						{  State.S0, State.S_error },
 						{  State.S1, State.S_error }
-					} },
+					} }
 				})
 		};
 
@@ -399,6 +408,19 @@ namespace VkScriptAnalyzer
 
 				foreach (Mashine parser in parsers)
 				{
+					
+					if (parser.state == State.S_error)
+                    {
+						var bruh = parsers.Where(p => p.state == State.S_error && p.lex_value != string.Empty);
+						var jh = bruh.OrderBy(l => l.lex_value.Length).Last();
+						string res = jh.lex_value;
+						ResetParsers();
+						return new Token() 
+						{
+							Value = res,
+							Type = parser.type
+						};
+                    }
 					parser.Parse(symbol);
 				}
 

@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace VkScriptAnalyzer
 {
@@ -10,7 +6,7 @@ namespace VkScriptAnalyzer
     {
         static void Main(string[] args)
         {
-            Lexer.input = "abc(";
+            Lexer.input = "1564a";
 
             var token = Lexer.GetToken();
             while(true)
