@@ -4,19 +4,19 @@ namespace VkScriptAnalyzer
 {
     class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
-            Lexer.input = "1564a";
+            var lexer = new Lexer("1 -   -6");
 
-            var token = Lexer.GetToken();
+            var token = lexer.GetToken();
             while(true)
             {
-                Console.WriteLine(token.Type + " : " + token.Value);
-
-                if (token.Type == Lex_type.Unknown)
+                if (token == null)
                     break;
 
-                token = Lexer.GetToken();
+                Console.WriteLine(token.value + " -> " + token.type);
+
+                token = lexer.GetToken();
             }
 
             Console.ReadKey();
