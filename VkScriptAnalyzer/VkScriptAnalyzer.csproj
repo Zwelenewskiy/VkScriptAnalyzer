@@ -43,7 +43,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GlobalClasses\Token.cs" />
     <Compile Include="Lexer.cs" />
+    <Compile Include="Machines\Machine.cs" />
+    <Compile Include="Machines\MachineAssign.cs" />
+    <Compile Include="Machines\MachineIdentifier.cs" />
+    <Compile Include="Machines\MachineNumber.cs" />
+    <Compile Include="Machines\MachineOneSymbol.cs" />
+    <Compile Include="Machines\MachineString.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

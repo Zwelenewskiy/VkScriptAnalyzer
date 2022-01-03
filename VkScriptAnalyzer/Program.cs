@@ -1,4 +1,5 @@
 ﻿using System;
+using VkScriptAnalyzer.GlobalClasses;
 
 namespace VkScriptAnalyzer
 {
@@ -6,7 +7,7 @@ namespace VkScriptAnalyzer
     {
         static void Main()
         {
-            var lexer = new Lexer("1 -   -6");
+            var lexer = new Lexer("+ - / *");
 
             var token = lexer.GetToken();
             while(true)
@@ -14,7 +15,8 @@ namespace VkScriptAnalyzer
                 if (token == null)
                     break;
 
-                Console.WriteLine(token.value + " -> " + token.type);
+                Console.WriteLine("Value: " + token.value + Environment.NewLine + " Type: " +  token.type);
+                Console.WriteLine("------------------");
 
                 token = lexer.GetToken();
             }
