@@ -14,10 +14,14 @@ namespace VkScriptAnalyzer.Mashines
         Letter_i,
         Letter_f,
         Colon,
-        Equals,
+        Equal,
+        Equal_1,
+        Equal_2,
         Quote,
+        ExclamationMark,// !
         Other,
-        End
+        End,
+
     }
     public enum State
     {

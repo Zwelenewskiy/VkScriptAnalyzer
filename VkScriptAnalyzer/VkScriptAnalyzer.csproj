@@ -60,6 +60,8 @@
     <Compile Include="Machines\MachineNumber.cs" />
     <Compile Include="Machines\MachineOneSymbol.cs" />
     <Compile Include="Machines\MachineString.cs" />
+    <Compile Include="Machines\MashineEqual.cs" />
+    <Compile Include="Machines\MashineNotEqual.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
