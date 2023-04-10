@@ -1,13 +1,16 @@
 ﻿using System;
-using VkScriptAnalyzer.GlobalClasses;
 
 namespace VkScriptAnalyzer
 {
     class Program
     {
+        private const string INPUT_FILE_NAME = "input.vkscript";
+
         static void Main()
         {
-            var lexer = new Lexer("+ - / *");
+            string input = System.IO.File.ReadAllText(INPUT_FILE_NAME);
+
+            var lexer = new Lexer(input);
 
             var token = lexer.GetToken();
             while(true)

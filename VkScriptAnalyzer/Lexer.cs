@@ -23,35 +23,30 @@ namespace VkScriptAnalyzer
         /// </summary>
         private Token fast_token = null;
 
+        private readonly char[] DIVIDING_CHARS   = { '+', '-', '/', '*', ';', '(', ')', '{', '}', '<', '>' };
+        private readonly char[] WHITESPACE_CHARS = { ' ', '\t', '\n', '\r' }; 
+        
+        private readonly string[] KEY_WORDS =
+         {
+            "var",
+            "if",
+            "else",
+            "while",
+            "return",
+        };
+
+        private readonly string[] DATA_TYPES =
+        {
+            "true",
+            "false",
+        };
+
         public Lexer(string text)
         {
-            input = text;
-
-            input = input.TrimStart().TrimEnd();
+            input = text.TrimStart().TrimEnd();
         }
 
-        string[] keyWords =
-        {
-            "If",
-            "Then",
-            "Else",
-            "var",
-            "begin",
-            "end",
-            "read",
-            "write",
-            "round",
-        };
-
-        string[] dataTypes =
-        {
-            "integer",
-            "double",
-        };
-
-        char[] dividing_chars = {'+', '-', '/', '*' };
-
-        Machine[] parsers = {
+        private readonly Machine[] PARSERS = {
             new MashineNumber(
                 new Dictionary<Input_signal, Dictionary<State, State>>()
                 {
@@ -119,7 +114,8 @@ namespace VkScriptAnalyzer
                 }),
 
             #region Not used machines
-            /*new MashineAssign(
+            /*
+           new MashineAssign(
 				new Dictionary<Input_signal, Dictionary<State, State>>()
 				{
 					{ Input_signal.Colon,
@@ -142,6 +138,7 @@ namespace VkScriptAnalyzer
 					} },
 				}
 				),
+             
 			new MashineString(
 				new Dictionary<Input_signal, Dictionary<State, State>>()
 				{
@@ -196,7 +193,7 @@ namespace VkScriptAnalyzer
             bool find = false;
             string value = null;
 
-            var temp_parsers = parsers
+            var temp_parsers = PARSERS
                         .Where(p => p.lex_value != string.Empty && p.lex_value != null)
                         .OrderByDescending(p => p.lex_value.Length)
                         .ToArray();
@@ -207,9 +204,9 @@ namespace VkScriptAnalyzer
 
                 if (parser.IsEnd())
                 {
-                    if (parser.type == TokenType.Identifier && keyWords.Contains(value))
+                    if (parser.type == TokenType.Identifier && KEY_WORDS.Contains(value))
                         token.type = TokenType.KeyWord;
-                    else if (parser.type == TokenType.Identifier && dataTypes.Contains(value))
+                    else if (parser.type == TokenType.Identifier && DATA_TYPES.Contains(value))
                         token.type = TokenType.DataType;
                     else
                         token.type = parser.type;
@@ -234,7 +231,7 @@ namespace VkScriptAnalyzer
 
         private void ResetParsers()
         {
-            foreach (Machine parser in parsers)
+            foreach (Machine parser in PARSERS)
             {
                 parser.Reset();
             }
@@ -244,7 +241,7 @@ namespace VkScriptAnalyzer
         {
             if (fast_token != null)
             {
-                var tmp = fast_token;//РАЗРЕШИТЬ ЭТОТ КОСТЫЛЬ!
+                var tmp = fast_token;
                 fast_token = null;
                 return tmp;
             }
@@ -266,9 +263,7 @@ namespace VkScriptAnalyzer
             {
                 char symbol = Parse_Symbol();
 
-                if (symbol == ' '
-                    || symbol == '\t'
-                    || symbol == '\n')
+                if (WHITESPACE_CHARS.Contains(symbol))
                 {
                     is_white_space = true;
                 }
@@ -276,7 +271,7 @@ namespace VkScriptAnalyzer
                 bool dividing_lexem = false;
                 var type = TokenType.Unknown;
 
-                if (dividing_chars.Contains(symbol))
+                if (DIVIDING_CHARS.Contains(symbol))
                 {
                     dividing_lexem = true;
 
@@ -304,7 +299,6 @@ namespace VkScriptAnalyzer
 
                     if (parse_not_dividing_lexem)
                     {
-                        //parse_not_dividing_lexem = false;
                         return Check_Parsers();
                     }
                 }
@@ -323,7 +317,7 @@ namespace VkScriptAnalyzer
                     was_dividing_lexem = false;
                     parse_not_dividing_lexem = true;
 
-                    foreach (Machine parser in parsers)
+                    foreach (Machine parser in PARSERS)
                     {
                         parser.Parse(symbol);
                     }
