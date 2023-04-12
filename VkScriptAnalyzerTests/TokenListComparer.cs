@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using VkScriptAnalyzer.GlobalClasses;
+using VkScriptAnalyzer.Lexer;
 
 namespace VkScriptAnalyzerTests
 {

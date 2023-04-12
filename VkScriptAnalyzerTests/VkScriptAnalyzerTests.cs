@@ -1,7 +1,6 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using VkScriptAnalyzer;
-using VkScriptAnalyzer.GlobalClasses;
+using VkScriptAnalyzer.Lexer;
 
 namespace VkScriptAnalyzerTests
 {
@@ -10,7 +9,7 @@ namespace VkScriptAnalyzerTests
     {
         private void DoTest(TestParameters @params)
         {
-            var lexer = new Lexer(@params.input_text);
+            var lexer = new LexicalAnalyzer(@params.input_text);
 
             List<Token> result = new List<Token>();
             var token = lexer.GetToken();
@@ -24,8 +23,8 @@ namespace VkScriptAnalyzerTests
                 token = lexer.GetToken();
             }
 
-            CollectionAssert.AreEqual(@params.sample, result, new TokenListComparer()); 
-        }   
+            CollectionAssert.AreEqual(@params.sample, result, new TokenListComparer());
+        }
 
         [TestMethod]
         public void NumbersTest()
@@ -229,6 +228,38 @@ namespace VkScriptAnalyzerTests
                     {
                         value = "/",
                         type = TokenType.Div_Op
+                    },
+                }
+            });
+        }
+
+        [TestMethod]
+        public void LogicalOperatorsTest()
+        {
+            DoTest(new TestParameters()
+            {
+                input_text = "&& || != ==",
+                sample = new List<Token>()
+                {
+                    new Token()
+                    {
+                        value = "&&",
+                        type = TokenType.And_Op
+                    },
+                    new Token()
+                    {
+                        value = "||",
+                        type = TokenType.Or_Op
+                    },
+                    new Token()
+                    {
+                        value = "!=",
+                        type = TokenType.NonEqual
+                    },
+                    new Token()
+                    {
+                        value = "==",
+                        type = TokenType.Equal
                     },
                 }
             });
