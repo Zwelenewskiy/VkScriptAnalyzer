@@ -21,7 +21,7 @@ namespace VkScriptAnalyzer.Lexer
         /// </summary>
         private Token fast_token = null;
 
-        private readonly char[] DIVIDING_CHARS   = { '+', '-', '/', '*', ';', ',', '(', ')', '{', '}', '<', '>', '!', '=', '&', '|' };
+        private readonly char[] DIVIDING_CHARS   = { '+', '-', '/', '*', ';', ',', '(', ')', '{', '}', '<', '>', '!', '=' };
         private readonly char[] WHITESPACE_CHARS = { ' ', '\t', '\n', '\r' }; 
         
         private readonly string[] KEY_WORDS =
@@ -30,6 +30,8 @@ namespace VkScriptAnalyzer.Lexer
             "if",
             "else",
             "while",
+            "and",
+            "or",
             "return",
         };
 
@@ -47,8 +49,6 @@ namespace VkScriptAnalyzer.Lexer
         private readonly Machine[] PARSERS = {
             new MashineNumber(),
             new MashineIdentifier(),
-            //new MashineNotEqual(),
-            //new MashineEqual(),
 
             #region Not used machines
             /*
@@ -151,52 +151,6 @@ namespace VkScriptAnalyzer.Lexer
                     {
                         type = TokenType.NonEqual,
                         value = "!="
-                    };
-
-                    if (parse_not_dividing_lexem)
-                    {
-                        fast_token = token;
-
-                        return CheckParsers();
-                    }
-                    else
-                    {
-                        return token;
-                    }
-                }
-            }
-            else if (first_dividing_char == '&')
-            {
-                if (second_dividing_char == '&')
-                {
-                    ParseSymbol();
-                    var token = new Token()
-                    {
-                        type = TokenType.And_Op,
-                        value = "&&"
-                    };
-
-                    if (parse_not_dividing_lexem)
-                    {
-                        fast_token = token;
-
-                        return CheckParsers();
-                    }
-                    else
-                    {
-                        return token;
-                    }
-                }
-            }
-            else if (first_dividing_char == '|')
-            {
-                if (second_dividing_char == '|')
-                {
-                    ParseSymbol();
-                    var token = new Token()
-                    {
-                        type = TokenType.Or_Op,
-                        value = "||"
                     };
 
                     if (parse_not_dividing_lexem)

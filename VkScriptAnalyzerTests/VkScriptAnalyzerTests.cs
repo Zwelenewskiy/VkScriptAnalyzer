@@ -258,19 +258,9 @@ namespace VkScriptAnalyzerTests
         {
             DoTest(new TestParameters()
             {
-                input_text = "&& || != ==",
+                input_text = "!= ==",
                 sample = new List<Token>()
                 {
-                    new Token()
-                    {
-                        value = "&&",
-                        type = TokenType.And_Op
-                    },
-                    new Token()
-                    {
-                        value = "||",
-                        type = TokenType.Or_Op
-                    },
                     new Token()
                     {
                         value = "!=",
@@ -290,7 +280,7 @@ namespace VkScriptAnalyzerTests
         {
             DoTest(new TestParameters()
             {
-                input_text = "var if else while return",
+                input_text = "var if else while and or return",
                 sample = new List<Token>()
                 {
                     new Token()
@@ -311,6 +301,16 @@ namespace VkScriptAnalyzerTests
                     new Token()
                     {
                         value = "while",
+                        type = TokenType.KeyWord
+                    },
+                    new Token()
+                    {
+                        value = "and",
+                        type = TokenType.KeyWord
+                    },
+                    new Token()
+                    {
+                        value = "or",
                         type = TokenType.KeyWord
                     },
                     new Token()
@@ -337,7 +337,7 @@ namespace VkScriptAnalyzerTests
 	                                a = 5;
                                 }
 
-                                while(b && a > 123){
+                                while(b and a > 123){
 	                                a = a + 1;
                                 }
 
@@ -498,8 +498,8 @@ namespace VkScriptAnalyzerTests
                     },
                     new Token()
                     {
-                        value = "&&",
-                        type = TokenType.And_Op
+                        value = "and",
+                        type = TokenType.KeyWord
                     },
                     new Token()
                     {
