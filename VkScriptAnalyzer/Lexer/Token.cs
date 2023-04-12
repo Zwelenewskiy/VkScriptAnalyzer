@@ -16,6 +16,7 @@
         Plus_Op = 43,
         Comma = 44,// ,
         Minus_Op = 45,
+        Dot = 46,
         Mul_Op = 42,
         Div_Op = 47,
         Colon = 59,// :

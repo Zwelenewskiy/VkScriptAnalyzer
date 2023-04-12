@@ -21,9 +21,13 @@ namespace VkScriptAnalyzer.Lexer
         /// </summary>
         private Token fast_token = null;
 
-        private readonly char[] DIVIDING_CHARS   = { '+', '-', '/', '*', ';', ',', '(', ')', '{', '}', '<', '>', '!', '=' };
-        private readonly char[] WHITESPACE_CHARS = { ' ', '\t', '\n', '\r' }; 
-        
+        private readonly char[] DIVIDING_CHARS   = { '+', '-', '/', '*', ';', ',', '(', ')', '{', '}', '<', '>', '!', '=', '.' };
+        private readonly char[] WHITESPACE_CHARS = { ' ', '\t', '\n', '\r' };
+
+        private readonly MashineNumber     MashineNumber     = new MashineNumber();
+        private readonly MashineIdentifier MashineIdentifier = new MashineIdentifier();
+
+
         private readonly string[] KEY_WORDS =
          {
             "var",
@@ -41,22 +45,17 @@ namespace VkScriptAnalyzer.Lexer
             "false",
         };
 
+        private readonly Machine[] PARSERS;
+
         public LexicalAnalyzer(string text)
         {
             input = text.TrimStart().TrimEnd();
+
+            PARSERS = new Machine[] {
+                MashineNumber,
+                MashineIdentifier
+            };
         }
-
-        private readonly Machine[] PARSERS = {
-            new MashineNumber(),
-            new MashineIdentifier(),
-
-            #region Not used machines
-            /*
-            new MashineAssign(),             
-			new MashineString(),
-            new MashineOneSymbol()*/
-            #endregion
-        };
 
         private char ParseSymbol()
         {
@@ -224,6 +223,22 @@ namespace VkScriptAnalyzer.Lexer
 
                 if (dividing_lexem)
                 {
+                    if(symbol == '.')
+                    {
+                        // если начали разбирать число, то точка не будет символом-"разделителем"
+                        bool is_error = MashineNumber.InError();
+
+                        if (!is_error)
+                        {
+                            foreach (Machine parser in PARSERS)
+                            {
+                                parser.Parse(symbol);
+                            }
+
+                            continue;
+                        }
+                    }
+
                     if (was_dividing_lexem || !parse_not_dividing_lexem)
                     {
                         return new Token()

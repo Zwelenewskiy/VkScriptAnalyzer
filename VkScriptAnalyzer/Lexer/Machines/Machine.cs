@@ -85,6 +85,11 @@ namespace VkScriptAnalyzer.Lexer.Mashines
             }
         }
 
+        public bool InError()
+        {
+            return state == State.S_error;
+        }
+
         public bool IsEnd()
         {
             return state != State.S_error && finished_states.Contains(state);

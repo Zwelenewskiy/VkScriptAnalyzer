@@ -480,7 +480,6 @@ namespace VkScriptAnalyzerTests
                         type = TokenType.CurlyRightBracket
                     },
 
-
                     new Token()
                     {
                         value = "while",
@@ -575,6 +574,40 @@ namespace VkScriptAnalyzerTests
                     {
                         value = ";",
                         type = TokenType.Colon
+                    },
+                }
+            });
+        }
+
+
+
+        [TestMethod]
+        public void DotSeparationTest()
+        {
+            DoTest(new TestParameters()
+            {
+                input_text = "1.2 a.b",
+                sample = new List<Token>()
+                {
+                    new Token()
+                    {
+                        value = "1.2",
+                        type = TokenType.Number
+                    },
+                    new Token()
+                    {
+                        value = "a",
+                        type = TokenType.Identifier
+                    },
+                    new Token()
+                    {
+                        value = ".",
+                        type = TokenType.Dot
+                    },
+                    new Token()
+                    {
+                        value = "b",
+                        type = TokenType.Identifier
                     },
                 }
             });
