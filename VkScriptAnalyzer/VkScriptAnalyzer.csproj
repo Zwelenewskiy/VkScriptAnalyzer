@@ -54,13 +54,11 @@
     <Compile Include="Lexer\Token.cs" />
     <Compile Include="Lexer\Lexer.cs" />
     <Compile Include="Lexer\Machines\Machine.cs" />
-    <Compile Include="Lexer\Machines\MachineAssign.cs" />
+    <Compile Include="Lexer\Machines\NotUsed\MachineAssign.cs" />
     <Compile Include="Lexer\Machines\MachineIdentifier.cs" />
     <Compile Include="Lexer\Machines\MachineNumber.cs" />
-    <Compile Include="Lexer\Machines\MachineOneSymbol.cs" />
-    <Compile Include="Lexer\Machines\MachineString.cs" />
-    <Compile Include="Lexer\Machines\MashineEqual.cs" />
-    <Compile Include="Lexer\Machines\MashineNotEqual.cs" />
+    <Compile Include="Lexer\Machines\NotUsed\MachineOneSymbol.cs" />
+    <Compile Include="Lexer\Machines\NotUsed\MachineString.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

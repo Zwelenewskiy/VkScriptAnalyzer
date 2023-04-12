@@ -11,6 +11,8 @@
         OneSymbol,
         NonEqual,
         Equal,
+        And_Op,
+        Or_Op,
         LeftBracket = 40,// (
         RightBracket = 41,// )
         Plus_Op = 43,

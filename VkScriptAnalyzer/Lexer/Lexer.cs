@@ -21,7 +21,7 @@ namespace VkScriptAnalyzer.Lexer
         /// </summary>
         private Token fast_token = null;
 
-        private readonly char[] DIVIDING_CHARS   = { '+', '-', '/', '*', ';', '(', ')', '{', '}', '<', '>' };
+        private readonly char[] DIVIDING_CHARS   = { '+', '-', '/', '*', ';', '(', ')', '{', '}', '<', '>', '!', '=', '&', '|' };
         private readonly char[] WHITESPACE_CHARS = { ' ', '\t', '\n', '\r' }; 
         
         private readonly string[] KEY_WORDS =
@@ -47,8 +47,8 @@ namespace VkScriptAnalyzer.Lexer
         private readonly Machine[] PARSERS = {
             new MashineNumber(),
             new MashineIdentifier(),
-            new MashineNotEqual(),
-            new MashineEqual(),
+            //new MashineNotEqual(),
+            //new MashineEqual(),
 
             #region Not used machines
             /*
@@ -58,7 +58,7 @@ namespace VkScriptAnalyzer.Lexer
             #endregion
         };
 
-        char Parse_Symbol()
+        private char ParseSymbol()
         {
             char symbol = input[0];
             input = input.Remove(0, 1);
@@ -66,7 +66,15 @@ namespace VkScriptAnalyzer.Lexer
             return symbol;
         }
 
-        Token Check_Parsers()
+        private char? CheckNextSymbol()
+        {
+            if (input.Length == 0)
+                return null;
+            else
+                return input[0];
+        }
+
+        private Token CheckParsers()
         {
             Token token = new Token();
             bool find = false;
@@ -108,6 +116,105 @@ namespace VkScriptAnalyzer.Lexer
             return token;
         }
 
+        private Token CheckDoubleDividingChars(char first_dividing_char, bool parse_not_dividing_lexem)
+        {
+            var second_dividing_char = CheckNextSymbol();
+
+            if (first_dividing_char == '=')
+            {
+                if (second_dividing_char == '=')
+                {
+                    ParseSymbol();
+                    var token = new Token()
+                    {
+                        type = TokenType.Equal,
+                        value = "=="
+                    };
+
+                    if (parse_not_dividing_lexem)
+                    {
+                        fast_token = token;
+                        return CheckParsers();
+                    }
+                    else
+                    {
+                        return token;
+                    }
+                }
+            }
+            else if (first_dividing_char == '!')
+            {
+                if (second_dividing_char == '=')
+                {
+                    ParseSymbol();
+                    var token = new Token()
+                    {
+                        type = TokenType.NonEqual,
+                        value = "!="
+                    };
+
+                    if (parse_not_dividing_lexem)
+                    {
+                        fast_token = token;
+
+                        return CheckParsers();
+                    }
+                    else
+                    {
+                        return token;
+                    }
+                }
+            }
+            else if (first_dividing_char == '&')
+            {
+                if (second_dividing_char == '&')
+                {
+                    ParseSymbol();
+                    var token = new Token()
+                    {
+                        type = TokenType.And_Op,
+                        value = "&&"
+                    };
+
+                    if (parse_not_dividing_lexem)
+                    {
+                        fast_token = token;
+
+                        return CheckParsers();
+                    }
+                    else
+                    {
+                        return token;
+                    }
+                }
+            }
+            else if (first_dividing_char == '|')
+            {
+                if (second_dividing_char == '|')
+                {
+                    ParseSymbol();
+                    var token = new Token()
+                    {
+                        type = TokenType.Or_Op,
+                        value = "||"
+                    };
+
+                    if (parse_not_dividing_lexem)
+                    {
+                        fast_token = token;
+
+                        return CheckParsers();
+                    }
+                    else
+                    {
+                        return token;
+                    }
+                }
+            }
+
+            return null;
+        }
+
         private void ResetParsers()
         {
             foreach (Machine parser in PARSERS)
@@ -140,7 +247,7 @@ namespace VkScriptAnalyzer.Lexer
             bool is_white_space = false;
             while (input.Length > 0)
             {
-                char symbol = Parse_Symbol();
+                char symbol = ParseSymbol();
 
                 if (WHITESPACE_CHARS.Contains(symbol))
                 {
@@ -152,6 +259,10 @@ namespace VkScriptAnalyzer.Lexer
 
                 if (DIVIDING_CHARS.Contains(symbol))
                 {
+                    var double_dividing_token = CheckDoubleDividingChars(symbol, parse_not_dividing_lexem);
+                    if (double_dividing_token != null)
+                        return double_dividing_token;
+
                     dividing_lexem = true;
 
                     type = (TokenType)symbol;
@@ -178,7 +289,7 @@ namespace VkScriptAnalyzer.Lexer
 
                     if (parse_not_dividing_lexem)
                     {
-                        return Check_Parsers();
+                        return CheckParsers();
                     }
                 }
                 else if (is_white_space)
@@ -188,7 +299,7 @@ namespace VkScriptAnalyzer.Lexer
                     if (parse_not_dividing_lexem)
                     {
                         was_checked = true;
-                        return Check_Parsers();
+                        return CheckParsers();
                     }
                 }
                 else
@@ -204,7 +315,7 @@ namespace VkScriptAnalyzer.Lexer
             }
 
             if(!is_white_space)
-                return Check_Parsers();
+                return CheckParsers();
 
             return null;
         }
