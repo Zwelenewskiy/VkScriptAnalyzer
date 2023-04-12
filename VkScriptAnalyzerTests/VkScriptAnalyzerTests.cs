@@ -46,7 +46,17 @@ namespace VkScriptAnalyzerTests
                     },
                     new Token()
                     {
-                        value = "1,23",
+                        value = "1",
+                        type = TokenType.Number
+                    },
+                    new Token()
+                    {
+                        value = ",",
+                        type = TokenType.Comma
+                    },
+                    new Token()
+                    {
+                        value = "23",
                         type = TokenType.Number
                     },
                     new Token()
@@ -78,7 +88,17 @@ namespace VkScriptAnalyzerTests
                     },
                     new Token()
                     {
-                        value = "1,23",
+                        value = "1",
+                        type = TokenType.Number
+                    },
+                    new Token()
+                    {
+                        value = ",",
+                        type = TokenType.Comma
+                    },
+                    new Token()
+                    {
+                        value = "23",
                         type = TokenType.Number
                     },
                     new Token()
@@ -260,6 +280,301 @@ namespace VkScriptAnalyzerTests
                     {
                         value = "==",
                         type = TokenType.Equal
+                    },
+                }
+            });
+        }
+
+        [TestMethod]
+        public void KeyWordsTest()
+        {
+            DoTest(new TestParameters()
+            {
+                input_text = "var if else while return",
+                sample = new List<Token>()
+                {
+                    new Token()
+                    {
+                        value = "var",
+                        type = TokenType.KeyWord
+                    },
+                    new Token()
+                    {
+                        value = "if",
+                        type = TokenType.KeyWord
+                    },
+                    new Token()
+                    {
+                        value = "else",
+                        type = TokenType.KeyWord
+                    },
+                    new Token()
+                    {
+                        value = "while",
+                        type = TokenType.KeyWord
+                    },
+                    new Token()
+                    {
+                        value = "return",
+                        type = TokenType.KeyWord
+                    },
+                }
+            });
+        }
+
+        [TestMethod]
+        public void SimpleProgramTest()
+        {
+            DoTest(new TestParameters()
+            {
+                input_text = @"var a = 1.8;
+                                var b = true;
+
+                                if(b){
+	                                a = 4;
+                                }
+                                else{
+	                                a = 5;
+                                }
+
+                                while(b && a > 123){
+	                                a = a + 1;
+                                }
+
+                                return a;",
+                sample = new List<Token>()
+                {
+                    new Token()
+                    {
+                        value = "var",
+                        type = TokenType.KeyWord
+                    },
+                    new Token()
+                    {
+                        value = "a",
+                        type = TokenType.Identifier
+                    },
+                    new Token()
+                    {
+                        value = "=",
+                        type = TokenType.Assign
+                    },
+                    new Token()
+                    {
+                        value = "1.8",
+                        type = TokenType.Number
+                    },
+                    new Token()
+                    {
+                        value = ";",
+                        type = TokenType.Colon
+                    },
+                    new Token()
+                    {
+                        value = "var",
+                        type = TokenType.KeyWord
+                    },
+                    new Token()
+                    {
+                        value = "b",
+                        type = TokenType.Identifier
+                    },
+                    new Token()
+                    {
+                        value = "=",
+                        type = TokenType.Assign
+                    },
+                    new Token()
+                    {
+                        value = "true",
+                        type = TokenType.DataType
+                    },
+                    new Token()
+                    {
+                        value = ";",
+                        type = TokenType.Colon
+                    },
+                    new Token()
+                    {
+                        value = "if",
+                        type = TokenType.KeyWord
+                    },
+                    new Token()
+                    {
+                        value = "(",
+                        type = TokenType.LeftBracket
+                    },
+                    new Token()
+                    {
+                        value = "b",
+                        type = TokenType.Identifier
+                    },
+                    new Token()
+                    {
+                        value = ")",
+                        type = TokenType.RightBracket
+                    },
+                    new Token()
+                    {
+                        value = "{",
+                        type = TokenType.CurlyLeftBracket
+                    },
+                    new Token()
+                    {
+                        value = "a",
+                        type = TokenType.Identifier
+                    },
+                    new Token()
+                    {
+                        value = "=",
+                        type = TokenType.Assign
+                    },
+                    new Token()
+                    {
+                        value = "4",
+                        type = TokenType.Number
+                    },
+                    new Token()
+                    {
+                        value = ";",
+                        type = TokenType.Colon
+                    },
+                    new Token()
+                    {
+                        value = "}",
+                        type = TokenType.CurlyRightBracket
+                    },
+                    new Token()
+                    {
+                        value = "else",
+                        type = TokenType.KeyWord
+                    },
+                    new Token()
+                    {
+                        value = "{",
+                        type = TokenType.CurlyLeftBracket
+                    },
+                    new Token()
+                    {
+                        value = "a",
+                        type = TokenType.Identifier
+                    },
+                    new Token()
+                    {
+                        value = "=",
+                        type = TokenType.Assign
+                    },
+                    new Token()
+                    {
+                        value = "5",
+                        type = TokenType.Number
+                    },
+                    new Token()
+                    {
+                        value = ";",
+                        type = TokenType.Colon
+                    },
+                    new Token()
+                    {
+                        value = "}",
+                        type = TokenType.CurlyRightBracket
+                    },
+
+
+                    new Token()
+                    {
+                        value = "while",
+                        type = TokenType.KeyWord
+                    },
+                    new Token()
+                    {
+                        value = "(",
+                        type = TokenType.LeftBracket
+                    },
+                    new Token()
+                    {
+                        value = "b",
+                        type = TokenType.Identifier
+                    },
+                    new Token()
+                    {
+                        value = "&&",
+                        type = TokenType.And_Op
+                    },
+                    new Token()
+                    {
+                        value = "a",
+                        type = TokenType.Identifier
+                    },
+                    new Token()
+                    {
+                        value = ">",
+                        type = TokenType.CloseQuotationMark
+                    },
+                    new Token()
+                    {
+                        value = "123",
+                        type = TokenType.Number
+                    },
+                    new Token()
+                    {
+                        value = ")",
+                        type = TokenType.RightBracket
+                    },
+                    new Token()
+                    {
+                        value = "{",
+                        type = TokenType.CurlyLeftBracket
+                    },
+                    new Token()
+                    {
+                        value = "a",
+                        type = TokenType.Identifier
+                    },
+                    new Token()
+                    {
+                        value = "=",
+                        type = TokenType.Assign
+                    },
+                    new Token()
+                    {
+                        value = "a",
+                        type = TokenType.Identifier
+                    },
+                    new Token()
+                    {
+                        value = "+",
+                        type = TokenType.Plus_Op
+                    },
+                    new Token()
+                    {
+                        value = "1",
+                        type = TokenType.Number
+                    },
+                    new Token()
+                    {
+                        value = ";",
+                        type = TokenType.Colon
+                    },
+                    new Token()
+                    {
+                        value = "}",
+                        type = TokenType.CurlyRightBracket
+                    },
+                    new Token()
+                    {
+                        value = "return",
+                        type = TokenType.KeyWord
+                    },
+                    new Token()
+                    {
+                        value = "a",
+                        type = TokenType.Identifier
+                    },
+                    new Token()
+                    {
+                        value = ";",
+                        type = TokenType.Colon
                     },
                 }
             });
