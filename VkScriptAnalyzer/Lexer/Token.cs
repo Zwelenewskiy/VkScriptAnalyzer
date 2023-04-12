@@ -1,4 +1,4 @@
-﻿namespace VkScriptAnalyzer.GlobalClasses
+﻿namespace VkScriptAnalyzer.Lexer
 {
     public enum TokenType
     {
@@ -23,5 +23,18 @@
         CloseQuotationMark = 62,// >
         CurlyLeftBracket = 123,// {
         CurlyRightBracket = 125,// }
+    }
+
+    public class Token
+    {
+        public string value {get; set;}
+        public int line {get; set;}
+        public int pos {get; set;}
+        public TokenType type { get; set; }
+
+        public Token()
+        {
+            value = null;
+        }
     }
 }

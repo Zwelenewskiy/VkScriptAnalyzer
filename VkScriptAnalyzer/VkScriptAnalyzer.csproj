@@ -51,23 +51,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="GlobalClasses\Token.cs" />
-    <Compile Include="GlobalClasses\TokenType.cs" />
-    <Compile Include="Lexer.cs" />
-    <Compile Include="Machines\Machine.cs" />
-    <Compile Include="Machines\MachineAssign.cs" />
-    <Compile Include="Machines\MachineIdentifier.cs" />
-    <Compile Include="Machines\MachineNumber.cs" />
-    <Compile Include="Machines\MachineOneSymbol.cs" />
-    <Compile Include="Machines\MachineString.cs" />
-    <Compile Include="Machines\MashineEqual.cs" />
-    <Compile Include="Machines\MashineNotEqual.cs" />
+    <Compile Include="Lexer\Token.cs" />
+    <Compile Include="Lexer\Lexer.cs" />
+    <Compile Include="Lexer\Machines\Machine.cs" />
+    <Compile Include="Lexer\Machines\MachineAssign.cs" />
+    <Compile Include="Lexer\Machines\MachineIdentifier.cs" />
+    <Compile Include="Lexer\Machines\MachineNumber.cs" />
+    <Compile Include="Lexer\Machines\MachineOneSymbol.cs" />
+    <Compile Include="Lexer\Machines\MachineString.cs" />
+    <Compile Include="Lexer\Machines\MashineEqual.cs" />
+    <Compile Include="Lexer\Machines\MashineNotEqual.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="GlobalClasses\" />
+    <Folder Include="Parser\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

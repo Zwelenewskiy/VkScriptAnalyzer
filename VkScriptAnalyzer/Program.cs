@@ -10,7 +10,7 @@ namespace VkScriptAnalyzer
         {
             string input = System.IO.File.ReadAllText(INPUT_FILE_NAME);
 
-            var lexer = new Lexer(input);
+            var lexer = new Lexer.LexicalAnalyzer(input);
 
             var token = lexer.GetToken();
             while(true)

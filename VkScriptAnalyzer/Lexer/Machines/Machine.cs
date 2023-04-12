@@ -1,8 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using VkScriptAnalyzer.GlobalClasses;
 
-namespace VkScriptAnalyzer.Mashines
+namespace VkScriptAnalyzer.Lexer.Mashines
 {   
     public enum Input_signal
     {
@@ -45,9 +44,11 @@ namespace VkScriptAnalyzer.Mashines
 
         public abstract Input_signal DefineSignal(char symbol);
 
-        public Machine(Dictionary<Input_signal, Dictionary<State, State>> next_state, TokenType type, State[] finished_states)
+        protected Machine() { }
+
+        protected Machine(Dictionary<Input_signal, Dictionary<State, State>> state_table, TokenType type, State[] finished_states)
         {
-            this.next_state = next_state;
+            this.next_state = state_table;
             this.type = type;
             this.finished_states = finished_states;
             state = State.S0;
