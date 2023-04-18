@@ -142,7 +142,11 @@ namespace VkScriptAnalyzer.Parser
 
         private ExprNode T2()
         {
-            if(token.type == TokenType.Identifier || token.type == TokenType.Number)
+            if(token_val == "api")
+            {
+                return Call();
+            }
+            else if(token.type == TokenType.Identifier || token.type == TokenType.Number)
             {
                 return new ExprNode(token);
             }
@@ -163,36 +167,28 @@ namespace VkScriptAnalyzer.Parser
             return null;
         }
 
-        /*private ExprNode Expr()
+        private CallNode Call()
         {
             GetToken();
-
-            var term = Term();
-            if (term != null)
-            {
-                var expr1 = Expr1(term);
-                if (expr1 == null)
-                    return term;
-                else
-                    return expr1;
-            }
-
-            return null;
-        }
-
-        private ExprNode Call()
-        {
-            GetNextToken();
-            if(token_val == "api")
+            if (token_val == ".")
             {
                 GetToken();
-                if(token_val == ".")
-                {
 
-                    if (token.type == TokenType.Identifier)
+                if (token.type == TokenType.Identifier)
+                {
+                    var call = new CallNode(token);
+                    GetToken();
+
+                    if (token_val == "(")
                     {
-                        token.type = TokenType.Function;
-                        return new ExprNode(token);
+                        var parameters = new List<Token>();
+                        Params(ref parameters);
+
+                        if (token_val == ")")
+                        {
+                            call.parameters = parameters;
+                            return call;
+                        }
                     }
                 }
             }
@@ -200,6 +196,27 @@ namespace VkScriptAnalyzer.Parser
             return null;
         }
 
+        private void Params(ref List<Token> parameters)
+        {
+            GetToken();
+
+            if(token.type == TokenType.Identifier)
+            {
+                parameters.Add(token);
+                GetToken();
+
+                if(token_val == ",")
+                {
+                    Params(ref parameters);
+                }
+                else
+                {
+                    return;
+                }
+            }
+        }
+
+        /*
         private Node Kvalident()
         {
             GetNextToken();
@@ -223,84 +240,7 @@ namespace VkScriptAnalyzer.Parser
             return null;
         }
 
-        private ExprNode Term()
-        {
-            var factor = Factor();
-            if (factor != null)
-            {
-                var term1 = Term1(factor);
-
-                if (term1 != null)
-                    return term1;
-                else
-                    return factor;
-            }
-
-            return null;
-        }
-
-        private ExprNode Factor()
-        {
-            if(token.type == TokenType.Number)
-            {
-                return new ExprNode(token);
-            }
-            else if(token.type == TokenType.Identifier)
-            {
-                var res = Call();
-
-                if (res != null)
-                {
-                    return res;
-                }
-                else
-                {
-                    GetToken();
-                    return new ExprNode(token);
-                }
-            }
-            else if(token_val == "(")
-            {
-                var res = Expr();
-                if(res != null)
-                {
-                    if (token_val == ")")
-                        return res;
-                }
-            }
-
-            return null;
-        }
-
-        private ExprNode Term1(ExprNode left_node)
-        {
-            GetToken();
-
-            if(token_val == "*" || token_val == "/")
-            {
-                var res = new ExprNode(token);
-                res.Left = left_node;
-                res.Right = Expr();
-
-                return res;
-            }
-
-            return null;
-        }
-
-        private ExprNode Expr1(ExprNode left_node)
-        {
-            if (token_val == "+" || token_val == "-")
-            {
-                var res = new ExprNode(token);
-                res.Left = left_node;
-                res.Right = Expr();
-
-                return res;
-            }
-
-            return null;
-        }*/
+        */
 
         private Node If(Node node)
         {

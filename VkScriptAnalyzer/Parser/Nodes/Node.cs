@@ -1,4 +1,5 @@
-﻿using VkScriptAnalyzer.Lexer;
+﻿using System;
+using VkScriptAnalyzer.Lexer;
 
 namespace VkScriptAnalyzer.Parser
 {
@@ -24,13 +25,6 @@ namespace VkScriptAnalyzer.Parser
         public ExprNode Expression { get; set; }
     }
 
-    public class IfNode : Node
-    {
-        public ExprNode Condition { get; set; }
-        public Node Block { get; set; }
-        public Node Else { get; set; }
-    }
-
     public class ExprNode : Node
     {
         public ExprNode(Token token)
@@ -42,5 +36,20 @@ namespace VkScriptAnalyzer.Parser
 
         public Node Left { get; set; }
         public Node Right { get; set; }
+    }
+
+    public class CallNode : ExprNode
+    {
+        public CallNode(Token token) : base(token) 
+        { }
+
+        public System.Collections.Generic.IEnumerable<Token> parameters { get; set; }
+    }
+
+    public class IfNode : Node
+    {
+        public ExprNode Condition { get; set; }
+        public Node Block { get; set; }
+        public Node Else { get; set; }
     }
 }
