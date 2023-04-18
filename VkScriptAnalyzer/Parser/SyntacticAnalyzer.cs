@@ -10,18 +10,50 @@ namespace VkScriptAnalyzer.Parser
     public class SyntacticAnalyzer
     {
         private LexicalAnalyzer lexer;
-        private Token token;
-        private string token_val;
+        private Token current_token;
 
-        private Token next_token;
-        private Token pred_token;
+        private string error_message;
+
+        //private Token next_token;
+        //private Token pred_token;
 
         public SyntacticAnalyzer(string input)
         {
             lexer = new LexicalAnalyzer(input);
         }
 
+        private bool CheckToken(string token_value)
+        {
+            if (current_token.value == token_value)
+            {
+                return true;
+            }
+            else
+            {
+                error_message = $"Обнаружен токен {current_token.value}, ожидался {token_value}";
+                return false;
+            }
+        }
+
+        private bool CheckTokenType(TokenType type)
+        {
+            if (current_token.type == type)
+            {
+                return true;
+            }
+            else
+            {
+                error_message = $"Обнаружен тип токен {current_token.type}, ожидался {type}";
+                return false;
+            }
+        }
+
         private void GetToken()
+        {
+            current_token = lexer.GetToken();
+        }
+
+        /*private void GetToken()
         {
             if(pred_token != null)
             {
@@ -51,7 +83,7 @@ namespace VkScriptAnalyzer.Parser
 
             token = next_token;
             token_val = next_token.value.ToLower();
-        }
+        }*/
 
         public Node Parse()
         {
@@ -69,9 +101,9 @@ namespace VkScriptAnalyzer.Parser
             var node = new Node();
             GetToken();
 
-            if(token_val == "if")
+            if(CheckToken("if"))
                 return If(node);
-            else if(token.type == TokenType.Identifier)
+            else if(CheckTokenType(TokenType.Identifier))
                 return Assignment();
 
             return null;
@@ -79,14 +111,14 @@ namespace VkScriptAnalyzer.Parser
 
         private Node Assignment()
         {
-            var res = new AssignNode(token);
+            var res = new AssignNode(current_token);
 
             GetToken();
-            if(token_val == "=")
+            if(CheckToken("="))
             {
                 res.Expression = Expr();
 
-                if(token_val == ";")
+                if(CheckToken(";"))
                 {
                     return res;
                 }
@@ -99,9 +131,9 @@ namespace VkScriptAnalyzer.Parser
         {
             GetToken();
             var t1 = T1();
-            if (token_val == "+" || token_val == "-")
+            if (CheckToken("+") || CheckToken("-"))
             {
-                var res = new ExprNode(token);
+                var res = new ExprNode(current_token);
                 res.Left = t1;
                 res.Right = Expr();
 
@@ -124,9 +156,9 @@ namespace VkScriptAnalyzer.Parser
             var t2 = T2(); 
             GetToken();
 
-            if (token_val == "*" || token_val == "/")
+            if (CheckToken("*") || CheckToken("/"))
             {
-                var res = new ExprNode(token);
+                var res = new ExprNode(current_token);
                 res.Left = t2;
 
                 GetToken();
@@ -142,19 +174,19 @@ namespace VkScriptAnalyzer.Parser
 
         private ExprNode T2()
         {
-            if(token_val == "api")
+            if(CheckToken("API"))
             {
                 return Call();
             }
-            else if(token.type == TokenType.Identifier || token.type == TokenType.Number)
+            else if(CheckTokenType(TokenType.Identifier) || CheckTokenType(TokenType.Number))
             {
-                return new ExprNode(token);
+                return new ExprNode(current_token);
             }
-            else if(token_val == "(")
+            else if(CheckToken("("))
             {
                 var e = Expr();
 
-                if (token_val == ")")
+                if (CheckToken(")"))
                 {
                     return e;
                 }
@@ -170,21 +202,21 @@ namespace VkScriptAnalyzer.Parser
         private CallNode Call()
         {
             GetToken();
-            if (token_val == ".")
+            if (CheckToken("."))
             {
                 GetToken();
 
-                if (token.type == TokenType.Identifier)
+                if (CheckTokenType(TokenType.Identifier))
                 {
-                    var call = new CallNode(token);
+                    var call = new CallNode(current_token);
                     GetToken();
 
-                    if (token_val == "(")
+                    if (CheckToken("("))
                     {
                         var parameters = new List<Token>();
                         Params(ref parameters);
 
-                        if (token_val == ")")
+                        if (CheckToken(")"))
                         {
                             call.parameters = parameters;
                             return call;
@@ -200,12 +232,12 @@ namespace VkScriptAnalyzer.Parser
         {
             GetToken();
 
-            if(token.type == TokenType.Identifier)
+            if(CheckTokenType(TokenType.Identifier))
             {
-                parameters.Add(token);
+                parameters.Add(current_token);
                 GetToken();
 
-                if(token_val == ",")
+                if(CheckToken(","))
                 {
                     Params(ref parameters);
                 }
