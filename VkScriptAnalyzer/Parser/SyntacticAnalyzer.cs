@@ -98,6 +98,74 @@ namespace VkScriptAnalyzer.Parser
         private ExprNode Expr()
         {
             GetToken();
+            var t1 = T1();
+            if (token_val == "+" || token_val == "-")
+            {
+                var res = new ExprNode(token);
+                res.Left = t1;
+                res.Right = Expr();
+
+                return res;
+            }
+            else if(t1 != null)
+            {
+                return t1;
+            }
+            else
+            {
+                // ошибка
+            }
+
+            return null;
+        }
+
+        private ExprNode T1()
+        {
+            var t2 = T2(); 
+            GetToken();
+
+            if (token_val == "*" || token_val == "/")
+            {
+                var res = new ExprNode(token);
+                res.Left = t2;
+
+                GetToken();
+                res.Right = T1();
+
+                return res;
+            }
+            else
+            {
+                return t2;
+            }
+        }
+
+        private ExprNode T2()
+        {
+            if(token.type == TokenType.Identifier || token.type == TokenType.Number)
+            {
+                return new ExprNode(token);
+            }
+            else if(token_val == "(")
+            {
+                var e = Expr();
+
+                if (token_val == ")")
+                {
+                    return e;
+                }
+            }
+            else
+            {
+                // ошибка
+            }
+
+            return null;
+        }
+
+        /*private ExprNode Expr()
+        {
+            GetToken();
 
             var term = Term();
             if (term != null)
@@ -132,7 +200,7 @@ namespace VkScriptAnalyzer.Parser
             return null;
         }
 
-        /*private Node Kvalident()
+        private Node Kvalident()
         {
             GetNextToken();
 
@@ -153,7 +221,7 @@ namespace VkScriptAnalyzer.Parser
             }            
 
             return null;
-        }*/
+        }
 
         private ExprNode Term()
         {
@@ -232,8 +300,7 @@ namespace VkScriptAnalyzer.Parser
             }
 
             return null;
-        }
-
+        }*/
 
         private Node If(Node node)
         {
