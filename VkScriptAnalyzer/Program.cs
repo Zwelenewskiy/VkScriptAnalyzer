@@ -1,4 +1,5 @@
 ﻿using System;
+using VkScriptAnalyzer.Parser;
 
 namespace VkScriptAnalyzer
 {
@@ -10,7 +11,10 @@ namespace VkScriptAnalyzer
         {
             string input = System.IO.File.ReadAllText(INPUT_FILE_NAME);
 
-            var lexer = new Lexer.LexicalAnalyzer(input);
+            var parser = new SyntacticAnalyzer(input);
+            Node ast = parser.Parse();
+
+            /*var lexer = new Lexer.LexicalAnalyzer(input);
 
             var token = lexer.GetToken();
             while(true)
@@ -22,7 +26,7 @@ namespace VkScriptAnalyzer
                 Console.WriteLine("------------------");
 
                 token = lexer.GetToken();
-            }
+            }*/
 
             Console.ReadKey();
         }

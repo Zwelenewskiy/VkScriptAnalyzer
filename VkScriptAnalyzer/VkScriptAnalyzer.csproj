@@ -52,13 +52,15 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Lexer\Token.cs" />
-    <Compile Include="Lexer\Lexer.cs" />
+    <Compile Include="Lexer\LexicalAnalyzer.cs" />
     <Compile Include="Lexer\Machines\Machine.cs" />
     <Compile Include="Lexer\Machines\NotUsed\MachineAssign.cs" />
     <Compile Include="Lexer\Machines\MachineIdentifier.cs" />
     <Compile Include="Lexer\Machines\MachineNumber.cs" />
     <Compile Include="Lexer\Machines\NotUsed\MachineOneSymbol.cs" />
     <Compile Include="Lexer\Machines\NotUsed\MachineString.cs" />
+    <Compile Include="Parser\Nodes\Node.cs" />
+    <Compile Include="Parser\SyntacticAnalyzer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
@@ -66,8 +68,6 @@
     <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Parser\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
