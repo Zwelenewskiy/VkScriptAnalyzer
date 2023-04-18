@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using VkScriptAnalyzer.Lexer;
 
 namespace VkScriptAnalyzer.Parser
@@ -12,48 +8,12 @@ namespace VkScriptAnalyzer.Parser
         private LexicalAnalyzer lexer;
         private Token current_token;
 
-        private string error_message;
+        public string error_message;
 
-        //private Token next_token;
-        //private Token pred_token;
-
-        public SyntacticAnalyzer(string input)
-        {
-            lexer = new LexicalAnalyzer(input);
-        }
-
-        private bool CheckToken(string token_value)
-        {
-            if (current_token.value == token_value)
-            {
-                return true;
-            }
-            else
-            {
-                error_message = $"Обнаружен токен {current_token.value}, ожидался {token_value}";
-                return false;
-            }
-        }
-
-        private bool CheckTokenType(TokenType type)
-        {
-            if (current_token.type == type)
-            {
-                return true;
-            }
-            else
-            {
-                error_message = $"Обнаружен тип токен {current_token.type}, ожидался {type}";
-                return false;
-            }
-        }
+        /*private Token next_token;
+        private Token pred_token;
 
         private void GetToken()
-        {
-            current_token = lexer.GetToken();
-        }
-
-        /*private void GetToken()
         {
             if(pred_token != null)
             {
@@ -85,9 +45,48 @@ namespace VkScriptAnalyzer.Parser
             token_val = next_token.value.ToLower();
         }*/
 
+        public SyntacticAnalyzer(string input)
+        {
+            lexer = new LexicalAnalyzer(input);
+        }
+
+        private bool CheckToken(string token_value, bool show_error = true)
+        {
+            if (current_token.value == token_value)
+            {
+                return true;
+            }
+            else
+            {
+                if(show_error)
+                    error_message = $"Обнаружен токен '{current_token.value}', но ожидался '{token_value}'";
+
+                return false;
+            }
+        }
+
+        private bool CheckTokenType(TokenType type, bool show_error = true)
+        {
+            if (current_token.type == type)
+            {
+                return true;
+            }
+            else
+            {
+                if (show_error)
+                    error_message = $"Обнаружен тип токен {current_token.type}, ожидался {type}";
+
+                return false;
+            }
+        }
+
+        private void GetToken()
+        {
+            current_token = lexer.GetToken();
+        }
+
         public Node Parse()
         {
-
             return Instruction();
         }
 
@@ -101,7 +100,7 @@ namespace VkScriptAnalyzer.Parser
             var node = new Node();
             GetToken();
 
-            if(CheckToken("if"))
+            if(CheckToken("if", show_error: false))
                 return If(node);
             else if(CheckTokenType(TokenType.Identifier))
                 return Assignment();
@@ -131,7 +130,7 @@ namespace VkScriptAnalyzer.Parser
         {
             GetToken();
             var t1 = T1();
-            if (CheckToken("+") || CheckToken("-"))
+            if (CheckToken("+", show_error: false) || CheckToken("-", show_error: false))
             {
                 var res = new ExprNode(current_token);
                 res.Left = t1;
@@ -156,7 +155,7 @@ namespace VkScriptAnalyzer.Parser
             var t2 = T2(); 
             GetToken();
 
-            if (CheckToken("*") || CheckToken("/"))
+            if (CheckToken("*", show_error: false) || CheckToken("/", show_error: false))
             {
                 var res = new ExprNode(current_token);
                 res.Left = t2;
@@ -174,11 +173,11 @@ namespace VkScriptAnalyzer.Parser
 
         private ExprNode T2()
         {
-            if(CheckToken("API"))
+            if(CheckToken("API", show_error: false))// TODO: ошибку с продолжением парсинга "api" убрать при анализе существования переменной
             {
                 return Call();
             }
-            else if(CheckTokenType(TokenType.Identifier) || CheckTokenType(TokenType.Number))
+            else if(CheckTokenType(TokenType.Identifier, show_error: false) || CheckTokenType(TokenType.Number, show_error: false))
             {
                 return new ExprNode(current_token);
             }
@@ -246,33 +245,8 @@ namespace VkScriptAnalyzer.Parser
                     return;
                 }
             }
-        }
+        }        
 
-        /*
-        private Node Kvalident()
-        {
-            GetNextToken();
-
-            if (token_val == ".")
-            {
-                if (token_val == "(")
-                {
-                    //return Params();
-                }
-                else if (token_val == ".")
-                {
-                    GetToken();
-                    if (token.type == TokenType.Identifier)
-                    {
-                        //return Kvalident1();
-                    }
-                }
-            }            
-
-            return null;
-        }
-
-        */
 
         private Node If(Node node)
         {
