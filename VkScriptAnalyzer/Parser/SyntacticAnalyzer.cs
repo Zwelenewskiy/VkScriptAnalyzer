@@ -52,6 +52,14 @@ namespace VkScriptAnalyzer.Parser
 
         private bool CheckToken(string token_value, bool show_error = true)
         {
+            if(current_token == null)
+            {
+                if (show_error)
+                    error_message = $"Обнаружен конец файла, но ожидалось'{token_value}'";
+
+                return false;
+            }
+
             if (current_token.value == token_value)
             {
                 return true;
@@ -59,7 +67,7 @@ namespace VkScriptAnalyzer.Parser
             else
             {
                 if(show_error)
-                    error_message = $"Обнаружен токен '{current_token.value}', но ожидался '{token_value}'";
+                    error_message = $"Обнаружен токен '{current_token.value}', но ожидалось '{token_value}'";
 
                 return false;
             }
@@ -108,16 +116,17 @@ namespace VkScriptAnalyzer.Parser
             return null;
         }
 
+        #region Присвоение (выражение)
         private Node Assignment()
         {
             var res = new AssignNode(current_token);
 
             GetToken();
-            if(CheckToken("="))
+            if (CheckToken("="))
             {
                 res.Expression = Expr();
 
-                if(CheckToken(";"))
+                if (CheckToken(";"))
                 {
                     return res;
                 }
@@ -130,7 +139,7 @@ namespace VkScriptAnalyzer.Parser
         {
             GetToken();
             var t1 = T1();
-            if (CheckToken("+", show_error: false) || CheckToken("-", show_error: false))
+            if (CheckToken("or", show_error: false))
             {
                 var res = new ExprNode(current_token);
                 res.Left = t1;
@@ -138,13 +147,9 @@ namespace VkScriptAnalyzer.Parser
 
                 return res;
             }
-            else if(t1 != null)
+            else if (t1 != null)
             {
                 return t1;
-            }
-            else
-            {
-                // ошибка
             }
 
             return null;
@@ -152,10 +157,9 @@ namespace VkScriptAnalyzer.Parser
 
         private ExprNode T1()
         {
-            var t2 = T2(); 
-            GetToken();
+            var t2 = T2();
 
-            if (CheckToken("*", show_error: false) || CheckToken("/", show_error: false))
+            if (CheckToken("and", show_error: false))
             {
                 var res = new ExprNode(current_token);
                 res.Left = t2;
@@ -173,26 +177,83 @@ namespace VkScriptAnalyzer.Parser
 
         private ExprNode T2()
         {
-            if(CheckToken("API", show_error: false))// TODO: ошибку с продолжением парсинга "api" убрать при анализе существования переменной
-            {
-                return Call();
-            }
-            else if(CheckTokenType(TokenType.Identifier, show_error: false) || CheckTokenType(TokenType.Number, show_error: false))
-            {
-                return new ExprNode(current_token);
-            }
-            else if(CheckToken("("))
-            {
-                var e = Expr();
+            var t3 = T3();
 
-                if (CheckToken(")"))
-                {
-                    return e;
-                }
+            if (CheckToken("<", show_error: false) || CheckToken(">", show_error: false) || CheckToken("<=", show_error: false) || CheckToken(">=", show_error: false) || CheckToken("==", show_error: false) || CheckToken("!=", show_error: false))
+            {
+                var res = new ExprNode(current_token);
+                res.Left = t3;
+
+                GetToken();
+                res.Right = T2();
+
+                return res;
             }
             else
             {
-                // ошибка
+                return t3;
+            }
+        }
+
+        private ExprNode T3()
+        {
+            var t4 = T4();
+
+            if (CheckToken("+", show_error: false) || CheckToken("-", show_error: false))
+            {
+                var res = new ExprNode(current_token);
+                res.Left = t4;
+
+                GetToken();
+                res.Right = T3();
+
+                return res;
+            }
+            else
+            {
+                return t4;
+            }
+        }
+
+        private ExprNode T4()
+        {
+            var t5 = T5();
+            GetToken();
+
+            if (CheckToken("*", show_error: false) || CheckToken("/", show_error: false))
+            {
+                var res = new ExprNode(current_token);
+                res.Left = t5;
+
+                GetToken();
+                res.Right = T4();
+
+                return res;
+            }
+            else
+            {
+                return t5;
+            }
+        } 
+
+        private ExprNode T5()
+        {
+            if (CheckToken("API", show_error: false))// TODO: ошибку с продолжением парсинга "api" убрать при анализе существования переменной
+            {
+                return Call();
+            }
+            if (CheckTokenType(TokenType.Identifier, show_error: false) || CheckTokenType(TokenType.Number, show_error: false))
+            {
+                return new ExprNode(current_token);
+            }
+            else if (CheckToken("("))
+            {
+                var cnd = Expr();
+
+                if (CheckToken(")"))
+                {
+                    return cnd;
+                }
             }
 
             return null;
@@ -231,12 +292,12 @@ namespace VkScriptAnalyzer.Parser
         {
             GetToken();
 
-            if(CheckTokenType(TokenType.Identifier))
+            if (CheckTokenType(TokenType.Identifier, show_error: false) || CheckTokenType(TokenType.Number, show_error: false))
             {
                 parameters.Add(current_token);
                 GetToken();
 
-                if(CheckToken(","))
+                if (CheckToken(",", show_error: false))
                 {
                     Params(ref parameters);
                 }
@@ -245,10 +306,10 @@ namespace VkScriptAnalyzer.Parser
                     return;
                 }
             }
-        }        
+        }
+        #endregion
 
-
-        private Node If(Node node)
+        private ExprNode If(Node node)
         {
             /*GetToken();
 
@@ -274,11 +335,6 @@ namespace VkScriptAnalyzer.Parser
                 }
             }*/
 
-            return null;
-        }
-
-        private ExprNode Condition()
-        {
             return null;
         }
     }
