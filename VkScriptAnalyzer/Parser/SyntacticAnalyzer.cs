@@ -10,45 +10,46 @@ namespace VkScriptAnalyzer.Parser
 
         public string error_message;
 
-        /*private Token next_token;
+        public SyntacticAnalyzer(string input)
+        {
+            lexer = new LexicalAnalyzer(input);
+        }
+
+        private Token next_token;
         private Token pred_token;
 
         private void GetToken()
         {
             if(pred_token != null)
             {
-                token = pred_token;
-                token_val = pred_token.value.ToLower();
+                current_token = pred_token;
                 pred_token = null;
             }
             else if(next_token != null)
             {
-                token = next_token;
-                token_val = next_token.value.ToLower();
+                current_token = next_token;
                 next_token = null;
             }
             else
             {
-                token = lexer.GetToken();
-                token_val = token.value.ToLower();
+                current_token = lexer.GetToken();
             }
         }
 
         private void GetNextToken()
         {
-            pred_token = token;
+            pred_token = current_token;
 
             if(next_token == null)
                 next_token = lexer.GetToken();
 
-            token = next_token;
-            token_val = next_token.value.ToLower();
-        }*/
-
-        public SyntacticAnalyzer(string input)
-        {
-            lexer = new LexicalAnalyzer(input);
+            current_token = next_token;
         }
+
+        /*private void GetToken()
+        {
+            current_token = lexer.GetToken();
+        }*/
 
         private bool CheckToken(string token_value, bool show_error = true)
         {
@@ -88,33 +89,35 @@ namespace VkScriptAnalyzer.Parser
             }
         }
 
-        private void GetToken()
-        {
-            current_token = lexer.GetToken();
-        }
 
         public Node Parse()
         {
-            return Instruction();
+            return InstructionList();
         }
 
-        /*private Node InstructionList()
+        private Node InstructionList()
         {
-            return Instruction();
-        }*/
+            GetToken();
+            var res = Instruction();
+
+            if(res != null)
+                res.Next = InstructionList();
+
+            return res;
+        }
 
         private Node Instruction()
         {
-            var node = new Node();
-            GetToken();
-
-            if(CheckToken("if", show_error: false))
+            if(current_token != null)
             {
-                return node.Next = If(node);
-            }
-            else if (CheckTokenType(TokenType.Identifier))
-            {
-                return node.Next = Assignment();
+                if (CheckToken("if", show_error: false))
+                {
+                    return If();
+                }
+                else if (CheckTokenType(TokenType.Identifier))
+                {
+                    return Assignment();
+                }
             }
 
             return null;
@@ -132,8 +135,6 @@ namespace VkScriptAnalyzer.Parser
 
                 if (CheckToken(";"))
                 {
-                    GetToken();
-
                     return res;
                 }
             }
@@ -315,7 +316,7 @@ namespace VkScriptAnalyzer.Parser
         }
         #endregion
 
-        private IfNode If(Node node)
+        private IfNode If()
         {
             GetToken();
 
@@ -326,35 +327,40 @@ namespace VkScriptAnalyzer.Parser
 
                 if (CheckToken(")"))
                 {
-                    GetToken();
-                    if (CheckToken("{"))
-                    {
-                        res.Body = Instruction();
-                    }
+                    res.Body = Body();
 
-                    if (CheckToken("}"))
+                    GetNextToken();
+                    if (CheckToken("else", show_error: false))
+                    {
+                        res.Else = Body();
+                        return res;
+                    }
+                    else
                     {
                         GetToken();
-                        if (CheckToken("else", show_error: false))
-                        {
-                            GetToken();
-
-                            if (CheckToken("{"))
-                            {
-                                res.Else = Instruction();
-                            }
-
-                            if (CheckToken("}"))
-                            {
-                                return res;
-                            }
-                        }
-                        else
-                        {
-                            return res;
-                        }
+                        return res;
                     }
                 }
+            }
+
+            return null;
+        }
+
+        private Node Body()
+        {
+            GetToken();
+            if (CheckToken("{", show_error: false))
+            {
+                var res = InstructionList(); 
+                
+                if (CheckToken("}"))
+                {
+                    return res;
+                }
+            }
+            else
+            {
+                return Instruction();
             }
 
             return null;
