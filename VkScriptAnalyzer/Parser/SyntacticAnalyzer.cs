@@ -109,9 +109,13 @@ namespace VkScriptAnalyzer.Parser
             GetToken();
 
             if(CheckToken("if", show_error: false))
-                return If(node);
-            else if(CheckTokenType(TokenType.Identifier))
-                return Assignment();
+            {
+                return node.Next = If(node);
+            }
+            else if (CheckTokenType(TokenType.Identifier))
+            {
+                return node.Next = Assignment();
+            }
 
             return null;
         }
@@ -128,6 +132,8 @@ namespace VkScriptAnalyzer.Parser
 
                 if (CheckToken(";"))
                 {
+                    GetToken();
+
                     return res;
                 }
             }
@@ -309,31 +315,47 @@ namespace VkScriptAnalyzer.Parser
         }
         #endregion
 
-        private ExprNode If(Node node)
+        private IfNode If(Node node)
         {
-            /*GetToken();
+            GetToken();
 
-            var node = new IfNode();
-            if(token_val == "(")
+            var res = new IfNode();
+            if(CheckToken("("))
             {
-                node.Condition = Condition();
+                res.Condition = Expr();
 
-                GetToken();
-                if (token_val == ")")
+                if (CheckToken(")"))
                 {
                     GetToken();
-                    if (token_val == "{")
+                    if (CheckToken("{"))
                     {
-                        node.Block = InstructionList();
+                        res.Body = Instruction();
                     }
 
-                    GetToken();
-                    if (token_val == "}")
+                    if (CheckToken("}"))
                     {
-                        return node;
+                        GetToken();
+                        if (CheckToken("else", show_error: false))
+                        {
+                            GetToken();
+
+                            if (CheckToken("{"))
+                            {
+                                res.Else = Instruction();
+                            }
+
+                            if (CheckToken("}"))
+                            {
+                                return res;
+                            }
+                        }
+                        else
+                        {
+                            return res;
+                        }
                     }
                 }
-            }*/
+            }
 
             return null;
         }
