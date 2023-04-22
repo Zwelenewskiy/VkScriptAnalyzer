@@ -10,8 +10,14 @@ namespace VkScriptAnalyzer.Parser
 
     public class VarNode : Node
     {
+        public VarNode(Token token)
+        {
+            Id = token;
+        }
+
         public Token Id { get; set; }
         public Node Expression { get; set; }
+        public Node NextVar { get; set; }
     }
 
     public class AssignNode : Node
@@ -40,7 +46,7 @@ namespace VkScriptAnalyzer.Parser
 
     public class CallNode : ExprNode
     {
-        public CallNode(Token token) : base(token) 
+        public CallNode(Token token) : base(token) ///////////////////
         { }
 
         public System.Collections.Generic.IEnumerable<Token> parameters { get; set; }

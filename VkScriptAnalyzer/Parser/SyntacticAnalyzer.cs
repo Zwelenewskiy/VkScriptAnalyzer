@@ -8,7 +8,7 @@ namespace VkScriptAnalyzer.Parser
         private LexicalAnalyzer lexer;
         private Token current_token;
 
-        public string error_message;
+        public string error_message { get; private set; }
 
         public SyntacticAnalyzer(string input)
         {
@@ -117,6 +117,10 @@ namespace VkScriptAnalyzer.Parser
                 if (CheckToken("while", show_error: false))
                 {
                     return While();
+                }
+                if (CheckToken("var", show_error: false))
+                {
+                    return Var();
                 }
                 else if (CheckTokenType(TokenType.Identifier))
                 {
@@ -387,6 +391,64 @@ namespace VkScriptAnalyzer.Parser
             }
 
             return null;
+        }
+
+        private VarNode Var()
+        {
+            GetToken();
+            if (CheckTokenType(TokenType.Identifier))
+            {
+                var res = new VarNode(current_token);
+
+                GetToken();
+                if (CheckToken("="))
+                {
+                    res.Expression = Expr();
+
+                    if(res.Expression != null)
+                    {
+                        res.NextVar = Var1();
+                    }
+
+                    if (CheckToken(";"))
+                    {
+                        return res;
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        private VarNode Var1()
+        {
+            if (CheckToken(",", show_error: false))
+            {
+                GetToken();
+                if (CheckTokenType(TokenType.Identifier))
+                {
+                    var res = new VarNode(current_token);
+
+                    GetToken();
+                    if (CheckToken("="))
+                    {
+                        res.Expression = Expr();
+
+                        if (res.Expression != null)
+                        {
+                            res.NextVar = Var1();
+                        }
+
+                        return res;
+                    }
+                    else if (CheckToken(";"))
+                    {
+                        return res;
+                    }
+                }
+            }
+
+            return null;            
         }
     }
 }
