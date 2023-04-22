@@ -52,4 +52,10 @@ namespace VkScriptAnalyzer.Parser
         public Node Body { get; set; }
         public Node Else { get; set; }
     }
+
+    public class WhileNode : Node
+    {
+        public ExprNode Condition { get; set; }
+        public Node Body { get; set; }
+    }
 }

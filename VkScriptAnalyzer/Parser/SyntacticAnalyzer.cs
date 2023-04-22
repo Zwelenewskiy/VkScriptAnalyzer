@@ -114,6 +114,10 @@ namespace VkScriptAnalyzer.Parser
                 {
                     return If();
                 }
+                if (CheckToken("while", show_error: false))
+                {
+                    return While();
+                }
                 else if (CheckTokenType(TokenType.Identifier))
                 {
                     return Assignment();
@@ -361,6 +365,25 @@ namespace VkScriptAnalyzer.Parser
             else
             {
                 return Instruction();
+            }
+
+            return null;
+        }
+
+        private WhileNode While()
+        {
+            GetToken();
+
+            var res = new WhileNode();
+            if (CheckToken("("))
+            {
+                res.Condition = Expr();
+
+                if (CheckToken(")"))
+                {
+                    res.Body = Body();
+                    return res;
+                }
             }
 
             return null;
