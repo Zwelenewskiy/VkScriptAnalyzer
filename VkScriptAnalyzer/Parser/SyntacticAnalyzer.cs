@@ -257,7 +257,7 @@ namespace VkScriptAnalyzer.Parser
             {
                 return Call();
             }
-            if (CheckTokenType(TokenType.Identifier, show_error: false) || CheckTokenType(TokenType.Number, show_error: false))
+            if (CheckTokenType(TokenType.Identifier, show_error: false) || CheckTokenType(TokenType.BoolDataType, show_error: false) || CheckTokenType(TokenType.Number, show_error: false))
             {
                 return new ExprNode(current_token);
             }
@@ -368,7 +368,11 @@ namespace VkScriptAnalyzer.Parser
             }
             else
             {
-                return Instruction();
+                var res = Instruction();
+                if (res == null)
+                    error_message = "Ожидалась инструкция, но обнаружена пустота";
+                else
+                    return res;
             }
 
             return null;

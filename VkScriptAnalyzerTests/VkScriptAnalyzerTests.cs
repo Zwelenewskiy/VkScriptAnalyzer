@@ -387,7 +387,7 @@ namespace VkScriptAnalyzerTests
                     new Token()
                     {
                         value = "true",
-                        type = TokenType.DataType
+                        type = TokenType.BoolDataType
                     },
                     new Token()
                     {

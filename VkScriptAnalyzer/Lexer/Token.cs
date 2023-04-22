@@ -6,7 +6,7 @@
         Identifier,
         Number,
         KeyWord,
-        DataType,
+        BoolDataType,
         String,
         OneSymbol,
         NonEqual,

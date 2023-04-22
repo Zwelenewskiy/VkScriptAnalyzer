@@ -93,7 +93,7 @@ namespace VkScriptAnalyzer.Lexer
                     if (parser.type == TokenType.Identifier && KEY_WORDS.Contains(value))
                         token.type = TokenType.KeyWord;
                     else if (parser.type == TokenType.Identifier && DATA_TYPES.Contains(value))
-                        token.type = TokenType.DataType;
+                        token.type = TokenType.BoolDataType;
                     else
                         token.type = parser.type;
 
