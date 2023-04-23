@@ -64,4 +64,14 @@ namespace VkScriptAnalyzer.Parser
         public ExprNode Condition { get; set; }
         public Node Body { get; set; }
     }
+
+    public class ReturnNode : Node
+    {
+        public ReturnNode(ExprNode expr)
+        {
+            Expression = expr;
+        }
+
+        public ExprNode Expression { get; set; }
+    }
 }

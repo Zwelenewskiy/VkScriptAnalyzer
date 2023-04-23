@@ -122,6 +122,10 @@ namespace VkScriptAnalyzer.Parser
                 {
                     return Var();
                 }
+                if (CheckToken("return", show_error: false))
+                {
+                    return Return();
+                }
                 else if (CheckTokenType(TokenType.Identifier))
                 {
                     return Assignment();
@@ -397,6 +401,7 @@ namespace VkScriptAnalyzer.Parser
             return null;
         }
 
+        #region Объявление переменных
         private VarNode Var()
         {
             GetToken();
@@ -453,6 +458,19 @@ namespace VkScriptAnalyzer.Parser
             }
 
             return null;            
+        }
+        #endregion
+
+        private ReturnNode Return()
+        {
+            var expr = Expr();
+            if(expr != null)
+            {
+                if (CheckToken(";"))
+                    return new ReturnNode(expr);
+            }
+
+            return null;
         }
     }
 }
