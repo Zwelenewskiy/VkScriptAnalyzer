@@ -74,4 +74,9 @@ namespace VkScriptAnalyzer.Parser
 
         public ExprNode Expression { get; set; }
     }
+
+    public class EmptyNode : Node
+    {
+
+    }
 }

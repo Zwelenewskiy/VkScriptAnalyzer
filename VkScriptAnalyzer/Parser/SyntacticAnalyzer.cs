@@ -100,7 +100,7 @@ namespace VkScriptAnalyzer.Parser
             GetToken();
             var res = Instruction();
 
-            if(res != null)
+            if(res is EmptyNode == false && res != null)
                 res.Next = InstructionList();
 
             return res;
@@ -126,13 +126,13 @@ namespace VkScriptAnalyzer.Parser
                 {
                     return Return();
                 }
-                else if (CheckTokenType(TokenType.Identifier))
+                else if (CheckTokenType(TokenType.Identifier, show_error: false))
                 {
                     return Assignment();
                 }
             }
 
-            return null;
+            return new EmptyNode();
         }
 
         #region Присвоение (выражение)
@@ -347,7 +347,11 @@ namespace VkScriptAnalyzer.Parser
 
                 if (CheckToken(")"))
                 {
-                    res.Body = Body();
+                    var body = Body();
+                    if (body == null)
+                        return null;
+                    else 
+                        res.Body = body;
 
                     GetNextToken();
                     if (CheckToken("else", show_error: false))
@@ -381,13 +385,20 @@ namespace VkScriptAnalyzer.Parser
             else
             {
                 var res = Instruction();
-                if (res == null)
+                //if (res == null)
+                if (res is EmptyNode)
+                {
                     error_message = "Ожидалась инструкция, но обнаружена пустота";
+                    return null;
+                }
                 else
+                {
                     return res;
+                }
             }
 
-            return null;
+            //return null;
+            return new EmptyNode();
         }
 
         private WhileNode While()
