@@ -7,14 +7,6 @@ namespace VkScriptAnalyzer.Parser
     {
         private LexicalAnalyzer lexer;
         private Token current_token;
-
-        public string error_message { get; private set; }
-
-        public SyntacticAnalyzer(string input)
-        {
-            lexer = new LexicalAnalyzer(input);
-        }
-
         private Token next_token;
         private Token pred_token;
 
@@ -89,6 +81,12 @@ namespace VkScriptAnalyzer.Parser
             }
         }
 
+        public string ErrorMessage { get; private set; }
+
+        public SyntacticAnalyzer(string input)
+        {
+            lexer = new LexicalAnalyzer(input);
+        }
 
         public Node Parse()
         {

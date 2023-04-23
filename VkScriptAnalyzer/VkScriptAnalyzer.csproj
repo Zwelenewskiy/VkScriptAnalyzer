@@ -59,7 +59,15 @@
     <Compile Include="Lexer\Machines\MachineNumber.cs" />
     <Compile Include="Lexer\Machines\NotUsed\MachineOneSymbol.cs" />
     <Compile Include="Lexer\Machines\NotUsed\MachineString.cs" />
+    <Compile Include="Parser\Nodes\AssignNode.cs" />
+    <Compile Include="Parser\Nodes\CallNode.cs" />
+    <Compile Include="Parser\Nodes\EmptyNode.cs" />
+    <Compile Include="Parser\Nodes\ExprNode.cs" />
+    <Compile Include="Parser\Nodes\IfNode.cs" />
     <Compile Include="Parser\Nodes\Node.cs" />
+    <Compile Include="Parser\Nodes\ReturnNode.cs" />
+    <Compile Include="Parser\Nodes\VarNode.cs" />
+    <Compile Include="Parser\Nodes\WhileNode.cs" />
     <Compile Include="Parser\SyntacticAnalyzer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

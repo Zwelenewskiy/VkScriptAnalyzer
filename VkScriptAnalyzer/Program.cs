@@ -14,9 +14,13 @@ namespace VkScriptAnalyzer
             var parser = new SyntacticAnalyzer(input);
             Node ast = parser.Parse();
 
-            if(parser.error_message != null)
+            if(ast == null)
             {
                 Console.WriteLine(parser.error_message);
+            }
+            else
+            {
+
             }
 
             /*var lexer = new Lexer.LexicalAnalyzer(input);
