@@ -284,23 +284,31 @@ namespace VkScriptAnalyzer.Parser
             if (CheckToken("."))
             {
                 GetToken();
-
                 if (CheckTokenType(TokenType.Identifier))
                 {
-                    var call = new CallNode(current_token);
                     GetToken();
-
-                    if (CheckToken("("))
+                    if (CheckToken("."))
                     {
-                        var parameters = new List<Token>();
-                        Params(ref parameters);
-
-                        if (CheckToken(")"))
+                        GetToken();
+                        if (CheckTokenType(TokenType.Identifier))
                         {
-                            call.parameters = parameters;
-                            return call;
+                            var call = new CallNode(current_token);
+                            GetToken();
+
+                            if (CheckToken("("))
+                            {
+                                var parameters = new List<Token>();
+                                Params(ref parameters);
+
+                                if (CheckToken(")"))
+                                {
+                                    call.parameters = parameters;
+                                    return call;
+                                }
+                            }
                         }
                     }
+                                        
                 }
             }
 
