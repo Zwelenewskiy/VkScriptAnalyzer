@@ -156,6 +156,10 @@ namespace VkScriptAnalyzer.Parser
         {
             GetToken();
             var t1 = T1();
+
+            if (t1 == null)
+                return null;
+
             if (CheckToken("or", show_error: false))
             {
                 var res = new ExprNode(current_token);
@@ -175,6 +179,9 @@ namespace VkScriptAnalyzer.Parser
         private ExprNode T1()
         {
             var t2 = T2();
+
+            if (t2 == null)
+                return null;
 
             if (CheckToken("and", show_error: false))
             {
@@ -196,6 +203,9 @@ namespace VkScriptAnalyzer.Parser
         {
             var t3 = T3();
 
+            if (t3 == null)
+                return null;
+
             if (CheckToken("<", show_error: false) || CheckToken(">", show_error: false) || CheckToken("<=", show_error: false) || CheckToken(">=", show_error: false) || CheckToken("==", show_error: false) || CheckToken("!=", show_error: false))
             {
                 var res = new ExprNode(current_token);
@@ -216,6 +226,9 @@ namespace VkScriptAnalyzer.Parser
         {
             var t4 = T4();
 
+            if (t4 == null)
+                return null;
+
             if (CheckToken("+", show_error: false) || CheckToken("-", show_error: false))
             {
                 var res = new ExprNode(current_token);
@@ -235,6 +248,10 @@ namespace VkScriptAnalyzer.Parser
         private ExprNode T4()
         {
             var t5 = T5();
+
+            if (t5 == null)
+                return null;
+
             GetToken();
 
             if (CheckToken("*", show_error: false) || CheckToken("/", show_error: false))
@@ -263,7 +280,7 @@ namespace VkScriptAnalyzer.Parser
             {
                 return new ExprNode(current_token);
             }
-            else if (CheckToken("("))
+            else if (CheckToken("(", show_error: false))
             {
                 var cnd = Expr();
 
@@ -272,6 +289,8 @@ namespace VkScriptAnalyzer.Parser
                     return cnd;
                 }
             }
+
+            ErrorMessage = $"Обнаружен неразрешённый символ: '{current_token.value}'";
 
             return null;
         }
