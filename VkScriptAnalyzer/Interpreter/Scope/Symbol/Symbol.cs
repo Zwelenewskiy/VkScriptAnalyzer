@@ -3,10 +3,12 @@
     public class Symbol
     {
         public string Name { get; set; }
+        public Scope Scope { get; set; }
 
-        public Symbol(string name)
+        public Symbol(string name, Scope scope)
         {
-            Name = name;
+            Name  = name;
+            Scope = scope;
         }
     }
 }

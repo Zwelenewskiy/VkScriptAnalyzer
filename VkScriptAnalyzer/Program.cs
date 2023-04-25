@@ -37,7 +37,7 @@ namespace VkScriptAnalyzer
                 }
                 else
                 {
-                    Console.WriteLine(result.GetResult());
+                    Console.WriteLine("Результат: " + result.GetResult());
                 }
             }
 

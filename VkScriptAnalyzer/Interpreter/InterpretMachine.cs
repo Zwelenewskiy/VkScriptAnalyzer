@@ -47,6 +47,15 @@ namespace VkScriptAnalyzer.Interpreter
                 if (VarInterpret(node as VarNode))
                     return Interpret(node.Next);
             }
+            if (node is AssignNode)
+            {
+                if (AssignInterpret(node as AssignNode))
+                    return Interpret(node.Next);
+            }
+            if (node is ReturnNode)
+            {
+                return ReturnInterpret(node as ReturnNode);
+            }
 
             return null;
         }
@@ -55,7 +64,7 @@ namespace VkScriptAnalyzer.Interpreter
         {
             if(node != null)
             {
-                var symbol = env.GetSymbol(node.Id.value);
+                var symbol = env.GetSymbolLocal(node.Id.value);
                 if (symbol == null)
                 {
                     CalculateResult expr_res = ExprInterpret(node.Expression);                    
@@ -63,11 +72,13 @@ namespace VkScriptAnalyzer.Interpreter
                     if (expr_res != null)
                     {
                         var result = expr_res.GetResult();
+                        var scope = env.GetCurrentScope();
 
                         env.AddSymbol(new VariableSymbol(
                             name:  node.Id.value, 
                             value: result,
-                            type:  expr_res.DataType
+                            type:  expr_res.DataType,
+                            scope: scope
                         ));
 
                         if (node.NextVar == null)
@@ -189,6 +200,32 @@ namespace VkScriptAnalyzer.Interpreter
             }
 
             return null;
+        }
+
+        private bool AssignInterpret(AssignNode node)
+        {
+            var var_sym = (VariableSymbol)env.GetSymbol(node.Id.value);
+            if(var_sym != null)
+            {
+                var expr_val = ExprInterpret(node.Expression);
+                if(expr_val != null)
+                {
+                    var_sym.Value = expr_val.GetResult();
+                    env.SetSymbolValue(var_sym);
+                    return true;
+                }
+            }
+            else
+            {
+                ErrorMessage = $"Идентификатор '{node.Id.value}' не объявлен";
+            }
+
+            return false;
+        }
+
+        private CalculateResult ReturnInterpret(ReturnNode node)
+        {
+            return ExprInterpret(node.Expression);
         }
     }
 }
