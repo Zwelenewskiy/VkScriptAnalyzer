@@ -99,7 +99,12 @@ namespace VkScriptAnalyzer.Parser
             var res = Instruction();
 
             if(res is EmptyNode == false && res != null)
+            {
                 res.Next = InstructionList();
+
+                if (res.Next == null)
+                    return null;
+            }
 
             return res;
         }
@@ -362,28 +367,31 @@ namespace VkScriptAnalyzer.Parser
             {
                 res.Condition = Expr();
 
-                if (CheckToken(")"))
+                if(res.Condition != null)
                 {
-                    var body = Body();
-                    if (body == null)
-                        return null;
-                    else 
-                        res.Body = body;
+                    if (CheckToken(")"))
+                    {
+                        var body = Body();
+                        if (body == null)
+                            return null;
+                        else
+                            res.Body = body;
 
-                    GetNextToken();
-                    if (CheckToken("else", show_error: false))
-                    {
-                        GetToken();
-                        GetToken();
-                        res.Else = Body();
-                        return res;
+                        GetNextToken();
+                        if (CheckToken("else", show_error: false))
+                        {
+                            GetToken();
+                            GetToken();
+                            res.Else = Body();
+                            return res;
+                        }
+                        else
+                        {
+                            GetToken();
+                            return res;
+                        }
                     }
-                    else
-                    {
-                        GetToken();
-                        return res;
-                    }
-                }
+                }                
             }
 
             return null;

@@ -54,7 +54,12 @@ namespace VkScriptAnalyzer.Interpreter
             }
             if (node is IfNode)
             {
-                var if_result = IfInterpret(node as IfNode);// резульатт может быть только при Return
+                env.CreateScope();
+
+                var if_result = IfInterpret(node as IfNode);// результат может быть только при Return
+
+                env.CloseScope();   
+                
                 if (if_result == null)
                     return Interpret(node.Next);
                 else
