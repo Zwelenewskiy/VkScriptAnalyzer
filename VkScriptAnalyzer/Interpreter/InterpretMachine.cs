@@ -52,6 +52,14 @@ namespace VkScriptAnalyzer.Interpreter
                 if (AssignInterpret(node as AssignNode))
                     return Interpret(node.Next);
             }
+            if (node is IfNode)
+            {
+                var if_result = IfInterpret(node as IfNode);// резульатт может быть только при Return
+                if (if_result == null)
+                    return Interpret(node.Next);
+                else
+                    return if_result;
+            }
             if (node is ReturnNode)
             {
                 return ReturnInterpret(node as ReturnNode);
@@ -226,6 +234,44 @@ namespace VkScriptAnalyzer.Interpreter
         private CalculateResult ReturnInterpret(ReturnNode node)
         {
             return ExprInterpret(node.Expression);
+        }
+
+        private CalculateResult IfInterpret(IfNode node)
+        {
+            var cond_expr = ExprInterpret(node.Condition);
+            if(cond_expr != null)
+            {
+                if(cond_expr.DataType == DataType.Bool)
+                {
+                    if ((bool)cond_expr.GetResult())
+                    {
+                        if (!(node.Body is EmptyNode))
+                            return Interpret(node.Body);
+                    }
+                    else
+                    {
+                        if(node.Else != null)
+                            return Interpret(node.Else);
+                    }
+                }
+                else
+                {
+                    var val = (double)cond_expr.GetResult();
+
+                    if (val != 0)
+                    {
+                        if (!(node.Body is EmptyNode))
+                            return Interpret(node.Body);
+                    }
+                    else
+                    {
+                        if (!(node.Else is EmptyNode))
+                            return Interpret(node.Else);
+                    }
+                }
+            }
+
+            return null;
         }
     }
 }

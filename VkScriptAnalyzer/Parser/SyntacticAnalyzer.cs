@@ -373,6 +373,8 @@ namespace VkScriptAnalyzer.Parser
                     GetNextToken();
                     if (CheckToken("else", show_error: false))
                     {
+                        GetToken();
+                        GetToken();
                         res.Else = Body();
                         return res;
                     }
