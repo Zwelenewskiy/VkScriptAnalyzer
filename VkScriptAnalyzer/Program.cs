@@ -1,5 +1,6 @@
 ﻿using System;
 using VkScriptAnalyzer.Parser;
+using VkScriptAnalyzer.Interpreter;
 
 namespace VkScriptAnalyzer
 {
@@ -16,11 +17,28 @@ namespace VkScriptAnalyzer
 
             if(ast == null)
             {
-                Console.WriteLine(parser.error_message);
+                Console.WriteLine(parser.ErrorMessage);
             }
             else
             {
-
+                var interpreter = new InterpretMachine(ast);
+                var result = interpreter.Interpret();
+                if (result == null)
+                {
+                    string error_message = interpreter.ErrorMessage;
+                    if(error_message != null)
+                    {
+                        Console.WriteLine(error_message);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Программа успешно завершена.");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine(result.GetResult());
+                }
             }
 
             /*var lexer = new Lexer.LexicalAnalyzer(input);

@@ -51,6 +51,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Interpreter\Scope\Env.cs" />
     <Compile Include="Lexer\Token.cs" />
     <Compile Include="Lexer\LexicalAnalyzer.cs" />
     <Compile Include="Lexer\Machines\Machine.cs" />
@@ -71,6 +72,11 @@
     <Compile Include="Parser\SyntacticAnalyzer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Interpreter\Scope\Scope.cs" />
+    <Compile Include="Interpreter\InterpretMachine.cs" />
+    <Compile Include="Interpreter\Scope\Symbol\FunctionSymbol.cs" />
+    <Compile Include="Interpreter\Scope\Symbol\Symbol.cs" />
+    <Compile Include="Interpreter\Scope\Symbol\VariableSymbol.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

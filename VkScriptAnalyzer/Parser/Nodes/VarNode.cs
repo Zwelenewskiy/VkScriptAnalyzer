@@ -10,7 +10,7 @@ namespace VkScriptAnalyzer.Parser
         }
 
         public Token Id { get; set; }
-        public Node Expression { get; set; }
-        public Node NextVar { get; set; }
+        public ExprNode Expression { get; set; }
+        public VarNode NextVar { get; set; }
     }
 }

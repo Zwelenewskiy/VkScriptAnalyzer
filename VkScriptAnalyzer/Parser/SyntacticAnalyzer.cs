@@ -48,7 +48,7 @@ namespace VkScriptAnalyzer.Parser
             if(current_token == null)
             {
                 if (show_error)
-                    error_message = $"Обнаружен конец файла, но ожидалось'{token_value}'";
+                    ErrorMessage = $"Обнаружен конец файла, но ожидалось'{token_value}'";
 
                 return false;
             }
@@ -60,7 +60,7 @@ namespace VkScriptAnalyzer.Parser
             else
             {
                 if(show_error)
-                    error_message = $"Обнаружен токен '{current_token.value}', но ожидалось '{token_value}'";
+                    ErrorMessage = $"Обнаружен токен '{current_token.value}', но ожидалось '{token_value}'";
 
                 return false;
             }
@@ -75,7 +75,7 @@ namespace VkScriptAnalyzer.Parser
             else
             {
                 if (show_error)
-                    error_message = $"Обнаружен тип токен {current_token.type}, ожидался {type}";
+                    ErrorMessage = $"Обнаружен тип токен {current_token.type}, ожидался {type}";
 
                 return false;
             }
@@ -386,7 +386,7 @@ namespace VkScriptAnalyzer.Parser
                 //if (res == null)
                 if (res is EmptyNode)
                 {
-                    error_message = "Ожидалась инструкция, но обнаружена пустота";
+                    ErrorMessage = "Ожидалась инструкция, но обнаружена пустота";
                     return null;
                 }
                 else

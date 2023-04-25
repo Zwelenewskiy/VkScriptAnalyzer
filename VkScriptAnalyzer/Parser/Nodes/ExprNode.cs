@@ -11,7 +11,7 @@ namespace VkScriptAnalyzer.Parser
 
         public Token token { get; set; }
 
-        public Node Left { get; set; }
-        public Node Right { get; set; }
+        public ExprNode Left { get; set; }
+        public ExprNode Right { get; set; }
     }
 }
