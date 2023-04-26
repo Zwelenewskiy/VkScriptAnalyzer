@@ -59,7 +59,7 @@
     <Compile Include="Lexer\Machines\MachineIdentifier.cs" />
     <Compile Include="Lexer\Machines\MachineNumber.cs" />
     <Compile Include="Lexer\Machines\NotUsed\MachineOneSymbol.cs" />
-    <Compile Include="Lexer\Machines\NotUsed\MachineString.cs" />
+    <Compile Include="Lexer\Machines\MachineString.cs" />
     <Compile Include="Parser\Nodes\AssignNode.cs" />
     <Compile Include="Parser\Nodes\CallNode.cs" />
     <Compile Include="Parser\Nodes\EmptyNode.cs" />

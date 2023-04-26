@@ -26,6 +26,7 @@ namespace VkScriptAnalyzer.Lexer
 
         private readonly MashineNumber     MashineNumber     = new MashineNumber();
         private readonly MashineIdentifier MashineIdentifier = new MashineIdentifier();
+        private readonly MashineString     MashineString     = new MashineString();
 
 
         private readonly string[] KEY_WORDS =
@@ -53,7 +54,8 @@ namespace VkScriptAnalyzer.Lexer
 
             PARSERS = new Machine[] {
                 MashineNumber,
-                MashineIdentifier
+                MashineIdentifier,
+                MashineString
             };
         }
 

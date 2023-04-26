@@ -29,7 +29,7 @@
             symbol_table.Add(symbol.Name, symbol);
         }
 
-        public void SetSymbolValue(Symbol symbol)
+        public void UpdateSymbolValue(Symbol symbol)
         {
             symbol_table[symbol.Name] = symbol;
         }

@@ -12,7 +12,7 @@ namespace VkScriptAnalyzer
         {
             string input = System.IO.File.ReadAllText(INPUT_FILE_NAME);
 
-            var parser = new SyntacticAnalyzer(input);
+            /*var parser = new SyntacticAnalyzer(input);
             Node ast = parser.Parse();
 
             if(ast == null)
@@ -39,9 +39,9 @@ namespace VkScriptAnalyzer
                 {
                     Console.WriteLine("Результат: " + result.GetResult());
                 }
-            }
+            }*/
 
-            /*var lexer = new Lexer.LexicalAnalyzer(input);
+            var lexer = new Lexer.LexicalAnalyzer(input);
 
             var token = lexer.GetToken();
             while(true)
@@ -53,7 +53,7 @@ namespace VkScriptAnalyzer
                 Console.WriteLine("------------------");
 
                 token = lexer.GetToken();
-            }*/
+            }
 
             Console.ReadKey();
         }

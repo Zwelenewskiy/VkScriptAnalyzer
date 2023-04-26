@@ -36,7 +36,7 @@ namespace VkScriptAnalyzer.Lexer.Mashines
 
         public override Input_signal DefineSignal(char symbol)
         {
-            if (symbol == '\'')
+            if (symbol == '"')
                 return Input_signal.Quote;
             else if (symbol >= 'a' && symbol <= 'z' || symbol >= 'A' && symbol <= 'Z' || symbol >= '0' && symbol <= '9')
                 return Input_signal.Letter;

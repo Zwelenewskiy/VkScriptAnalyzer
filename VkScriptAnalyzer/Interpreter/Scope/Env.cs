@@ -64,21 +64,11 @@
         public void AddSymbol(Symbol symbol)
         {
             scope.AddSymbol(symbol);
-
-            /*if (scope.ContainsName(symbol.Name))
-            {
-                return false;
-            }
-            else
-            {
-                scope.AddSymbol(symbol);
-                return true;
-            }*/
         }
 
-        public void SetSymbolValue(Symbol symbol)
+        public void UpdateSymbolValue(Symbol symbol)
         {
-            symbol.Scope.SetSymbolValue(symbol);
+            symbol.Scope.UpdateSymbolValue(symbol);
         }
 
         public Scope GetCurrentScope()

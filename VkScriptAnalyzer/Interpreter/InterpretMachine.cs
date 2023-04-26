@@ -65,6 +65,19 @@ namespace VkScriptAnalyzer.Interpreter
                 else
                     return if_result;
             }
+            if (node is WhileNode)
+            {
+                env.CreateScope();
+
+                var while_result = WhileInterpret(node as WhileNode);// результат может быть только при Return
+
+                env.CloseScope();
+
+                if (while_result == null)
+                    return Interpret(node.Next);
+                else
+                    return while_result;
+            }
             if (node is ReturnNode)
             {
                 return ReturnInterpret(node as ReturnNode);
@@ -180,7 +193,6 @@ namespace VkScriptAnalyzer.Interpreter
                         }
                         else
                         {
-                            // несоответствие типов
                             ErrorMessage = $"Оператор '{node.token.value}' ожидает тип Bool, но обнаружен Double";
                         }
                     }
@@ -191,7 +203,6 @@ namespace VkScriptAnalyzer.Interpreter
                 var var = env.GetSymbol(node.token.value);
                 if (var == null)
                 {
-                    // необъявленный идентификатор
                     ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.token.value}'";
                 }
                 else
@@ -224,7 +235,7 @@ namespace VkScriptAnalyzer.Interpreter
                 if(expr_val != null)
                 {
                     var_sym.Value = expr_val.GetResult();
-                    env.SetSymbolValue(var_sym);
+                    env.UpdateSymbolValue(var_sym);
                     return true;
                 }
             }
@@ -241,40 +252,45 @@ namespace VkScriptAnalyzer.Interpreter
             return ExprInterpret(node.Expression);
         }
 
+        private bool ExprValueToBool(CalculateResult expr_result)
+        {
+            if(expr_result.DataType == DataType.Bool)
+            {
+                return (bool)expr_result.GetResult();
+            }
+            else
+            {
+                if (((double)expr_result.GetResult()) == 0)
+                    return false;
+                else
+                    return true;
+            }
+        }
+
         private CalculateResult IfInterpret(IfNode node)
         {
             var cond_expr = ExprInterpret(node.Condition);
             if(cond_expr != null)
             {
-                if(cond_expr.DataType == DataType.Bool)
+                bool cond_val = ExprValueToBool(cond_expr);
+                if (cond_val)
                 {
-                    if ((bool)cond_expr.GetResult())
-                    {
-                        if (!(node.Body is EmptyNode))
-                            return Interpret(node.Body);
-                    }
-                    else
-                    {
-                        if(node.Else != null)
-                            return Interpret(node.Else);
-                    }
+                    if (node.Body is EmptyNode == false)
+                        return Interpret(node.Body);
                 }
                 else
                 {
-                    var val = (double)cond_expr.GetResult();
-
-                    if (val != 0)
-                    {
-                        if (!(node.Body is EmptyNode))
-                            return Interpret(node.Body);
-                    }
-                    else
-                    {
-                        if (!(node.Else is EmptyNode))
-                            return Interpret(node.Else);
-                    }
+                    if (node.Else != null)
+                        return Interpret(node.Else);
                 }
             }
+
+            return null;
+        }
+
+        private CalculateResult WhileInterpret(WhileNode node)
+        {
+
 
             return null;
         }
