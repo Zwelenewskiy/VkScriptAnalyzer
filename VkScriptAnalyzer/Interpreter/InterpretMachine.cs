@@ -198,26 +198,36 @@ namespace VkScriptAnalyzer.Interpreter
                     {
                         if (left_val.DataType == DataType.Double && right_val.DataType == DataType.Double)
                         {
-                            if (op == "+")
-                                return new CalculateResult((double)left_val.GetResult() + (double)right_val.GetResult(), DataType.Double);
-                            else if (op == "-")
-                                return new CalculateResult((double)left_val.GetResult() - (double)right_val.GetResult(), DataType.Double);
-                            else if (op == "*")
-                                return new CalculateResult((double)left_val.GetResult() * (double)right_val.GetResult(), DataType.Double);
-                            else if (op == "/")
-                                return new CalculateResult((double)left_val.GetResult() / (double)right_val.GetResult(), DataType.Double);
-                            else if (op == ">")
-                                return new CalculateResult((double)left_val.GetResult() > (double)right_val.GetResult(), DataType.Bool);
-                            else if (op == "<")
-                                return new CalculateResult((double)left_val.GetResult() < (double)right_val.GetResult(), DataType.Bool);
-                            else if (op == ">=")
-                                return new CalculateResult((double)left_val.GetResult() >= (double)right_val.GetResult(), DataType.Bool);
-                            else if (op == "<=")
-                                return new CalculateResult((double)left_val.GetResult() <= (double)right_val.GetResult(), DataType.Bool);
-                            else if (op == "==")
-                                return new CalculateResult((double)left_val.GetResult() == (double)right_val.GetResult(), DataType.Bool);
-                            else
-                                return new CalculateResult((double)left_val.GetResult() != (double)right_val.GetResult(), DataType.Bool);
+                            try
+                            {
+                                if (op == "+")
+                                    return new CalculateResult((double)left_val.GetResult() + (double)right_val.GetResult(), DataType.Double);
+                                else if (op == "-")
+                                    return new CalculateResult((double)left_val.GetResult() - (double)right_val.GetResult(), DataType.Double);
+                                else if (op == "*")
+                                    return new CalculateResult((double)left_val.GetResult() * (double)right_val.GetResult(), DataType.Double);
+                                else if (op == "/")
+                                    return new CalculateResult((double)left_val.GetResult() / (double)right_val.GetResult(), DataType.Double);
+                                else if (op == ">")
+                                    return new CalculateResult((double)left_val.GetResult() > (double)right_val.GetResult(), DataType.Bool);
+                                else if (op == "<")
+                                    return new CalculateResult((double)left_val.GetResult() < (double)right_val.GetResult(), DataType.Bool);
+                                else if (op == ">=")
+                                    return new CalculateResult((double)left_val.GetResult() >= (double)right_val.GetResult(), DataType.Bool);
+                                else if (op == "<=")
+                                    return new CalculateResult((double)left_val.GetResult() <= (double)right_val.GetResult(), DataType.Bool);
+                                else if (op == "==")
+                                    return new CalculateResult((double)left_val.GetResult() == (double)right_val.GetResult(), DataType.Bool);
+                                else
+                                    return new CalculateResult((double)left_val.GetResult() != (double)right_val.GetResult(), DataType.Bool);
+                            }
+                            catch (System.OverflowException)
+                            {
+                                ErrorMessage = $"Ошибка переполнения. Оператор '{node.Token.value}'. Левый операнд: {(double)left_val.GetResult() } Правый операнд: {(double)right_val.GetResult() }";
+
+                                return null;
+                            }
+                            
                         }
                         else
                         {
