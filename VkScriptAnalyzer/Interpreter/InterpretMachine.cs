@@ -149,13 +149,22 @@ namespace VkScriptAnalyzer.Interpreter
                         }
                     }
 
-                    var res = ApiMethodsExecutor.Instance.Execute(
-                        section_name: call_node.SectionName.value,
-                        method_name:  call_node.Token.value, 
-                        parameters:   parameters
-                    );
+                    try
+                    {
+                        var res = ApiMethodsExecutor.Instance.Execute(
+                            section_name: call_node.SectionName.value,
+                            method_name: call_node.Token.value,
+                            parameters: parameters
+                        );
 
-                    return res;
+                        return res;
+                    }
+                    catch (System.Exception ex)
+                    {
+                        ErrorMessage = $"Ошибка во время выполнения метода: '{call_node.SectionName.value}.{call_node.Token.value}' \n Ошибка: {ex.Message}";
+
+                        return null;
+                    }
                 }
                 else
                 {
