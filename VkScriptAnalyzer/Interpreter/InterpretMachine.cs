@@ -334,7 +334,29 @@ namespace VkScriptAnalyzer.Interpreter
 
         private CalculateResult WhileInterpret(WhileNode node)
         {
+            CalculateResult cond_expr = ExprInterpret(node.Condition);
+            if (cond_expr != null)
+            {
 
+                if (node.Body is EmptyNode == false)
+                {
+                    bool cond_val = ExprValueToBool(cond_expr);
+
+                    CalculateResult res = null;
+                    while (cond_val)
+                    {
+                        res = Interpret(node.Body);
+
+                        cond_expr = ExprInterpret(node.Condition);
+                        if (cond_expr == null)
+                            break;
+                        else
+                            cond_val = ExprValueToBool(cond_expr);
+                    }
+
+                    return res;
+                }
+            }
 
             return null;
         }
