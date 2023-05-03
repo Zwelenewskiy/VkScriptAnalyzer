@@ -273,7 +273,7 @@ namespace VkScriptAnalyzer.Parser
             {
                 return t5;
             }
-        } 
+        }
 
         private ExprNode T5()
         {
@@ -293,6 +293,10 @@ namespace VkScriptAnalyzer.Parser
                 {
                     return cnd;
                 }
+            }
+            else if (CheckToken("{", show_error: false))
+            {
+                return Object();
             }
 
             ErrorMessage = $"Обнаружен неразрешённый символ: '{current_token.value}'";
@@ -320,7 +324,7 @@ namespace VkScriptAnalyzer.Parser
                             if (CheckToken("("))
                             {
                                 var parameters = new List<Token>();
-                                Params(ref parameters);
+                                //Params(ref parameters);
 
                                 if (CheckToken(")"))
                                 {
@@ -337,25 +341,51 @@ namespace VkScriptAnalyzer.Parser
             return null;
         }
 
-        private void Params(ref List<Token> parameters)
+        #region Объект
+        private ObjectNode Object()
+        {
+            var fields = new List<ObjectField>();
+            Fields(ref fields);
+
+            if (CheckToken("}"))
+            {
+                return new ObjectNode(fields);
+            }
+
+            return null;
+        }
+
+        private void Fields(ref List<ObjectField> fields)
         {
             GetToken();
-
-            if (CheckTokenType(TokenType.Identifier, show_error: false) || CheckTokenType(TokenType.Number, show_error: false))
+            if (CheckTokenType(TokenType.String, show_error: false))
             {
-                parameters.Add(current_token);
-                GetToken();
+                var field = new ObjectField(current_token);
 
-                if (CheckToken(",", show_error: false))
+                GetToken();
+                if (CheckToken(":"))
                 {
-                    Params(ref parameters);
-                }
-                else
-                {
-                    return;
+                    var expr = Expr();
+
+                    if (expr != null)
+                    {
+                        field.Expression = expr;
+
+                        fields.Add(field);
+
+                        if (CheckToken(",", show_error: false))
+                        {
+                            Fields(ref fields);
+                        }
+                        else
+                        {
+                            return;
+                        }
+                    }
                 }
             }
         }
+        #endregion
         #endregion
 
         private IfNode If()

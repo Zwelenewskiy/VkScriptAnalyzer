@@ -10,6 +10,7 @@ namespace VkScriptAnalyzer.Parser
         }
 
         public Token token { get; set; }
+        //public IVertex token { get; set; }
 
         public ExprNode Left { get; set; }
         public ExprNode Right { get; set; }

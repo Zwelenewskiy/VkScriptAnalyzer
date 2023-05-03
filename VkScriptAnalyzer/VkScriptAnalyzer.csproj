@@ -52,6 +52,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Interpreter\Scope\Env.cs" />
+    <Compile Include="Interpreter\Scope\Symbol\ObjectSymbol.cs" />
     <Compile Include="Lexer\Token.cs" />
     <Compile Include="Lexer\LexicalAnalyzer.cs" />
     <Compile Include="Lexer\Machines\Machine.cs" />
@@ -64,8 +65,10 @@
     <Compile Include="Parser\Nodes\CallNode.cs" />
     <Compile Include="Parser\Nodes\EmptyNode.cs" />
     <Compile Include="Parser\Nodes\ExprNode.cs" />
+    <Compile Include="Parser\Nodes\ObjectField.cs" />
     <Compile Include="Parser\Nodes\IfNode.cs" />
     <Compile Include="Parser\Nodes\Node.cs" />
+    <Compile Include="Parser\Nodes\ObjectNode.cs" />
     <Compile Include="Parser\Nodes\ReturnNode.cs" />
     <Compile Include="Parser\Nodes\VarNode.cs" />
     <Compile Include="Parser\Nodes\WhileNode.cs" />

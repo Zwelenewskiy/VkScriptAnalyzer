@@ -3,7 +3,8 @@
     public enum DataType
     {
         Double,
-        Bool
+        Bool,
+        Object
     }
 
     public class VariableSymbol : Symbol

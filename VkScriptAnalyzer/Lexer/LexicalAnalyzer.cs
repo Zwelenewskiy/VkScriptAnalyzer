@@ -21,7 +21,7 @@ namespace VkScriptAnalyzer.Lexer
         /// </summary>
         private Token fast_token = null;
 
-        private readonly char[] DIVIDING_CHARS   = { '+', '-', '/', '*', ';', ',', '(', ')', '{', '}', '<', '>', '!', '=', '.' };
+        private readonly char[] DIVIDING_CHARS   = { '+', '-', '/', '*', ';', ',', '(', ')', '{', '}', '<', '>', '!', '=', '.', ':' };
         private readonly char[] WHITESPACE_CHARS = { ' ', '\t', '\n', '\r' };
 
         private readonly MashineNumber     MashineNumber     = new MashineNumber();
@@ -44,6 +44,7 @@ namespace VkScriptAnalyzer.Lexer
         {
             "true",
             "false",
+            "null",
         };
 
         private readonly Machine[] PARSERS;
