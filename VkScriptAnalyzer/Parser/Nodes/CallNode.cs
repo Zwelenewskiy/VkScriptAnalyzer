@@ -4,9 +4,12 @@ namespace VkScriptAnalyzer.Parser
 {
     public class CallNode : ExprNode
     {
-        public CallNode(Token token) : base(token)
-        { }
+        public ObjectNode Parameter { get; set; }
+        public Token SectionName { get; set; }
 
-        public System.Collections.Generic.IEnumerable<Token> parameters { get; set; }
+        public CallNode(Token token, Token section_name) : base(token)
+        {
+            SectionName = section_name;
+        }
     }
 }
