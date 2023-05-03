@@ -1,5 +1,6 @@
 ﻿using VkScriptAnalyzer.Lexer;
 using VkScriptAnalyzer.Parser;
+using System.Linq;
 
 namespace VkScriptAnalyzer.Interpreter
 {
@@ -24,6 +25,7 @@ namespace VkScriptAnalyzer.Interpreter
     {
         private Node ast;
         private Env env;
+        private string[] existing_api_methods = new string[] { "account_setOffline" };
 
         public string ErrorMessage { get; private set; }
 
@@ -120,17 +122,59 @@ namespace VkScriptAnalyzer.Interpreter
 
         private CalculateResult ExprInterpret(ExprNode node)
         {
-            if(node.token.type == TokenType.Number)
+            if(node is ObjectNode)
             {
-                return new CalculateResult(double.Parse(node.token.value, System.Globalization.CultureInfo.InvariantCulture), DataType.Double);
+                return new CalculateResult(new ObjectSymbol(node.Token.value, env.GetCurrentScope()), DataType.Object);
             }
 
-            if (node.token.type == TokenType.BoolDataType)
+            if(node is CallNode)
             {
-                return new CalculateResult(bool.Parse(node.token.value), DataType.Bool);
+                var call_node = node as CallNode;
+                if(existing_api_methods.Contains(call_node.SectionName.value + "_" + call_node.Token.value))
+                {
+                    var parameters = new System.Collections.Generic.List<VariableSymbol>();
+
+                    if(call_node.Parameter != null)
+                    {
+                        foreach (var field in call_node.Parameter.Fields)
+                        {
+                            CalculateResult field_value = ExprInterpret(field.Expression);
+
+                            parameters.Add(new VariableSymbol(
+                                name: field.Name.value,
+                                value: field_value.GetResult(),
+                                type: field_value.DataType,
+                                scope: null
+                            ));
+                        }
+                    }
+
+                    var res = ApiMethodsExecutor.Instance.Execute(
+                        section_name: call_node.SectionName.value,
+                        method_name:  call_node.Token.value, 
+                        parameters:   parameters
+                    );
+
+                    return res;
+                }
+                else
+                {
+                    ErrorMessage = $"Вызов несуществующего метода: '{call_node.SectionName.value}.{call_node.Token.value}'";
+                    return null;
+                }
             }
 
-            string op = node.token.value;
+            if(node.Token.type == TokenType.Number)
+            {
+                return new CalculateResult(double.Parse(node.Token.value, System.Globalization.CultureInfo.InvariantCulture), DataType.Double);
+            }
+
+            if (node.Token.type == TokenType.BoolDataType)
+            {
+                return new CalculateResult(bool.Parse(node.Token.value), DataType.Bool);
+            }
+
+            string op = node.Token.value;
             if (op == "+" || op == "-" || op == "*" || op == "/"
                 || op == ">" || op == "<" || op == ">=" || op == "<=" || op == "==" || op == "!="
             )
@@ -169,7 +213,7 @@ namespace VkScriptAnalyzer.Interpreter
                         else
                         {
                             // несоответствие типов
-                            ErrorMessage = $"Оператор '{node.token.value}' ожидает тип Double, но обнаружен Bool";
+                            ErrorMessage = $"Оператор '{node.Token.value}' ожидает тип Double, но обнаружен Bool";
                         }
                     }
                 }
@@ -193,17 +237,17 @@ namespace VkScriptAnalyzer.Interpreter
                         }
                         else
                         {
-                            ErrorMessage = $"Оператор '{node.token.value}' ожидает тип Bool, но обнаружен Double";
+                            ErrorMessage = $"Оператор '{node.Token.value}' ожидает тип Bool, но обнаружен Double";
                         }
                     }
                 }
             }
-            else if (node.token.type == TokenType.Identifier)
+            else if (node.Token.type == TokenType.Identifier)
             {
-                var var = env.GetSymbol(node.token.value);
+                var var = env.GetSymbol(node.Token.value);
                 if (var == null)
                 {
-                    ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.token.value}'";
+                    ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.Token.value}'";
                 }
                 else
                 {
@@ -218,7 +262,7 @@ namespace VkScriptAnalyzer.Interpreter
                     }
                     else if (var is FunctionSymbol)
                     {
-
+                        //
                     }
                 }
             }

@@ -326,6 +326,12 @@ namespace VkScriptAnalyzer.Parser
                             if (CheckToken("("))
                             {
                                 GetToken();
+
+                                if (CheckToken(")", show_error: false))
+                                {
+                                    return call;
+                                }
+
                                 var parameter = Object();
 
                                 GetToken();

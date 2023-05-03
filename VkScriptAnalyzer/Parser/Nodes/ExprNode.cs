@@ -6,10 +6,10 @@ namespace VkScriptAnalyzer.Parser
     {
         public ExprNode(Token token)
         {
-            this.token = token;
+            this.Token = token;
         }
 
-        public Token token { get; set; }
+        public Token Token { get; set; }
         //public IVertex token { get; set; }
 
         public ExprNode Left { get; set; }
