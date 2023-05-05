@@ -162,8 +162,59 @@ namespace VkScriptAnalyzer.Interpreter
             return false;
         }
 
+        // b.c.d
+        //                   .
+        //                  / \
+        //        объект   b   .
+        //                    / \
+        //  идентификаторы   c   d
+        private CalculateResult KvalidentInterpret(KvalidentNode node, ObjectSymbol obj)
+        {
+            var field = obj.GetMember(node.Left.Token.value) as VariableSymbol;
+
+            if (field == null || field.Value is ObjectSymbol == false)
+                return new CalculateResult(null, DataType.Object);
+
+            if (node.Right.Token.type == TokenType.Identifier
+                   && node.Left.Token.type == TokenType.Identifier)// базовый случай, когда потомки узла - идентификаторы. Ниже идти не нужно
+            {
+                var res = (field.Value as ObjectSymbol).GetMember(node.Right.Token.value) as VariableSymbol;
+
+                return new CalculateResult(res.Value, res.DataType);
+            }
+            else
+            {
+                return KvalidentInterpret(node.Right as KvalidentNode, field.Value as ObjectSymbol);
+            }
+        }
+
         private CalculateResult ExprInterpret(ExprNode node)
         {
+            if (node is KvalidentNode)
+            {
+                var left_symbol = env.GetSymbol(node.Left.Token.value) as VariableSymbol;
+                if (left_symbol == null)
+                {
+                    ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.Left.Token.value}' \nСтрока: {node.Left.Token.pos}";
+                    return null;
+                }
+
+                if (left_symbol.Value is ObjectSymbol)
+                {
+                    if(node.Right is KvalidentNode == false)// базовый случай, когда потомки узла - идентификаторы. Ниже идти не нужно
+                    {
+                        var res = (left_symbol.Value as ObjectSymbol).GetMember(node.Right.Token.value) as VariableSymbol;
+                        return new CalculateResult(res.Value, res.DataType);
+                    }
+
+                    return KvalidentInterpret(node.Right as KvalidentNode, left_symbol.Value as ObjectSymbol);
+                }
+                else
+                {
+                    return new CalculateResult(null, DataType.Object);
+                }
+            }
+
             if(node is ObjectNode)
             {
                 var obj_node = node as ObjectNode;
@@ -282,7 +333,8 @@ namespace VkScriptAnalyzer.Interpreter
                             }
                             catch (System.OverflowException)
                             {
-                                ErrorMessage = $"Ошибка переполнения. Оператор '{node.Token.value}'. Левый операнд: {(double)left_val.GetResult() } Правый операнд: {(double)right_val.GetResult() }";
+                                ErrorMessage = $"Ошибка переполнения. Оператор '{node.Token.value}'. Левый операнд: {(double)left_val.GetResult() } " +
+                                    $"Правый операнд: {(double)right_val.GetResult()} \nСтрока: {node.Token.pos}";
 
                                 return null;
                             }

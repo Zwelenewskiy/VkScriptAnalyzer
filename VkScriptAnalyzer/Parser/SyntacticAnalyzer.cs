@@ -257,8 +257,6 @@ namespace VkScriptAnalyzer.Parser
             if (t5 == null)
                 return null;
 
-            GetToken();
-
             if (CheckToken("*", show_error: false) || CheckToken("/", show_error: false))
             {
                 var res = new ExprNode(current_token);
@@ -277,6 +275,31 @@ namespace VkScriptAnalyzer.Parser
 
         private ExprNode T5()
         {
+            var t6 = T6();
+
+            if (t6 == null)
+                return null;
+
+            GetToken();
+
+            if (CheckToken(".", show_error: false))
+            {
+                var res = new KvalidentNode(current_token);
+                res.Left = t6;
+
+                GetToken();
+                res.Right = T5();
+
+                return res;
+            }
+            else
+            {
+                return t6;
+            }
+        }
+
+        private ExprNode T6()
+        {
             if (CheckToken("API", show_error: false))// TODO: ошибку с продолжением парсинга "api" убрать при анализе существования переменной
             {
                 return Call();
@@ -284,6 +307,9 @@ namespace VkScriptAnalyzer.Parser
             if (CheckTokenType(TokenType.Identifier, show_error: false) || CheckTokenType(TokenType.BoolDataType, show_error: false) 
                 || CheckTokenType(TokenType.Number, show_error: false) || CheckTokenType(TokenType.String, show_error: false))
             {
+                if(current_token.value == "null")
+                    return new ObjectNode(new List<ObjectField>());
+
                 return new ExprNode(current_token);
             }
             else if (CheckToken("(", show_error: false))

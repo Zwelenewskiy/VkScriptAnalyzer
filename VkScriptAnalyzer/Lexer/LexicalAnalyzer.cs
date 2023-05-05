@@ -40,11 +40,10 @@ namespace VkScriptAnalyzer.Lexer
             "return",
         };
 
-        private readonly string[] DATA_TYPES =
+        private readonly string[] BOOL_DATA_TYPES =
         {
             "true",
-            "false",
-            "null",
+            "false"
         };
 
         private readonly Machine[] PARSERS;
@@ -99,7 +98,7 @@ namespace VkScriptAnalyzer.Lexer
                 {
                     if (parser.type == TokenType.Identifier && KEY_WORDS.Contains(value))
                         token.type = TokenType.KeyWord;
-                    else if (parser.type == TokenType.Identifier && DATA_TYPES.Contains(value))
+                    else if (parser.type == TokenType.Identifier && BOOL_DATA_TYPES.Contains(value))
                         token.type = TokenType.BoolDataType;
                     else
                         token.type = parser.type;
@@ -119,6 +118,12 @@ namespace VkScriptAnalyzer.Lexer
             {
                 token.type = TokenType.Unknown;
                 token.value = value;
+            }
+
+            if(token.type == TokenType.String)
+            {
+                token.value = token.value.Remove(0, 1);
+                token.value = token.value.Remove(token.value.Length - 1, 1);
             }
 
             return token;

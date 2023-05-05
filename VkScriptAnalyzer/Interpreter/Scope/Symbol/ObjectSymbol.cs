@@ -12,13 +12,21 @@
             {
                 if (Fields.ContainsKey(field.Name))
                 {
-                    Fields[field.Name] = field.Value;
+                    Fields[field.Name] = field;
                 }
                 else
                 {
-                    Fields.Add(field.Name, field.Value);
+                    Fields.Add(field.Name, field);
                 }
             }
+        }
+
+        public object GetMember(string name)
+        {
+            if (Fields.ContainsKey(name))
+                return Fields[name];
+
+            return null;
         }
     }
 }

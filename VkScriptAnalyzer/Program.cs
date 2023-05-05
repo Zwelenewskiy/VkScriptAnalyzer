@@ -39,7 +39,15 @@ namespace VkScriptAnalyzer
                 {
                     if(result.DataType == DataType.Object)
                     {
-                        PrintObject(node: result.GetResult() as ObjectSymbol);
+                        if(result.GetResult() == null)
+                        {
+                            Console.WriteLine("Результат: null");
+                        }
+                        else
+                        {
+                            Console.WriteLine("Результат:");
+                            PrintObject(node: result.GetResult() as ObjectSymbol);
+                        }
                     }
                     else
                     {
@@ -70,25 +78,32 @@ namespace VkScriptAnalyzer
 
         static void PrintObject(ObjectSymbol node, int depth = 0, bool print_bracket = true)
         {
+            if (node.Fields.Keys.Count == 0)
+            {
+                Console.WriteLine(new string(' ', depth) + "null");
+                return;
+            }
+
             if (print_bracket)
                 PrintString(depth, "{", print_comma: false);
 
             int i = 0;
+
             foreach (string field_name in node.Fields.Keys)
             {
                 bool print_comma = i < node.Fields.Keys.Count - 1;
 
-                if (node.Fields[field_name] is ObjectSymbol)
+                if ((node.Fields[field_name] as VariableSymbol).Value is ObjectSymbol)
                 {
                     PrintString(depth + 2, field_name + ": {", print_comma: false);
 
-                    PrintObject(node: node.Fields[field_name] as ObjectSymbol, depth: depth + 2, print_bracket: false);
+                    PrintObject(node: (node.Fields[field_name] as VariableSymbol).Value as ObjectSymbol, depth: depth + 2, print_bracket: false);
 
                     PrintString(depth + 2, "}", print_comma);
                 }
                 else
                 {
-                    PrintString(depth + 2, $"{field_name}: {node.Fields[field_name]}", print_comma);
+                    PrintString(depth + 2, $"{field_name}: {(node.Fields[field_name] as VariableSymbol).Value}", print_comma);
                 }
 
                 i++;
