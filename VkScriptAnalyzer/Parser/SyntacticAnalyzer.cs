@@ -290,7 +290,13 @@ namespace VkScriptAnalyzer.Parser
                 GetToken();
                 res.Right = T5();
 
-                return res;
+                if(res.Right.Token.type == TokenType.Identifier || res.Right.Token.type == TokenType.Dot)
+                {
+                    return res;
+                }
+
+                ErrorMessage = $"Ожидался идентификатор поля, но обнаружено: '{res.Right.Token.value}'\nСтрока: {lexer.PosNumber}";
+                return null;
             }
             else
             {
