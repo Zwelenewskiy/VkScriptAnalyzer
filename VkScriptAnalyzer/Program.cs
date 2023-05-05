@@ -39,12 +39,15 @@ namespace VkScriptAnalyzer
                 {
                     if(result.DataType == DataType.Object)
                     {
-                        PrintObject(result.GetResult() as ObjectSymbol);
+                        PrintObject(node: result.GetResult() as ObjectSymbol);
                     }
                     else
                     {
                         Console.WriteLine("Результат: " + result.GetResult());
                     }
+
+                    Console.WriteLine();
+                    Console.WriteLine("Программа успешно завершена.");
                 }
             }
 
@@ -65,9 +68,44 @@ namespace VkScriptAnalyzer
             Console.ReadKey();
         }
 
-        static void PrintObject(ObjectSymbol node)
+        static void PrintObject(ObjectSymbol node, int depth = 0, bool print_bracket = true)
         {
+            if (print_bracket)
+                PrintString(depth, "{", print_comma: false);
 
+            int i = 0;
+            foreach (string field_name in node.Fields.Keys)
+            {
+                bool print_comma = i < node.Fields.Keys.Count - 1;
+
+                if (node.Fields[field_name] is ObjectSymbol)
+                {
+                    PrintString(depth + 2, field_name + ": {", print_comma: false);
+
+                    PrintObject(node: node.Fields[field_name] as ObjectSymbol, depth: depth + 2, print_bracket: false);
+
+                    PrintString(depth + 2, "}", print_comma);
+                }
+                else
+                {
+                    PrintString(depth + 2, $"{field_name}: {node.Fields[field_name]}", print_comma);
+                }
+
+                i++;
+            }
+
+            if (print_bracket)
+                Console.WriteLine(new string(' ', depth) + "}");
+        }
+
+        static void PrintString(int indent, string value, bool print_comma)
+        {
+            Console.Write($"{new string(' ', indent)}{value}");
+
+            if(print_comma)
+                Console.Write(",");
+
+            Console.WriteLine();
         }
     }
 }
