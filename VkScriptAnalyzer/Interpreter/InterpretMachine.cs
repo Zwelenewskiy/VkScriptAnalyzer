@@ -26,12 +26,14 @@ namespace VkScriptAnalyzer.Interpreter
         private Node ast;
         private Env env;
         private string[] existing_api_methods = new string[] { "account_setOffline" };
+        private int api_calls_count;
 
         public string ErrorMessage { get; private set; }
 
         public InterpretMachine(Node ast)
         {
             this.ast = ast;
+            api_calls_count = 0;
         }
 
         public CalculateResult Interpret()
@@ -256,12 +258,19 @@ namespace VkScriptAnalyzer.Interpreter
 
                     try
                     {
+                        if(api_calls_count == 25)
+                        {
+                            ErrorMessage = $"Превышено количество вызовов методов API.";
+                            return null;
+                        }
+
                         var res = ApiMethodsExecutor.Instance.Execute(
                             section_name: call_node.SectionName.value,
                             method_name: call_node.Token.value,
                             parameters: parameters
                         );
 
+                        api_calls_count++;
                         return res;
                     }
                     catch (System.Exception ex)
