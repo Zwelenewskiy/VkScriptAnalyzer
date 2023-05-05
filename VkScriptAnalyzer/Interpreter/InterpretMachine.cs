@@ -215,14 +215,14 @@ namespace VkScriptAnalyzer.Interpreter
                     }
                     catch (System.Exception ex)
                     {
-                        ErrorMessage = $"Ошибка во время выполнения метода: '{call_node.SectionName.value}.{call_node.Token.value}' \n Ошибка: {ex.Message}";
+                        ErrorMessage = $"Ошибка во время выполнения метода: '{call_node.SectionName.value}.{call_node.Token.value}' \nСтрока: {call_node.Token.pos} \nОшибка: {ex.Message}";
 
                         return null;
                     }
                 }
                 else
                 {
-                    ErrorMessage = $"Вызов несуществующего метода: '{call_node.SectionName.value}.{call_node.Token.value}'";
+                    ErrorMessage = $"Вызов несуществующего метода: '{call_node.SectionName.value}.{call_node.Token.value}' \nСтрока: {call_node.Token.pos}";
                     return null;
                 }
             }
@@ -291,7 +291,7 @@ namespace VkScriptAnalyzer.Interpreter
                         else
                         {
                             // несоответствие типов
-                            ErrorMessage = $"Оператор '{node.Token.value}' ожидает тип Double, но обнаружены {left_val.DataType} и {right_val.DataType}";
+                            ErrorMessage = $"Оператор '{node.Token.value}' ожидает тип Double, но обнаружены {left_val.DataType} и {right_val.DataType} \nСтрока: {node.Token.pos}";
                         }
                     }
                 }
@@ -315,7 +315,7 @@ namespace VkScriptAnalyzer.Interpreter
                         }
                         else
                         {
-                            ErrorMessage = $"Оператор '{node.Token.value}' ожидает тип Bool, но обнаружен Double";
+                            ErrorMessage = $"Оператор '{node.Token.value}' ожидает тип Bool, но обнаружены {left_val.DataType} и {right_val.DataType} \nСтрока: {node.Token.pos}";
                         }
                     }
                 }
@@ -325,7 +325,7 @@ namespace VkScriptAnalyzer.Interpreter
                 var var = env.GetSymbol(node.Token.value);
                 if (var == null)
                 {
-                    ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.Token.value}'";
+                    ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.Token.value}' \nСтрока: {node.Token.pos}";
                 }
                 else
                 {
@@ -365,7 +365,7 @@ namespace VkScriptAnalyzer.Interpreter
             }
             else
             {
-                ErrorMessage = $"Идентификатор '{node.Id.value}' не объявлен";
+                ErrorMessage = $"Идентификатор '{node.Id.value}' не объявлен \nСтрока: {node.Id.pos}";
             }
 
             return false;

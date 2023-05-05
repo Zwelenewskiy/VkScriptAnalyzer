@@ -51,12 +51,12 @@ namespace VkScriptAnalyzer
             /*var lexer = new Lexer.LexicalAnalyzer(input);
 
             var token = lexer.GetToken();
-            while(true)
+            while (true)
             {
                 if (token == null)
                     break;
 
-                Console.WriteLine("Value: " + token.value + Environment.NewLine + " Type: " +  token.type);
+                Console.WriteLine($"Value: {token.value} \n Type: {token.type} \n Pos: {token.pos}");
                 Console.WriteLine("------------------");
 
                 token = lexer.GetToken();

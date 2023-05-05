@@ -48,7 +48,7 @@ namespace VkScriptAnalyzer.Parser
             if(current_token == null)
             {
                 if (show_error)
-                    ErrorMessage = $"Обнаружен конец файла, но ожидалось'{token_value}'";
+                    ErrorMessage = $"Обнаружен конец файла, но ожидалось'{token_value}' \nСтрока: {lexer.PosNumber}";
 
                 return false;
             }
@@ -60,7 +60,7 @@ namespace VkScriptAnalyzer.Parser
             else
             {
                 if(show_error)
-                    ErrorMessage = $"Обнаружен токен '{current_token.value}', но ожидалось '{token_value}'";
+                    ErrorMessage = $"Обнаружен токен '{current_token.value}', но ожидалось '{token_value}'\nСтрока: {lexer.PosNumber}";
 
                 return false;
             }
@@ -75,7 +75,7 @@ namespace VkScriptAnalyzer.Parser
             else
             {
                 if (show_error)
-                    ErrorMessage = $"Обнаружен тип токен {current_token.type}, ожидался {type}";
+                    ErrorMessage = $"Обнаружен токен '{current_token.value}' с типом {current_token.type}, но ожидался {type}\nСтрока: {lexer.PosNumber}";
 
                 return false;
             }
@@ -300,7 +300,7 @@ namespace VkScriptAnalyzer.Parser
                 return Object();
             }
 
-            ErrorMessage = $"Обнаружен неразрешённый символ: '{current_token.value}'";
+            ErrorMessage = $"Обнаружен неразрешённый символ: '{current_token.value}'\nСтрока: {lexer.PosNumber}";
 
             return null;
         }
@@ -452,10 +452,9 @@ namespace VkScriptAnalyzer.Parser
             else
             {
                 var res = Instruction();
-                //if (res == null)
                 if (res is EmptyNode)
                 {
-                    ErrorMessage = "Ожидалась инструкция, но обнаружена пустота";
+                    ErrorMessage = $"Ожидалась инструкция, но обнаружена пустота \nСтрока: {lexer.PosNumber}";
                     return null;
                 }
                 else
@@ -500,7 +499,11 @@ namespace VkScriptAnalyzer.Parser
                 {
                     res.Expression = Expr();
 
-                    if(res.Expression != null)
+                    if(res.Expression == null)
+                    {
+                        return null;
+                    }
+                    else
                     {
                         res.NextVar = Var1();
                     }

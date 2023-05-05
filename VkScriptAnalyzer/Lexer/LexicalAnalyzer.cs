@@ -49,6 +49,8 @@ namespace VkScriptAnalyzer.Lexer
 
         private readonly Machine[] PARSERS;
 
+        public int PosNumber { get; private set; }
+
         public LexicalAnalyzer(string text)
         {
             input = text.TrimStart().TrimEnd();
@@ -58,6 +60,8 @@ namespace VkScriptAnalyzer.Lexer
                 MashineIdentifier,
                 MashineString
             };
+
+            PosNumber = 1;
         }
 
         private char ParseSymbol()
@@ -101,6 +105,8 @@ namespace VkScriptAnalyzer.Lexer
                         token.type = parser.type;
 
                     token.value = value;
+                    token.pos = PosNumber;
+
                     find = true;
 
                     break;
@@ -130,7 +136,8 @@ namespace VkScriptAnalyzer.Lexer
                     var token = new Token()
                     {
                         type = TokenType.Equal,
-                        value = "=="
+                        value = "==",
+                        pos = PosNumber
                     };
 
                     if (parse_not_dividing_lexem)
@@ -152,7 +159,8 @@ namespace VkScriptAnalyzer.Lexer
                     var token = new Token()
                     {
                         type = TokenType.NonEqual,
-                        value = "!="
+                        value = "!=",
+                        pos = PosNumber
                     };
 
                     if (parse_not_dividing_lexem)
@@ -207,6 +215,9 @@ namespace VkScriptAnalyzer.Lexer
 
                 if (WHITESPACE_CHARS.Contains(symbol))
                 {
+                    if(symbol == '\n')
+                        PosNumber++;
+
                     is_white_space = true;
                 }
 
@@ -247,7 +258,8 @@ namespace VkScriptAnalyzer.Lexer
                         return new Token()
                         {
                             type = type,
-                            value = Convert.ToString(symbol)
+                            value = Convert.ToString(symbol),
+                            pos = PosNumber
                         };
                     }
 
@@ -256,7 +268,8 @@ namespace VkScriptAnalyzer.Lexer
                     fast_token = new Token()
                     {
                         type = type,
-                        value = Convert.ToString(symbol)
+                        value = Convert.ToString(symbol),
+                        pos = PosNumber
                     };
 
                     if (parse_not_dividing_lexem)
