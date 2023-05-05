@@ -42,6 +42,34 @@ namespace VkScriptAnalyzer.Interpreter
             return Interpret(ast);
         }
 
+        /// <summary>
+        /// Возвращает список вычисленных переменных из списка полей вершины AST
+        /// </summary>
+        private System.Collections.Generic.List<VariableSymbol> NodeFieldToObjectField(ObjectNode node)
+        {
+            var res = new System.Collections.Generic.List<VariableSymbol>();
+
+            if (node != null)
+            {
+                foreach (var field in node.Fields)
+                {
+                    CalculateResult field_value = ExprInterpret(field.Expression);
+
+                    if (field_value == null)
+                        return null;
+
+                    res.Add(new VariableSymbol(
+                        name: field.Name.value,
+                        value: field_value.GetResult(),
+                        type: field_value.DataType,
+                        scope: null
+                    ));
+                }
+            }
+
+            return res;
+        }
+
         private CalculateResult Interpret(Node node)
         {
             if(node is VarNode)
@@ -95,19 +123,33 @@ namespace VkScriptAnalyzer.Interpreter
                 var symbol = env.GetSymbolLocal(node.Id.value);
                 if (symbol == null)
                 {
-                    CalculateResult expr_res = ExprInterpret(node.Expression);                    
+                    CalculateResult expr_val = ExprInterpret(node.Expression);                    
 
-                    if (expr_res != null)
+                    if (expr_val != null)
                     {
-                        var result = expr_res.GetResult();
+                        var result = expr_val.GetResult();
                         var scope = env.GetCurrentScope();
 
                         env.AddSymbol(new VariableSymbol(
                             name:  node.Id.value, 
                             value: result,
-                            type:  expr_res.DataType,
+                            type:  expr_val.DataType,
                             scope: scope
                         ));
+
+                        if (node.NextVar == null)
+                            return true;
+                        else
+                            return VarInterpret(node.NextVar);
+                    }
+                }
+                else
+                {
+                    CalculateResult expr_val = ExprInterpret(node.Expression);
+                    if (expr_val != null)
+                    {
+                        (symbol as VariableSymbol).Value = expr_val.GetResult();
+                        env.UpdateSymbolValue(symbol);
 
                         if (node.NextVar == null)
                             return true;
@@ -124,7 +166,19 @@ namespace VkScriptAnalyzer.Interpreter
         {
             if(node is ObjectNode)
             {
-                return new CalculateResult(new ObjectSymbol(node.Token.value, env.GetCurrentScope()), DataType.Object);
+                var obj_node = node as ObjectNode;
+                var fields = NodeFieldToObjectField(obj_node);
+
+                if (fields == null)
+                    return null;
+
+                return new CalculateResult(new ObjectSymbol(
+                        name:   null,
+                        scope:  env.GetCurrentScope(),
+                        fields: fields
+                        ),
+                    type: DataType.Object
+                );
             }
 
             if(node is CallNode)
@@ -183,6 +237,11 @@ namespace VkScriptAnalyzer.Interpreter
                 return new CalculateResult(bool.Parse(node.Token.value), DataType.Bool);
             }
 
+            if (node.Token.type == TokenType.String)
+            {
+                return new CalculateResult(node.Token.value, DataType.String);
+            }
+
             string op = node.Token.value;
             if (op == "+" || op == "-" || op == "*" || op == "/"
                 || op == ">" || op == "<" || op == ">=" || op == "<=" || op == "==" || op == "!="
@@ -232,7 +291,7 @@ namespace VkScriptAnalyzer.Interpreter
                         else
                         {
                             // несоответствие типов
-                            ErrorMessage = $"Оператор '{node.Token.value}' ожидает тип Double, но обнаружен Bool";
+                            ErrorMessage = $"Оператор '{node.Token.value}' ожидает тип Double, но обнаружены {left_val.DataType} и {right_val.DataType}";
                         }
                     }
                 }
@@ -274,14 +333,16 @@ namespace VkScriptAnalyzer.Interpreter
                     {
                         var var_sym = var as VariableSymbol;
 
-                        if (var_sym.DataType == DataType.Double)
+                        /*if (var_sym.DataType == DataType.Double)
                             return new CalculateResult(var_sym.Value, DataType.Double);
                         else if (var_sym.DataType == DataType.Bool)
-                            return new CalculateResult(var_sym.Value, DataType.Bool);
+                            return new CalculateResult(var_sym.Value, DataType.Bool);*/
+
+                        return new CalculateResult(var_sym.Value, var_sym.DataType);
                     }
                     else if (var is FunctionSymbol)
                     {
-                        //
+                        // создание функций не поддерживается
                     }
                 }
             }

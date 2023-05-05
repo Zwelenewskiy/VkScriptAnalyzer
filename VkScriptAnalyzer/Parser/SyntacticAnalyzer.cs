@@ -281,7 +281,8 @@ namespace VkScriptAnalyzer.Parser
             {
                 return Call();
             }
-            if (CheckTokenType(TokenType.Identifier, show_error: false) || CheckTokenType(TokenType.BoolDataType, show_error: false) || CheckTokenType(TokenType.Number, show_error: false))
+            if (CheckTokenType(TokenType.Identifier, show_error: false) || CheckTokenType(TokenType.BoolDataType, show_error: false) 
+                || CheckTokenType(TokenType.Number, show_error: false) || CheckTokenType(TokenType.String, show_error: false))
             {
                 return new ExprNode(current_token);
             }

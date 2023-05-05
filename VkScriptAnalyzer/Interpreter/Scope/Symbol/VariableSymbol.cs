@@ -4,7 +4,8 @@
     {
         Double,
         Bool,
-        Object
+        Object,
+        String
     }
 
     public class VariableSymbol : Symbol

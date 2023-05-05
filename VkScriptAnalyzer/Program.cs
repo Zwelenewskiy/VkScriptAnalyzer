@@ -22,7 +22,7 @@ namespace VkScriptAnalyzer
             else
             {
                 var interpreter = new InterpretMachine(ast);
-                var result = interpreter.Interpret();
+                CalculateResult result = interpreter.Interpret();
                 if (result == null)
                 {
                     string error_message = interpreter.ErrorMessage;
@@ -37,7 +37,14 @@ namespace VkScriptAnalyzer
                 }
                 else
                 {
-                    Console.WriteLine("Результат: " + result.GetResult());
+                    if(result.DataType == DataType.Object)
+                    {
+                        PrintObject(result.GetResult() as ObjectSymbol);
+                    }
+                    else
+                    {
+                        Console.WriteLine("Результат: " + result.GetResult());
+                    }
                 }
             }
 
@@ -56,6 +63,11 @@ namespace VkScriptAnalyzer
             }*/
 
             Console.ReadKey();
+        }
+
+        static void PrintObject(ObjectSymbol node)
+        {
+
         }
     }
 }
