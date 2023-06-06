@@ -397,36 +397,36 @@ namespace VkScriptAnalyzer.Parser
             return null;
         }
 
-        private void Fields(ref List<ObjectField> fields)
-        {
-            GetToken();
-            if (CheckTokenType(TokenType.String, show_error: false))
+            private void Fields(ref List<ObjectField> fields)
             {
-                var field = new ObjectField(current_token);
-
                 GetToken();
-                if (CheckToken(":"))
+                if (CheckTokenType(TokenType.String, show_error: false))
                 {
-                    var expr = Expr();
+                    var field = new ObjectField(current_token);
 
-                    if (expr != null)
+                    GetToken();
+                    if (CheckToken(":"))
                     {
-                        field.Expression = expr;
+                        var expr = Expr();
 
-                        fields.Add(field);
+                        if (expr != null)
+                        {
+                            field.Expression = expr;
 
-                        if (CheckToken(",", show_error: false))
-                        {
-                            Fields(ref fields);
-                        }
-                        else
-                        {
-                            return;
+                            fields.Add(field);
+
+                            if (CheckToken(",", show_error: false))
+                            {
+                                Fields(ref fields);
+                            }
+                            else
+                            {
+                                return;
+                            }
                         }
                     }
                 }
             }
-        }
         #endregion
         #endregion
 

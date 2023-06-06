@@ -9,5 +9,11 @@
         {
             Name = token;
         }
+
+        // Для юнит-тестов
+        public ObjectField()
+        {
+
+        }
     }
 }

@@ -88,9 +88,9 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Interpreter\ApiMethodsExecutor.cs" />
-    <Compile Include="Interpreter\Scope\Env.cs" />
-    <Compile Include="Interpreter\Scope\Symbol\ObjectSymbol.cs" />
+    <Compile Include="Emulator\ApiMethodsExecutor.cs" />
+    <Compile Include="Emulator\Scope\Env.cs" />
+    <Compile Include="Emulator\Scope\Symbol\ObjectSymbol.cs" />
     <Compile Include="Lexer\Token.cs" />
     <Compile Include="Lexer\LexicalAnalyzer.cs" />
     <Compile Include="Lexer\Machines\Machine.cs" />
@@ -113,11 +113,11 @@
     <Compile Include="Parser\SyntacticAnalyzer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Interpreter\Scope\Scope.cs" />
-    <Compile Include="Interpreter\InterpretMachine.cs" />
-    <Compile Include="Interpreter\Scope\Symbol\FunctionSymbol.cs" />
-    <Compile Include="Interpreter\Scope\Symbol\Symbol.cs" />
-    <Compile Include="Interpreter\Scope\Symbol\VariableSymbol.cs" />
+    <Compile Include="Emulator\Scope\Scope.cs" />
+    <Compile Include="Emulator\EmulatorMashine.cs" />
+    <Compile Include="Emulator\Scope\Symbol\FunctionSymbol.cs" />
+    <Compile Include="Emulator\Scope\Symbol\Symbol.cs" />
+    <Compile Include="Emulator\Scope\Symbol\VariableSymbol.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

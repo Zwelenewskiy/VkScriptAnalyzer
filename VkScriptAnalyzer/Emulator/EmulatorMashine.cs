@@ -2,7 +2,7 @@
 using VkScriptAnalyzer.Parser;
 using System.Linq;
 
-namespace VkScriptAnalyzer.Interpreter
+namespace VkScriptAnalyzer.Emulator
 {
     public class CalculateResult
     {
@@ -21,7 +21,7 @@ namespace VkScriptAnalyzer.Interpreter
         }
     }
 
-    public class InterpretMachine
+    public class EmulatorMashine
     {
         private Node ast;
         private Env env;
@@ -30,18 +30,18 @@ namespace VkScriptAnalyzer.Interpreter
 
         public string ErrorMessage { get; private set; }
 
-        public InterpretMachine(Node ast)
+        public EmulatorMashine(Node ast)
         {
             this.ast = ast;
             api_calls_count = 0;
         }
 
-        public CalculateResult Interpret()
+        public CalculateResult StartEmulate()
         {
             env = new Env();
             env.CreateScope();
 
-            return Interpret(ast);
+            return Emulate(ast);
         }
 
         /// <summary>
@@ -72,17 +72,17 @@ namespace VkScriptAnalyzer.Interpreter
             return res;
         }
 
-        private CalculateResult Interpret(Node node)
+        private CalculateResult Emulate(Node node)
         {
             if(node is VarNode)
             {
                 if (VarInterpret(node as VarNode))
-                    return Interpret(node.Next);
+                    return Emulate(node.Next);
             }
             if (node is AssignNode)
             {
                 if (AssignInterpret(node as AssignNode))
-                    return Interpret(node.Next);
+                    return Emulate(node.Next);
             }
             if (node is IfNode)
             {
@@ -93,7 +93,7 @@ namespace VkScriptAnalyzer.Interpreter
                 env.CloseScope();   
                 
                 if (if_result == null)
-                    return Interpret(node.Next);
+                    return Emulate(node.Next);
                 else
                     return if_result;
             }
@@ -106,7 +106,7 @@ namespace VkScriptAnalyzer.Interpreter
                 env.CloseScope();
 
                 if (while_result == null)
-                    return Interpret(node.Next);
+                    return Emulate(node.Next);
                 else
                     return while_result;
             }
@@ -461,12 +461,12 @@ namespace VkScriptAnalyzer.Interpreter
                 if (cond_val)
                 {
                     if (node.Body is EmptyNode == false)
-                        return Interpret(node.Body);
+                        return Emulate(node.Body);
                 }
                 else
                 {
                     if (node.Else != null)
-                        return Interpret(node.Else);
+                        return Emulate(node.Else);
                 }
             }
 
@@ -486,7 +486,7 @@ namespace VkScriptAnalyzer.Interpreter
                     CalculateResult res = null;
                     while (cond_val)
                     {
-                        res = Interpret(node.Body);
+                        res = Emulate(node.Body);
 
                         cond_expr = ExprInterpret(node.Condition);
                         if (cond_expr == null)

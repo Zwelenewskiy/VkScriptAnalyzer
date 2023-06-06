@@ -49,9 +49,8 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TestParameters.cs" />
-    <Compile Include="TokenListComparer.cs" />
-    <Compile Include="VkScriptAnalyzerTests.cs" />
+    <Compile Include="ParserTests.cs" />
+    <Compile Include="LexerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

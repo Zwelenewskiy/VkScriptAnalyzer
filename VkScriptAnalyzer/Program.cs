@@ -1,6 +1,6 @@
 ﻿using System;
 using VkScriptAnalyzer.Parser;
-using VkScriptAnalyzer.Interpreter;
+using VkScriptAnalyzer.Emulator;
 
 namespace VkScriptAnalyzer
 {
@@ -21,8 +21,8 @@ namespace VkScriptAnalyzer
             }
             else
             {
-                var interpreter = new InterpretMachine(ast);
-                CalculateResult result = interpreter.Interpret();
+                var interpreter = new EmulatorMashine(ast);
+                CalculateResult result = interpreter.StartEmulate();
                 if (result == null)
                 {
                     string error_message = interpreter.ErrorMessage;

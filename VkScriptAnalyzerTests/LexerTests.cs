@@ -4,8 +4,33 @@ using VkScriptAnalyzer.Lexer;
 
 namespace VkScriptAnalyzerTests
 {
+    internal class TokenListComparer : System.Collections.IComparer
+    {
+        public int Compare(object x, object y)
+        {
+            Token t1 = (Token)x;
+            Token t2 = (Token)y;
+
+            if (t1.value == t2.value
+                && t1.type == t2.type)
+            {
+                return 0;
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
+
+    internal class TestParameters
+    {
+        public string input_text { get; set; }
+        public List<Token> sample { get; set; }
+    }
+
     [TestClass]
-    public class VkScriptAnalyzerTest
+    public class LexerTests
     {
         private void DoTest(TestParameters @params)
         {

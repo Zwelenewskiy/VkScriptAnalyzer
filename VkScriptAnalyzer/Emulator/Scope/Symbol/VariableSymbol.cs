@@ -1,4 +1,4 @@
-﻿namespace VkScriptAnalyzer.Interpreter
+﻿namespace VkScriptAnalyzer.Emulator
 {
     public enum DataType
     {

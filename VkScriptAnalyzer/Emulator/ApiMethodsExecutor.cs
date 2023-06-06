@@ -2,7 +2,7 @@
 using VkNet;
 using VkNet.Model;
 
-namespace VkScriptAnalyzer.Interpreter
+namespace VkScriptAnalyzer.Emulator
 {
     public class ApiMethodsExecutor
     {
