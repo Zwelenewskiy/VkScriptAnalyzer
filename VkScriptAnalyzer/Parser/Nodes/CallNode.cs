@@ -7,9 +7,9 @@ namespace VkScriptAnalyzer.Parser
         public ObjectNode Parameter { get; set; }
         public Token SectionName { get; set; }
 
-        public CallNode(Token token, Token section_name) : base(token)
+        public CallNode(Token token, Token sectionName) : base(token)
         {
-            SectionName = section_name;
+            SectionName = sectionName;
         }
     }
 }

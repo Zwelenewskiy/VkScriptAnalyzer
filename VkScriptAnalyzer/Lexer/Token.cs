@@ -16,12 +16,12 @@
 
         LeftBracket = 40,// (
         RightBracket = 41,// )
-        Plus_Op = 43,
+        PlusOp = 43,
         Comma = 44,// ,
-        Minus_Op = 45,
+        MinusOp = 45,
         Dot = 46,
-        Mul_Op = 42,
-        Div_Op = 47,
+        MulOp = 42,
+        DivOp = 47,
         Colon = 59,// :
         Assign = 61,// =
         OpenQuotationMark = 60, // <
@@ -32,14 +32,14 @@
 
     public class Token
     {
-        public string value {get; set;}
-        public int line {get; set;}
-        public int pos {get; set;}
-        public TokenType type { get; set; }
+        public string Value {get; set;}
+        public int Line {get; set;}
+        public int Pos {get; set;}
+        public TokenType Type { get; set; }
 
         public Token()
         {
-            value = null;
+            Value = null;
         }
     }
 }

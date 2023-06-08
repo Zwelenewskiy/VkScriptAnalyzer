@@ -6,43 +6,43 @@ namespace VkScriptAnalyzer.Lexer.Mashines
     {
         public MashineString() :
             base(
-                    state_table: new Dictionary<Input_signal, Dictionary<State, State>>()
+                    stateTable: new Dictionary<InputSignal, Dictionary<State, State>>()
                     {
-                        { Input_signal.Quote,
+                        { InputSignal.Quote,
                             new Dictionary<State, State>() {
                                 { State.S0, State.S1 },
                                 { State.S1, State.S2 },
-                                { State.S2, State.S_error }
+                                { State.S2, State.SError }
                         } },
-                        { Input_signal.Letter,
+                        { InputSignal.Letter,
                             new Dictionary<State, State>() {
-                                { State.S0, State.S_error },
+                                { State.S0, State.SError },
                                 { State.S1, State.S1 },
-                                { State.S2, State.S_error }
+                                { State.S2, State.SError }
                         } },
-                        { Input_signal.Other,
+                        { InputSignal.Other,
                             new Dictionary<State, State>() {
-                                { State.S0, State.S_error },
-                                { State.S1, State.S_error },
-                                { State.S2, State.S_error }
+                                { State.S0, State.SError },
+                                { State.S1, State.SError },
+                                { State.S2, State.SError }
                         } },
                     },
                     type: TokenType.String,
-                    finished_states: new State[] { State.S2 }
+                    finishedStates: new State[] { State.S2 }
                 )
         {
 
         }
 
-        public override Input_signal DefineSignal(char symbol)
+        public override InputSignal DefineSignal(char symbol)
         {
             if (symbol == '"')
-                return Input_signal.Quote;
+                return InputSignal.Quote;
             else if (symbol >= 'a' && symbol <= 'z' || symbol >= 'A' && symbol <= 'Z' || symbol >= '0' && symbol <= '9')
-                return Input_signal.Letter;
+                return InputSignal.Letter;
             else if (symbol == ' ')
-                return Input_signal.End;
-            else return Input_signal.Other;
+                return InputSignal.End;
+            else return InputSignal.Other;
         }
     }
 }

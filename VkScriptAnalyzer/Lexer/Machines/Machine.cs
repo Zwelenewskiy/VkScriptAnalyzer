@@ -3,19 +3,19 @@ using System.Linq;
 
 namespace VkScriptAnalyzer.Lexer.Mashines
 {   
-    public enum Input_signal
+    public enum InputSignal
     {
         Digit,
         Letter,
         Dot,
         Comma,
         Minus,
-        Letter_i,
-        Letter_f,
+        LetterI,
+        LetterF,
         Colon,
         Equal,
-        Equal_1,
-        Equal_2,
+        Equal1,
+        Equal2,
         Quote,
         ExclamationMark,// !
         Other,
@@ -30,52 +30,52 @@ namespace VkScriptAnalyzer.Lexer.Mashines
         S3,
         S4,
         S5,
-        S_error
+        SError
     }
 
     public abstract class Machine
     {
-        public TokenType type { get; set; }
-        public State state { get; set; }
-        public string lex_value { get; set; }
+        public TokenType Type { get; set; }
+        public State State { get; set; }
+        public string LexValue { get; set; }
 
-        private readonly Dictionary<Input_signal, Dictionary<State, State>> next_state;
-        private State[] finished_states;
+        private readonly Dictionary<InputSignal, Dictionary<State, State>> _nextState;
+        private State[] _finishedStates;
 
-        public abstract Input_signal DefineSignal(char symbol);
+        public abstract InputSignal DefineSignal(char symbol);
 
         protected Machine() { }
 
-        protected Machine(Dictionary<Input_signal, Dictionary<State, State>> state_table, TokenType type, State[] finished_states)
+        protected Machine(Dictionary<InputSignal, Dictionary<State, State>> stateTable, TokenType type, State[] finishedStates)
         {
-            this.next_state = state_table;
-            this.type = type;
-            this.finished_states = finished_states;
-            state = State.S0;
-            lex_value = string.Empty;
+            this._nextState = stateTable;
+            this.Type = type;
+            this._finishedStates = finishedStates;
+            State = State.S0;
+            LexValue = string.Empty;
         }
 
         public void Parse(char symbol)
         {
-            Input_signal signal = DefineSignal(symbol);
+            InputSignal signal = DefineSignal(symbol);
 
-            if (signal != Input_signal.End)
+            if (signal != InputSignal.End)
             {
-                if (!next_state.ContainsKey(signal))
+                if (!_nextState.ContainsKey(signal))
                 {
-                    state = State.S_error;
+                    State = State.SError;
                 }
-                else if (state != State.S_error)
+                else if (State != State.SError)
                 {
-                    state = next_state[signal][state];
+                    State = _nextState[signal][State];
                 }
 
-                lex_value += symbol;
+                LexValue += symbol;
                 
-                if(state != State.S_error)
+                if(State != State.SError)
                 {
-                    if (signal == Input_signal.Other)
-                        state = State.S0;
+                    if (signal == InputSignal.Other)
+                        State = State.S0;
                 }
 
                 /*if (signal != Input_signal.Other)
@@ -87,18 +87,18 @@ namespace VkScriptAnalyzer.Lexer.Mashines
 
         public bool InError()
         {
-            return state == State.S_error;
+            return State == State.SError;
         }
 
         public bool IsEnd()
         {
-            return state != State.S_error && finished_states.Contains(state);
+            return State != State.SError && _finishedStates.Contains(State);
         }
 
         public void Reset()
         {
-            state = State.S0;
-            lex_value = null;
+            State = State.S0;
+            LexValue = null;
         }
     }
 }

@@ -5,37 +5,37 @@ namespace VkScriptAnalyzer.Parser
 {
     public class SyntacticAnalyzer
     {
-        private LexicalAnalyzer lexer;
-        private Token current_token;
-        private Token next_token;
-        private Token pred_token;
+        private LexicalAnalyzer _lexer;
+        private Token _currentToken;
+        private Token _nextToken;
+        private Token _predToken;
 
         private void GetToken()
         {
-            if(pred_token != null)
+            if(_predToken != null)
             {
-                current_token = pred_token;
-                pred_token = null;
+                _currentToken = _predToken;
+                _predToken = null;
             }
-            else if(next_token != null)
+            else if(_nextToken != null)
             {
-                current_token = next_token;
-                next_token = null;
+                _currentToken = _nextToken;
+                _nextToken = null;
             }
             else
             {
-                current_token = lexer.GetToken();
+                _currentToken = _lexer.GetToken();
             }
         }
 
         private void GetNextToken()
         {
-            pred_token = current_token;
+            _predToken = _currentToken;
 
-            if(next_token == null)
-                next_token = lexer.GetToken();
+            if(_nextToken == null)
+                _nextToken = _lexer.GetToken();
 
-            current_token = next_token;
+            _currentToken = _nextToken;
         }
 
         /*private void GetToken()
@@ -43,39 +43,39 @@ namespace VkScriptAnalyzer.Parser
             current_token = lexer.GetToken();
         }*/
 
-        private bool CheckToken(string token_value, bool show_error = true)
+        private bool CheckToken(string tokenValue, bool showError = true)
         {
-            if(current_token == null)
+            if(_currentToken == null)
             {
-                if (show_error)
-                    ErrorMessage = $"Обнаружен конец файла, но ожидалось'{token_value}' \nСтрока: {lexer.PosNumber}";
+                if (showError)
+                    ErrorMessage = $"Обнаружен конец файла, но ожидалось'{tokenValue}' \nСтрока: {_lexer.PosNumber}";
 
                 return false;
             }
 
-            if (current_token.value == token_value)
+            if (_currentToken.Value == tokenValue)
             {
                 return true;
             }
             else
             {
-                if(show_error)
-                    ErrorMessage = $"Обнаружен токен '{current_token.value}', но ожидалось '{token_value}'\nСтрока: {lexer.PosNumber}";
+                if(showError)
+                    ErrorMessage = $"Обнаружен токен '{_currentToken.Value}', но ожидалось '{tokenValue}'\nСтрока: {_lexer.PosNumber}";
 
                 return false;
             }
         }
 
-        private bool CheckTokenType(TokenType type, bool show_error = true)
+        private bool CheckTokenType(TokenType type, bool showError = true)
         {
-            if (current_token.type == type)
+            if (_currentToken.Type == type)
             {
                 return true;
             }
             else
             {
-                if (show_error)
-                    ErrorMessage = $"Обнаружен токен '{current_token.value}' с типом {current_token.type}, но ожидался {type}\nСтрока: {lexer.PosNumber}";
+                if (showError)
+                    ErrorMessage = $"Обнаружен токен '{_currentToken.Value}' с типом {_currentToken.Type}, но ожидался {type}\nСтрока: {_lexer.PosNumber}";
 
                 return false;
             }
@@ -85,7 +85,7 @@ namespace VkScriptAnalyzer.Parser
 
         public SyntacticAnalyzer(string input)
         {
-            lexer = new LexicalAnalyzer(input);
+            _lexer = new LexicalAnalyzer(input);
         }
 
         public Node Parse()
@@ -111,25 +111,25 @@ namespace VkScriptAnalyzer.Parser
 
         private Node Instruction()
         {
-            if(current_token != null)
+            if(_currentToken != null)
             {
-                if (CheckToken("if", show_error: false))
+                if (CheckToken("if", showError: false))
                 {
                     return If();
                 }
-                if (CheckToken("while", show_error: false))
+                if (CheckToken("while", showError: false))
                 {
                     return While();
                 }
-                if (CheckToken("var", show_error: false))
+                if (CheckToken("var", showError: false))
                 {
                     return Var();
                 }
-                if (CheckToken("return", show_error: false))
+                if (CheckToken("return", showError: false))
                 {
                     return Return();
                 }
-                else if (CheckTokenType(TokenType.Identifier, show_error: false))
+                else if (CheckTokenType(TokenType.Identifier, showError: false))
                 {
                     return Assignment();
                 }
@@ -141,7 +141,7 @@ namespace VkScriptAnalyzer.Parser
         #region Присвоение (выражение)
         private Node Assignment()
         {
-            var res = new AssignNode(current_token);
+            var res = new AssignNode(_currentToken);
 
             GetToken();
             if (CheckToken("="))
@@ -165,9 +165,9 @@ namespace VkScriptAnalyzer.Parser
             if (t1 == null)
                 return null;
 
-            if (CheckToken("or", show_error: false))
+            if (CheckToken("or", showError: false))
             {
-                var res = new ExprNode(current_token);
+                var res = new ExprNode(_currentToken);
                 res.Left = t1;
                 res.Right = Expr();
 
@@ -188,9 +188,9 @@ namespace VkScriptAnalyzer.Parser
             if (t2 == null)
                 return null;
 
-            if (CheckToken("and", show_error: false))
+            if (CheckToken("and", showError: false))
             {
-                var res = new ExprNode(current_token);
+                var res = new ExprNode(_currentToken);
                 res.Left = t2;
 
                 GetToken();
@@ -211,9 +211,9 @@ namespace VkScriptAnalyzer.Parser
             if (t3 == null)
                 return null;
 
-            if (CheckToken("<", show_error: false) || CheckToken(">", show_error: false) || CheckToken("<=", show_error: false) || CheckToken(">=", show_error: false) || CheckToken("==", show_error: false) || CheckToken("!=", show_error: false))
+            if (CheckToken("<", showError: false) || CheckToken(">", showError: false) || CheckToken("<=", showError: false) || CheckToken(">=", showError: false) || CheckToken("==", showError: false) || CheckToken("!=", showError: false))
             {
-                var res = new ExprNode(current_token);
+                var res = new ExprNode(_currentToken);
                 res.Left = t3;
 
                 GetToken();
@@ -234,9 +234,9 @@ namespace VkScriptAnalyzer.Parser
             if (t4 == null)
                 return null;
 
-            if (CheckToken("+", show_error: false) || CheckToken("-", show_error: false))
+            if (CheckToken("+", showError: false) || CheckToken("-", showError: false))
             {
-                var res = new ExprNode(current_token);
+                var res = new ExprNode(_currentToken);
                 res.Left = t4;
 
                 GetToken();
@@ -257,9 +257,9 @@ namespace VkScriptAnalyzer.Parser
             if (t5 == null)
                 return null;
 
-            if (CheckToken("*", show_error: false) || CheckToken("/", show_error: false))
+            if (CheckToken("*", showError: false) || CheckToken("/", showError: false))
             {
-                var res = new ExprNode(current_token);
+                var res = new ExprNode(_currentToken);
                 res.Left = t5;
 
                 GetToken();
@@ -282,20 +282,20 @@ namespace VkScriptAnalyzer.Parser
 
             GetToken();
 
-            if (CheckToken(".", show_error: false))
+            if (CheckToken(".", showError: false))
             {
-                var res = new KvalidentNode(current_token);
+                var res = new KvalidentNode(_currentToken);
                 res.Left = t6;
 
                 GetToken();
                 res.Right = T5();
 
-                if(res.Right.Token.type == TokenType.Identifier || res.Right.Token.type == TokenType.Dot)
+                if(res.Right.Token.Type == TokenType.Identifier || res.Right.Token.Type == TokenType.Dot)
                 {
                     return res;
                 }
 
-                ErrorMessage = $"Ожидался идентификатор поля, но обнаружено: '{res.Right.Token.value}'\nСтрока: {lexer.PosNumber}";
+                ErrorMessage = $"Ожидался идентификатор поля, но обнаружено: '{res.Right.Token.Value}'\nСтрока: {_lexer.PosNumber}";
                 return null;
             }
             else
@@ -306,19 +306,19 @@ namespace VkScriptAnalyzer.Parser
 
         private ExprNode T6()
         {
-            if (CheckToken("API", show_error: false))// TODO: ошибку с продолжением парсинга "api" убрать при анализе существования переменной
+            if (CheckToken("API", showError: false))// TODO: ошибку с продолжением парсинга "api" убрать при анализе существования переменной
             {
                 return Call();
             }
-            if (CheckTokenType(TokenType.Identifier, show_error: false) || CheckTokenType(TokenType.BoolDataType, show_error: false) 
-                || CheckTokenType(TokenType.Number, show_error: false) || CheckTokenType(TokenType.String, show_error: false))
+            if (CheckTokenType(TokenType.Identifier, showError: false) || CheckTokenType(TokenType.BoolDataType, showError: false) 
+                || CheckTokenType(TokenType.Number, showError: false) || CheckTokenType(TokenType.String, showError: false))
             {
-                if(current_token.value == "null")
+                if(_currentToken.Value == "null")
                     return new ObjectNode(new List<ObjectField>());
 
-                return new ExprNode(current_token);
+                return new ExprNode(_currentToken);
             }
-            else if (CheckToken("(", show_error: false))
+            else if (CheckToken("(", showError: false))
             {
                 var cnd = Expr();
 
@@ -327,12 +327,12 @@ namespace VkScriptAnalyzer.Parser
                     return cnd;
                 }
             }
-            else if (CheckToken("{", show_error: false))
+            else if (CheckToken("{", showError: false))
             {
                 return Object();
             }
 
-            ErrorMessage = $"Обнаружен неразрешённый символ: '{current_token.value}'\nСтрока: {lexer.PosNumber}";
+            ErrorMessage = $"Обнаружен неразрешённый символ: '{_currentToken.Value}'\nСтрока: {_lexer.PosNumber}";
 
             return null;
         }
@@ -345,7 +345,7 @@ namespace VkScriptAnalyzer.Parser
                 GetToken();
                 if (CheckTokenType(TokenType.Identifier))
                 {
-                    var section_name = current_token;
+                    var section_name = _currentToken;
 
                     GetToken();
                     if (CheckToken("."))
@@ -353,14 +353,14 @@ namespace VkScriptAnalyzer.Parser
                         GetToken();
                         if (CheckTokenType(TokenType.Identifier))
                         {
-                            var call = new CallNode(current_token, section_name);
+                            var call = new CallNode(_currentToken, section_name);
                             GetToken();
 
                             if (CheckToken("("))
                             {
                                 GetToken();
 
-                                if (CheckToken(")", show_error: false))
+                                if (CheckToken(")", showError: false))
                                 {
                                     return call;
                                 }
@@ -400,9 +400,9 @@ namespace VkScriptAnalyzer.Parser
             private void Fields(ref List<ObjectField> fields)
             {
                 GetToken();
-                if (CheckTokenType(TokenType.String, show_error: false))
+                if (CheckTokenType(TokenType.String, showError: false))
                 {
-                    var field = new ObjectField(current_token);
+                    var field = new ObjectField(_currentToken);
 
                     GetToken();
                     if (CheckToken(":"))
@@ -415,7 +415,7 @@ namespace VkScriptAnalyzer.Parser
 
                             fields.Add(field);
 
-                            if (CheckToken(",", show_error: false))
+                            if (CheckToken(",", showError: false))
                             {
                                 Fields(ref fields);
                             }
@@ -450,7 +450,7 @@ namespace VkScriptAnalyzer.Parser
                             res.Body = body;
 
                         GetNextToken();
-                        if (CheckToken("else", show_error: false))
+                        if (CheckToken("else", showError: false))
                         {
                             GetToken();
                             GetToken();
@@ -472,7 +472,7 @@ namespace VkScriptAnalyzer.Parser
         private Node Body()
         {
             GetToken();
-            if (CheckToken("{", show_error: false))
+            if (CheckToken("{", showError: false))
             {
                 var res = InstructionList(); 
                 
@@ -486,7 +486,7 @@ namespace VkScriptAnalyzer.Parser
                 var res = Instruction();
                 if (res is EmptyNode)
                 {
-                    ErrorMessage = $"Ожидалась инструкция, но обнаружена пустота \nСтрока: {lexer.PosNumber}";
+                    ErrorMessage = $"Ожидалась инструкция, но обнаружена пустота \nСтрока: {_lexer.PosNumber}";
                     return null;
                 }
                 else
@@ -524,7 +524,7 @@ namespace VkScriptAnalyzer.Parser
             GetToken();
             if (CheckTokenType(TokenType.Identifier))
             {
-                var res = new VarNode(current_token);
+                var res = new VarNode(_currentToken);
 
                 GetToken();
                 if (CheckToken("="))
@@ -552,12 +552,12 @@ namespace VkScriptAnalyzer.Parser
 
         private VarNode Var1()
         {
-            if (CheckToken(",", show_error: false))
+            if (CheckToken(",", showError: false))
             {
                 GetToken();
                 if (CheckTokenType(TokenType.Identifier))
                 {
-                    var res = new VarNode(current_token);
+                    var res = new VarNode(_currentToken);
 
                     GetToken();
                     if (CheckToken("="))

@@ -6,42 +6,42 @@ namespace VkScriptAnalyzer.Emulator
 {
     public class CalculateResult
     {
-        private object value;
+        private object _value;
         public DataType DataType { get; set; }
 
         public CalculateResult(object val, DataType type)
         {
-            value = val;
+            _value = val;
             DataType = type;
         }
 
         public object GetResult()
         {
-            return value;
+            return _value;
         }
     }
 
     public class EmulatorMashine
     {
-        private Node ast;
-        private Env env;
-        private string[] existing_api_methods = new string[] { "account_setOffline" };
-        private int api_calls_count;
+        private Node _ast;
+        private Env _env;
+        private string[] _existingApiMethods = new string[] { "account_setOffline" };
+        private int _apiCallsCount;
 
         public string ErrorMessage { get; private set; }
 
         public EmulatorMashine(Node ast)
         {
-            this.ast = ast;
-            api_calls_count = 0;
+            this._ast = ast;
+            _apiCallsCount = 0;
         }
 
         public CalculateResult StartEmulate()
         {
-            env = new Env();
-            env.CreateScope();
+            _env = new Env();
+            _env.CreateScope();
 
-            return Emulate(ast);
+            return Emulate(_ast);
         }
 
         /// <summary>
@@ -61,7 +61,7 @@ namespace VkScriptAnalyzer.Emulator
                         return null;
 
                     res.Add(new VariableSymbol(
-                        name: field.Name.value,
+                        name: field.Name.Value,
                         value: field_value.GetResult(),
                         type: field_value.DataType,
                         scope: null
@@ -86,11 +86,11 @@ namespace VkScriptAnalyzer.Emulator
             }
             if (node is IfNode)
             {
-                env.CreateScope();
+                _env.CreateScope();
 
                 var if_result = IfInterpret(node as IfNode);// результат может быть только при Return
 
-                env.CloseScope();   
+                _env.CloseScope();   
                 
                 if (if_result == null)
                     return Emulate(node.Next);
@@ -99,11 +99,11 @@ namespace VkScriptAnalyzer.Emulator
             }
             if (node is WhileNode)
             {
-                env.CreateScope();
+                _env.CreateScope();
 
                 var while_result = WhileInterpret(node as WhileNode);// результат может быть только при Return
 
-                env.CloseScope();
+                _env.CloseScope();
 
                 if (while_result == null)
                     return Emulate(node.Next);
@@ -122,7 +122,7 @@ namespace VkScriptAnalyzer.Emulator
         {
             if(node != null)
             {
-                var symbol = env.GetSymbolLocal(node.Id.value);
+                var symbol = _env.GetSymbolLocal(node.Id.Value);
                 if (symbol == null)
                 {
                     CalculateResult expr_val = ExprInterpret(node.Expression);                    
@@ -130,10 +130,10 @@ namespace VkScriptAnalyzer.Emulator
                     if (expr_val != null)
                     {
                         var result = expr_val.GetResult();
-                        var scope = env.GetCurrentScope();
+                        var scope = _env.GetCurrentScope();
 
-                        env.AddSymbol(new VariableSymbol(
-                            name:  node.Id.value, 
+                        _env.AddSymbol(new VariableSymbol(
+                            name:  node.Id.Value, 
                             value: result,
                             type:  expr_val.DataType,
                             scope: scope
@@ -151,7 +151,7 @@ namespace VkScriptAnalyzer.Emulator
                     if (expr_val != null)
                     {
                         (symbol as VariableSymbol).Value = expr_val.GetResult();
-                        env.UpdateSymbolValue(symbol);
+                        _env.UpdateSymbolValue(symbol);
 
                         if (node.NextVar == null)
                             return true;
@@ -172,15 +172,15 @@ namespace VkScriptAnalyzer.Emulator
         //  идентификаторы   c   d
         private CalculateResult KvalidentInterpret(KvalidentNode node, ObjectSymbol obj)
         {
-            var field = obj.GetMember(node.Left.Token.value) as VariableSymbol;
+            var field = obj.GetMember(node.Left.Token.Value) as VariableSymbol;
 
             if (field == null || field.Value is ObjectSymbol == false)
                 return new CalculateResult(null, DataType.Object);
 
-            if (node.Right.Token.type == TokenType.Identifier
-                   && node.Left.Token.type == TokenType.Identifier)// базовый случай, когда потомки узла - идентификаторы. Ниже идти не нужно
+            if (node.Right.Token.Type == TokenType.Identifier
+                   && node.Left.Token.Type == TokenType.Identifier)// базовый случай, когда потомки узла - идентификаторы. Ниже идти не нужно
             {
-                var res = (field.Value as ObjectSymbol).GetMember(node.Right.Token.value) as VariableSymbol;
+                var res = (field.Value as ObjectSymbol).GetMember(node.Right.Token.Value) as VariableSymbol;
 
                 return new CalculateResult(res.Value, res.DataType);
             }
@@ -194,10 +194,10 @@ namespace VkScriptAnalyzer.Emulator
         {
             if (node is KvalidentNode)
             {
-                var left_symbol = env.GetSymbol(node.Left.Token.value) as VariableSymbol;
+                var left_symbol = _env.GetSymbol(node.Left.Token.Value) as VariableSymbol;
                 if (left_symbol == null)
                 {
-                    ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.Left.Token.value}' \nСтрока: {node.Left.Token.pos}";
+                    ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.Left.Token.Value}' \nСтрока: {node.Left.Token.Pos}";
                     return null;
                 }
 
@@ -205,7 +205,7 @@ namespace VkScriptAnalyzer.Emulator
                 {
                     if(node.Right is KvalidentNode == false)// базовый случай, когда потомки узла - идентификаторы. Ниже идти не нужно
                     {
-                        var res = (left_symbol.Value as ObjectSymbol).GetMember(node.Right.Token.value) as VariableSymbol;
+                        var res = (left_symbol.Value as ObjectSymbol).GetMember(node.Right.Token.Value) as VariableSymbol;
                         return new CalculateResult(res.Value, res.DataType);
                     }
 
@@ -227,7 +227,7 @@ namespace VkScriptAnalyzer.Emulator
 
                 return new CalculateResult(new ObjectSymbol(
                         name:   null,
-                        scope:  env.GetCurrentScope(),
+                        scope:  _env.GetCurrentScope(),
                         fields: fields
                         ),
                     type: DataType.Object
@@ -237,7 +237,7 @@ namespace VkScriptAnalyzer.Emulator
             if(node is CallNode)
             {
                 var call_node = node as CallNode;
-                if(existing_api_methods.Contains(call_node.SectionName.value + "_" + call_node.Token.value))
+                if(_existingApiMethods.Contains(call_node.SectionName.Value + "_" + call_node.Token.Value))
                 {
                     var parameters = new System.Collections.Generic.List<VariableSymbol>();
 
@@ -248,7 +248,7 @@ namespace VkScriptAnalyzer.Emulator
                             CalculateResult field_value = ExprInterpret(field.Expression);
 
                             parameters.Add(new VariableSymbol(
-                                name: field.Name.value,
+                                name: field.Name.Value,
                                 value: field_value.GetResult(),
                                 type: field_value.DataType,
                                 scope: null
@@ -258,51 +258,51 @@ namespace VkScriptAnalyzer.Emulator
 
                     try
                     {
-                        if(api_calls_count == 25)
+                        if(_apiCallsCount == 25)
                         {
                             ErrorMessage = $"Превышено количество вызовов методов API.";
                             return null;
                         }
 
                         var res = ApiMethodsExecutor.Instance.Execute(
-                            section_name: call_node.SectionName.value,
-                            method_name: call_node.Token.value,
+                            sectionName: call_node.SectionName.Value,
+                            methodName: call_node.Token.Value,
                             parameters: parameters
                         );
 
-                        api_calls_count++;
+                        _apiCallsCount++;
                         return res;
                     }
                     catch (System.Exception ex)
                     {
-                        ErrorMessage = $"Ошибка во время выполнения метода: '{call_node.SectionName.value}.{call_node.Token.value}' \nСтрока: {call_node.Token.pos} \nОшибка: {ex.Message}";
+                        ErrorMessage = $"Ошибка во время выполнения метода: '{call_node.SectionName.Value}.{call_node.Token.Value}' \nСтрока: {call_node.Token.Pos} \nОшибка: {ex.Message}";
 
                         return null;
                     }
                 }
                 else
                 {
-                    ErrorMessage = $"Вызов несуществующего метода: '{call_node.SectionName.value}.{call_node.Token.value}' \nСтрока: {call_node.Token.pos}";
+                    ErrorMessage = $"Вызов несуществующего метода: '{call_node.SectionName.Value}.{call_node.Token.Value}' \nСтрока: {call_node.Token.Pos}";
                     return null;
                 }
             }
 
-            if(node.Token.type == TokenType.Number)
+            if(node.Token.Type == TokenType.Number)
             {
-                return new CalculateResult(double.Parse(node.Token.value, System.Globalization.CultureInfo.InvariantCulture), DataType.Double);
+                return new CalculateResult(double.Parse(node.Token.Value, System.Globalization.CultureInfo.InvariantCulture), DataType.Double);
             }
 
-            if (node.Token.type == TokenType.BoolDataType)
+            if (node.Token.Type == TokenType.BoolDataType)
             {
-                return new CalculateResult(bool.Parse(node.Token.value), DataType.Bool);
+                return new CalculateResult(bool.Parse(node.Token.Value), DataType.Bool);
             }
 
-            if (node.Token.type == TokenType.String)
+            if (node.Token.Type == TokenType.String)
             {
-                return new CalculateResult(node.Token.value, DataType.String);
+                return new CalculateResult(node.Token.Value, DataType.String);
             }
 
-            string op = node.Token.value;
+            string op = node.Token.Value;
             if (op == "+" || op == "-" || op == "*" || op == "/"
                 || op == ">" || op == "<" || op == ">=" || op == "<=" || op == "==" || op == "!="
             )
@@ -342,8 +342,8 @@ namespace VkScriptAnalyzer.Emulator
                             }
                             catch (System.OverflowException)
                             {
-                                ErrorMessage = $"Ошибка переполнения. Оператор '{node.Token.value}'. Левый операнд: {(double)left_val.GetResult() } " +
-                                    $"Правый операнд: {(double)right_val.GetResult()} \nСтрока: {node.Token.pos}";
+                                ErrorMessage = $"Ошибка переполнения. Оператор '{node.Token.Value}'. Левый операнд: {(double)left_val.GetResult() } " +
+                                    $"Правый операнд: {(double)right_val.GetResult()} \nСтрока: {node.Token.Pos}";
 
                                 return null;
                             }
@@ -352,7 +352,7 @@ namespace VkScriptAnalyzer.Emulator
                         else
                         {
                             // несоответствие типов
-                            ErrorMessage = $"Оператор '{node.Token.value}' ожидает тип Double, но обнаружены {left_val.DataType} и {right_val.DataType} \nСтрока: {node.Token.pos}";
+                            ErrorMessage = $"Оператор '{node.Token.Value}' ожидает тип Double, но обнаружены {left_val.DataType} и {right_val.DataType} \nСтрока: {node.Token.Pos}";
                         }
                     }
                 }
@@ -376,17 +376,17 @@ namespace VkScriptAnalyzer.Emulator
                         }
                         else
                         {
-                            ErrorMessage = $"Оператор '{node.Token.value}' ожидает тип Bool, но обнаружены {left_val.DataType} и {right_val.DataType} \nСтрока: {node.Token.pos}";
+                            ErrorMessage = $"Оператор '{node.Token.Value}' ожидает тип Bool, но обнаружены {left_val.DataType} и {right_val.DataType} \nСтрока: {node.Token.Pos}";
                         }
                     }
                 }
             }
-            else if (node.Token.type == TokenType.Identifier)
+            else if (node.Token.Type == TokenType.Identifier)
             {
-                var var = env.GetSymbol(node.Token.value);
+                var var = _env.GetSymbol(node.Token.Value);
                 if (var == null)
                 {
-                    ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.Token.value}' \nСтрока: {node.Token.pos}";
+                    ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.Token.Value}' \nСтрока: {node.Token.Pos}";
                 }
                 else
                 {
@@ -413,20 +413,20 @@ namespace VkScriptAnalyzer.Emulator
 
         private bool AssignInterpret(AssignNode node)
         {
-            var var_sym = (VariableSymbol)env.GetSymbol(node.Id.value);
+            var var_sym = (VariableSymbol)_env.GetSymbol(node.Id.Value);
             if(var_sym != null)
             {
                 var expr_val = ExprInterpret(node.Expression);
                 if(expr_val != null)
                 {
                     var_sym.Value = expr_val.GetResult();
-                    env.UpdateSymbolValue(var_sym);
+                    _env.UpdateSymbolValue(var_sym);
                     return true;
                 }
             }
             else
             {
-                ErrorMessage = $"Идентификатор '{node.Id.value}' не объявлен \nСтрока: {node.Id.pos}";
+                ErrorMessage = $"Идентификатор '{node.Id.Value}' не объявлен \nСтрока: {node.Id.Pos}";
             }
 
             return false;
@@ -437,15 +437,15 @@ namespace VkScriptAnalyzer.Emulator
             return ExprInterpret(node.Expression);
         }
 
-        private bool ExprValueToBool(CalculateResult expr_result)
+        private bool ExprValueToBool(CalculateResult exprResult)
         {
-            if(expr_result.DataType == DataType.Bool)
+            if(exprResult.DataType == DataType.Bool)
             {
-                return (bool)expr_result.GetResult();
+                return (bool)exprResult.GetResult();
             }
             else
             {
-                if (((double)expr_result.GetResult()) == 0)
+                if (((double)exprResult.GetResult()) == 0)
                     return false;
                 else
                     return true;

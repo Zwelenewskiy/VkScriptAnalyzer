@@ -2,20 +2,20 @@
 {
     public class Env
     {
-        private Scope scope;
+        private Scope _scope;
 
         public void CreateScope()
         {
-            if(scope == null)
+            if(_scope == null)
             {
-                scope = new Scope();
+                _scope = new Scope();
             }
             else
             {
                 var new_scope = new Scope();
 
-                new_scope.Prev = scope;
-                scope = new_scope;
+                new_scope.Prev = _scope;
+                _scope = new_scope;
             }
         }
 
@@ -24,7 +24,7 @@
         /// </summary>
         public void CloseScope()
         {
-            scope = scope.Prev;
+            _scope = _scope.Prev;
         }
 
         /// <summary>
@@ -32,7 +32,7 @@
         /// </summary>
         public Symbol GetSymbol(string name)
         {
-            var tmp_scope = scope;
+            var tmp_scope = _scope;
             while (tmp_scope != null)
             {
                 var symbol = tmp_scope.GetSymbol(name);
@@ -55,7 +55,7 @@
         /// </summary>
         public Symbol GetSymbolLocal(string name)
         {
-            return scope.GetSymbol(name);
+            return _scope.GetSymbol(name);
         }
 
         /// <summary>
@@ -63,7 +63,7 @@
         /// </summary>
         public void AddSymbol(Symbol symbol)
         {
-            scope.AddSymbol(symbol);
+            _scope.AddSymbol(symbol);
         }
 
         public void UpdateSymbolValue(Symbol symbol)
@@ -73,7 +73,7 @@
 
         public Scope GetCurrentScope()
         {
-            return scope;
+            return _scope;
         }
     }
 }

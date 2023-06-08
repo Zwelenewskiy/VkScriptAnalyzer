@@ -6,11 +6,11 @@ namespace VkScriptAnalyzer
 {
     class Program
     {
-        private const string INPUT_FILE_NAME = "input.vkscript";
+        private const string InputFileName = "input.vkscript";
 
         static void Main()
         {
-            string input = System.IO.File.ReadAllText(INPUT_FILE_NAME);
+            string input = System.IO.File.ReadAllText(InputFileName);
 
             var parser = new SyntacticAnalyzer(input);
             Node ast = parser.Parse();
@@ -76,7 +76,7 @@ namespace VkScriptAnalyzer
             Console.ReadKey();
         }
 
-        static void PrintObject(ObjectSymbol node, int depth = 0, bool print_bracket = true)
+        static void PrintObject(ObjectSymbol node, int depth = 0, bool printBracket = true)
         {
             if (node.Fields.Keys.Count == 0)
             {
@@ -84,8 +84,8 @@ namespace VkScriptAnalyzer
                 return;
             }
 
-            if (print_bracket)
-                PrintString(depth, "{", print_comma: false);
+            if (printBracket)
+                PrintString(depth, "{", printComma: false);
 
             int i = 0;
 
@@ -95,9 +95,9 @@ namespace VkScriptAnalyzer
 
                 if ((node.Fields[field_name] as VariableSymbol).Value is ObjectSymbol)
                 {
-                    PrintString(depth + 2, field_name + ": {", print_comma: false);
+                    PrintString(depth + 2, field_name + ": {", printComma: false);
 
-                    PrintObject(node: (node.Fields[field_name] as VariableSymbol).Value as ObjectSymbol, depth: depth + 2, print_bracket: false);
+                    PrintObject(node: (node.Fields[field_name] as VariableSymbol).Value as ObjectSymbol, depth: depth + 2, printBracket: false);
 
                     PrintString(depth + 2, "}", print_comma);
                 }
@@ -109,15 +109,15 @@ namespace VkScriptAnalyzer
                 i++;
             }
 
-            if (print_bracket)
+            if (printBracket)
                 Console.WriteLine(new string(' ', depth) + "}");
         }
 
-        static void PrintString(int indent, string value, bool print_comma)
+        static void PrintString(int indent, string value, bool printComma)
         {
             Console.Write($"{new string(' ', indent)}{value}");
 
-            if(print_comma)
+            if(printComma)
                 Console.Write(",");
 
             Console.WriteLine();

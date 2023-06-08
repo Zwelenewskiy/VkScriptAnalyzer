@@ -5,38 +5,38 @@ namespace VkScriptAnalyzer.Lexer.Mashines
 {
     public class MashineOneSymbol : Machine
 	{
-		private const string enable_one_symbols = "+-=<>()";
+		private const string EnableOneSymbols = "+-=<>()";
 
         public MashineOneSymbol() :
             base(
-                    state_table: new Dictionary<Input_signal, Dictionary<State, State>>()
+                    stateTable: new Dictionary<InputSignal, Dictionary<State, State>>()
 					{
-						{ Input_signal.Letter,
+						{ InputSignal.Letter,
 							new Dictionary<State, State>() {
 							{  State.S0, State.S1 },
 							{  State.S1, State.S1 },
-							{  State.S_error, State.S1 }
+							{  State.SError, State.S1 }
 						} },
-						{ Input_signal.Other,
+						{ InputSignal.Other,
 							new Dictionary<State, State>() {
-							{  State.S0, State.S_error },
-							{  State.S1, State.S_error }
+							{  State.S0, State.SError },
+							{  State.S1, State.SError }
 						} }
 					},
                     type: TokenType.OneSymbol,
-                    finished_states: new State[] { State.S1 }
+                    finishedStates: new State[] { State.S1 }
                 )
         {
 
         }
 
-        public override Input_signal DefineSignal(char symbol)
+        public override InputSignal DefineSignal(char symbol)
 		{
-			if (enable_one_symbols.Contains(symbol))
-				return Input_signal.Letter;
+			if (EnableOneSymbols.Contains(symbol))
+				return InputSignal.Letter;
 			else if (symbol == ' ')
-				return Input_signal.End;
-			else return Input_signal.Other;
+				return InputSignal.End;
+			else return InputSignal.Other;
 		}
 	}
 }

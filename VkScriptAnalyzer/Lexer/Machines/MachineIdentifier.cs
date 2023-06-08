@@ -6,40 +6,40 @@ namespace VkScriptAnalyzer.Lexer.Mashines
     {
         public MashineIdentifier() :
             base(
-                    state_table: new Dictionary<Input_signal, Dictionary<State, State>>()
+                    stateTable: new Dictionary<InputSignal, Dictionary<State, State>>()
                     {
-                        { Input_signal.Digit,
+                        { InputSignal.Digit,
                             new Dictionary<State, State>() {
-                            {  State.S0, State.S_error },
+                            {  State.S0, State.SError },
                             {  State.S1, State.S1 }
                         } },
-                        { Input_signal.Letter,
+                        { InputSignal.Letter,
                             new Dictionary<State, State>() {
                             {  State.S0, State.S1 },
                             {  State.S1, State.S1 }
                         } },
-                        { Input_signal.Other,
+                        { InputSignal.Other,
                             new Dictionary<State, State>() {
-                            {  State.S0, State.S_error },
-                            {  State.S1, State.S_error }
+                            {  State.S0, State.SError },
+                            {  State.S1, State.SError }
                         } },
                     },
                     type: TokenType.Identifier,
-                    finished_states: new State[] { State.S1 }
+                    finishedStates: new State[] { State.S1 }
                 )
         {
 
         }
 
-        public override Input_signal DefineSignal(char symbol)
+        public override InputSignal DefineSignal(char symbol)
         {
             if (symbol >= 'a' && symbol <= 'z' || symbol >= 'A' && symbol <= 'Z')
-                return Input_signal.Letter;
+                return InputSignal.Letter;
             else if (symbol >= '0' && symbol <= '9')
-                return Input_signal.Digit;
+                return InputSignal.Digit;
             else if (symbol == ' ')
-                return Input_signal.End;
-            else return Input_signal.Other;
+                return InputSignal.End;
+            else return InputSignal.Other;
         }
     }
 }
