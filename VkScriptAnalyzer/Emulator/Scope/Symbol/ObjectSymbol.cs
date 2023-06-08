@@ -8,7 +8,7 @@
         {
             Fields = new System.Collections.Hashtable(fields.Count);
 
-            foreach (VariableSymbol field in fields)
+            foreach (var field in fields)
             {
                 if (Fields.ContainsKey(field.Name))
                 {

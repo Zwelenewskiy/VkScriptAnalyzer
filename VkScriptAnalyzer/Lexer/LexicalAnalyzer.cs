@@ -58,13 +58,13 @@ namespace VkScriptAnalyzer.Lexer
 
         private readonly string[] _keyWords =
         {
-            "var",
-            "if",
-            "else",
-            "while",
-            "and",
-            "or",
-            "return",
+            Keywords.Var,
+            Keywords.If,
+            Keywords.Else,
+            Keywords.While,
+            Keywords.And,
+            Keywords.Or,
+            Keywords.Return,
         };
 
         private readonly string[] _boolDataTypes =
@@ -115,12 +115,12 @@ namespace VkScriptAnalyzer.Lexer
             var find = false;
             string value = null;
 
-            var temp_parsers = _parsers
+            var tempParsers = _parsers
                 .Where(p => !string.IsNullOrEmpty(p.LexValue))
                 .OrderByDescending(p => p.LexValue.Length)
                 .ToArray();
 
-            foreach (var parser in temp_parsers)
+            foreach (var parser in tempParsers)
             {
                 value = parser.LexValue;
 
@@ -283,9 +283,9 @@ namespace VkScriptAnalyzer.Lexer
                     if (symbol == '.')
                     {
                         // если начали разбирать число, то точка не будет символом-"разделителем"
-                        var is_error = _maсhineNumber.InError();
+                        var isError = _maсhineNumber.InError();
 
-                        if (!is_error)
+                        if (!isError)
                         {
                             foreach (var parser in _parsers)
                             {

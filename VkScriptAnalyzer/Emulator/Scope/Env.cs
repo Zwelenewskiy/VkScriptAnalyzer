@@ -12,10 +12,12 @@
             }
             else
             {
-                var new_scope = new Scope();
+                var newScope = new Scope
+                {
+                    Prev = _scope
+                };
 
-                new_scope.Prev = _scope;
-                _scope = new_scope;
+                _scope = newScope;
             }
         }
 
@@ -32,17 +34,17 @@
         /// </summary>
         public Symbol GetSymbol(string name)
         {
-            var tmp_scope = _scope;
-            while (tmp_scope != null)
+            var tempScope = _scope;
+            while (tempScope != null)
             {
-                var symbol = tmp_scope.GetSymbol(name);
+                var symbol = tempScope.GetSymbol(name);
 
                 if (symbol != null)
                 {
                     return symbol;
                 }
 
-                tmp_scope = tmp_scope.Prev;
+                tempScope = tempScope.Prev;
             }
 
             return null;

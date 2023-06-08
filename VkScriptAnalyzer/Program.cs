@@ -82,20 +82,20 @@ namespace VkScriptAnalyzer
 
             var i = 0;
 
-            foreach (string field_name in node.Fields.Keys)
+            foreach (string fieldName in node.Fields.Keys)
             {
-                var print_comma = i < node.Fields.Keys.Count - 1;
+                var printComma = i < node.Fields.Keys.Count - 1;
 
-                if ((node.Fields[field_name] as VariableSymbol).Value is ObjectSymbol)
+                if ((node.Fields[fieldName] as VariableSymbol).Value is ObjectSymbol)
                 {
-                    PrintString(depth + 2, field_name + ": {", printComma: false);
+                    PrintString(depth + 2, fieldName + ": {", printComma: false);
 
-                    PrintObject(node: (node.Fields[field_name] as VariableSymbol).Value as ObjectSymbol, depth: depth + 2, printBracket: false);
+                    PrintObject(node: (node.Fields[fieldName] as VariableSymbol).Value as ObjectSymbol, depth: depth + 2, printBracket: false);
 
-                    PrintString(depth + 2, "}", print_comma);
+                    PrintString(depth + 2, "}", printComma);
                 } else
                 {
-                    PrintString(depth + 2, $"{field_name}: {(node.Fields[field_name] as VariableSymbol).Value}", print_comma);
+                    PrintString(depth + 2, $"{fieldName}: {(node.Fields[fieldName] as VariableSymbol).Value}", printComma);
                 }
 
                 i++;

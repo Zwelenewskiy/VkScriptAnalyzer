@@ -114,22 +114,22 @@ namespace VkScriptAnalyzer.Parser
                 return new EmptyNode();
             }
 
-            if (CheckToken("if", showError: false))
+            if (CheckToken(Keywords.If, showError: false))
             {
                 return If();
             }
 
-            if (CheckToken("while", showError: false))
+            if (CheckToken(Keywords.While, showError: false))
             {
                 return While();
             }
 
-            if (CheckToken("var", showError: false))
+            if (CheckToken(Keywords.Var, showError: false))
             {
                 return Var();
             }
 
-            if (CheckToken("return", showError: false))
+            if (CheckToken(Keywords.Return, showError: false))
             {
                 return Return();
             }
@@ -165,7 +165,7 @@ namespace VkScriptAnalyzer.Parser
                 return null;
             }
 
-            if (!CheckToken("or", showError: false))
+            if (!CheckToken(Keywords.Or, showError: false))
             {
                 return t1;
             }
@@ -188,7 +188,7 @@ namespace VkScriptAnalyzer.Parser
                 return null;
             }
 
-            if (!CheckToken("and", showError: false))
+            if (!CheckToken(Keywords.And, showError: false))
             {
                 return t2;
             }
@@ -330,7 +330,7 @@ namespace VkScriptAnalyzer.Parser
                 || CheckTokenType(TokenType.Number, showError: false)
                 || CheckTokenType(TokenType.String, showError: false))
             {
-                return _currentToken.Value == "null" ? new ObjectNode(new()) : new ExprNode(_currentToken);
+                return _currentToken.Value == Keywords.Null ? new ObjectNode(new()) : new ExprNode(_currentToken);
             }
 
             if (CheckToken("(", showError: false))
@@ -367,7 +367,7 @@ namespace VkScriptAnalyzer.Parser
                 return null;
             }
 
-            var section_name = _currentToken;
+            var sectionName = _currentToken;
 
             GetToken();
 
@@ -383,7 +383,7 @@ namespace VkScriptAnalyzer.Parser
                 return null;
             }
 
-            var call = new CallNode(_currentToken, section_name);
+            var call = new CallNode(_currentToken, sectionName);
             GetToken();
 
             if (!CheckToken("("))
@@ -500,7 +500,7 @@ namespace VkScriptAnalyzer.Parser
 
             GetNextToken();
 
-            if (CheckToken("else", showError: false))
+            if (CheckToken(Keywords.Else, showError: false))
             {
                 GetToken();
                 GetToken();

@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using VkScriptAnalyzer;
 using VkScriptAnalyzer.Lexer;
 
 namespace VkScriptAnalyzerTests
@@ -8,8 +9,8 @@ namespace VkScriptAnalyzerTests
     {
         public int Compare(object x, object y)
         {
-            Token t1 = (Token)x;
-            Token t2 = (Token)y;
+            var t1 = (Token)x;
+            var t2 = (Token)y;
 
             if (t1.Value == t2.Value
                 && t1.Type == t2.Type)
@@ -34,7 +35,7 @@ namespace VkScriptAnalyzerTests
         {
             var lexer = new LexicalAnalyzer(@params.InputText);
 
-            List<Token> result = new List<Token>();
+            var result = new List<Token>();
             var token = lexer.GetToken();
             while (true)
             {
@@ -94,7 +95,7 @@ namespace VkScriptAnalyzerTests
         }
 
         [TestMethod]
-        public void NumbersWithWhitepacesTest()
+        public void NumbersWithWhitespacesTest()
         {
             DoTest(new TestParameters()
             {
@@ -310,37 +311,37 @@ namespace VkScriptAnalyzerTests
                 {
                     new Token()
                     {
-                        Value = "var",
+                        Value = Keywords.Var,
                         Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        Value = "if",
+                        Value = Keywords.If,
                         Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        Value = "else",
+                        Value = Keywords.Else,
                         Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        Value = "while",
+                        Value = Keywords.While,
                         Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        Value = "and",
+                        Value = Keywords.And,
                         Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        Value = "or",
+                        Value = Keywords.Or,
                         Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        Value = "return",
+                        Value = Keywords.Return,
                         Type = TokenType.KeyWord
                     },
                 }
@@ -352,26 +353,28 @@ namespace VkScriptAnalyzerTests
         {
             DoTest(new TestParameters()
             {
-                InputText = @"var a = 1.8;
-                                var b = true;
+                InputText = """
+                            var a = 1.8;
+                            var b = true;
 
-                                if(b){
-	                                a = 4;
-                                }
-                                else{
-	                                a = 5;
-                                }
+                            if(b){
+                                a = 4;
+                            }
+                            else{
+                                a = 5;
+                            }
 
-                                while(b and a > 123){
-	                                a = a + 1;
-                                }
+                            while(b and a > 123){
+                                a = a + 1;
+                            }
 
-                                return a;",
+                            return a;
+                            """,
                 Sample = new List<Token>()
                 {
                     new Token()
                     {
-                        Value = "var",
+                        Value = Keywords.Var,
                         Type = TokenType.KeyWord
                     },
                     new Token()
@@ -396,7 +399,7 @@ namespace VkScriptAnalyzerTests
                     },
                     new Token()
                     {
-                        Value = "var",
+                        Value = Keywords.Var,
                         Type = TokenType.KeyWord
                     },
                     new Token()
@@ -421,7 +424,7 @@ namespace VkScriptAnalyzerTests
                     },
                     new Token()
                     {
-                        Value = "if",
+                        Value = Keywords.If,
                         Type = TokenType.KeyWord
                     },
                     new Token()
@@ -471,7 +474,7 @@ namespace VkScriptAnalyzerTests
                     },
                     new Token()
                     {
-                        Value = "else",
+                        Value = Keywords.Else,
                         Type = TokenType.KeyWord
                     },
                     new Token()
@@ -507,7 +510,7 @@ namespace VkScriptAnalyzerTests
 
                     new Token()
                     {
-                        Value = "while",
+                        Value = Keywords.While,
                         Type = TokenType.KeyWord
                     },
                     new Token()
@@ -522,7 +525,7 @@ namespace VkScriptAnalyzerTests
                     },
                     new Token()
                     {
-                        Value = "and",
+                        Value = Keywords.And,
                         Type = TokenType.KeyWord
                     },
                     new Token()
@@ -587,7 +590,7 @@ namespace VkScriptAnalyzerTests
                     },
                     new Token()
                     {
-                        Value = "return",
+                        Value = Keywords.Return,
                         Type = TokenType.KeyWord
                     },
                     new Token()

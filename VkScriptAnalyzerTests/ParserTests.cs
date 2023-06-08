@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using VkScriptAnalyzer;
 using VkScriptAnalyzer.Lexer;
 using VkScriptAnalyzer.Parser;
 
@@ -20,33 +21,24 @@ namespace VkScriptAnalyzerTests
             {
                 return false;
             }
-            if (sample == null &&
-                forCheck != null)
+            if (sample == null)
             {
                 return false;
             }
-            bool result = false;
-            if (sample is AssignNode)
+            var result = false;
+            if (sample is AssignNode assignNode)
             {
-                if(forCheck is AssignNode)
+                if(forCheck is AssignNode forCheckNode && assignNode.Id.Value == assignNode.Id.Value)
                 {
-                    var sample_node    = sample as AssignNode;
-                    var for_check_node = forCheck as AssignNode;
+                    result = IsIdentical(assignNode.Expression, forCheckNode.Expression);
 
-                    if(sample_node.Id.Value == sample_node.Id.Value)
+                    if (!result || assignNode.Next is not EmptyNode)
                     {
-                        result = IsIdentical(sample_node.Expression, for_check_node.Expression);
-
-                        if(result)
-                        {
-                            if(sample_node.Next is EmptyNode)
-                            {
-                                if(for_check_node.Next is EmptyNode)
-                                {
-                                    result = true;
-                                }
-                            }
-                        }
+                        return result;
+                    }
+                    if(forCheckNode.Next is EmptyNode)
+                    {
+                        result = true;
                     }
                 }
             }
@@ -58,37 +50,30 @@ namespace VkScriptAnalyzerTests
             {
 
             }
-            else if (sample is ObjectNode)
+            else if (sample is ObjectNode node)
             {
-                if (forCheck is ObjectNode)
+                if (forCheck is not ObjectNode forCheckNode || node.Fields.Count != forCheckNode.Fields.Count)
                 {
-                    var sample_node = sample as ObjectNode;
-                    var for_check_node = forCheck as ObjectNode;
-
-                    if (sample_node.Fields.Count == for_check_node.Fields.Count)
+                    return result;
+                }
+                for (var i = 0; i < node.Fields.Count; i++)
+                {
+                    if (node.Fields[i].Name.Value == forCheckNode.Fields[i].Name.Value)
                     {
-                        for (int i = 0; i < sample_node.Fields.Count; i++)
-                        {
-                            if (sample_node.Fields[i].Name.Value == for_check_node.Fields[i].Name.Value)
-                            {
-                                return IsIdentical(sample_node.Fields[i].Expression, for_check_node.Fields[i].Expression);
-                            }
-                        }
+                        return IsIdentical(node.Fields[i].Expression, forCheckNode.Fields[i].Expression);
                     }
                 }
             }
-            else if (sample is ExprNode)
+            else if (sample is ExprNode sampleNode)
             {
-                if (forCheck is ExprNode)
+                if (forCheck is not ExprNode forCheckNode)
                 {
-                    var sample_node = sample as ExprNode;
-                    var for_check_node = forCheck as ExprNode;
-
-                    if (sample_node.Token.Value == for_check_node.Token.Value)
-                    {
-                        return IsIdentical(sample_node.Left, for_check_node.Left)
-                               && IsIdentical(sample_node.Right, for_check_node.Right);
-                    }
+                    return result;
+                }
+                if (sampleNode.Token.Value == forCheckNode.Token.Value)
+                {
+                    return IsIdentical(sampleNode.Left, forCheckNode.Left)
+                           && IsIdentical(sampleNode.Right, forCheckNode.Right);
                 }
             }
                 
@@ -115,7 +100,7 @@ namespace VkScriptAnalyzerTests
         private void DoTest(Node sample, string input, string errorMessage = null)
         {
             var parser = new SyntacticAnalyzer(input);
-            Node ast = parser.Parse();
+            var ast = parser.Parse();
 
             if (errorMessage == null)
             {
@@ -142,61 +127,76 @@ namespace VkScriptAnalyzerTests
         [TestMethod]
         public void Assign()
         {
-            var sample = new AssignNode(new Token() { Value = "a"});
-            sample.Expression  = new ExprNode(new Token() { Value = "1" });
+            var sample = new AssignNode(new Token() { Value = "a"})
+            {
+                Expression = new ExprNode(new Token() { Value = "1" }),
+                Next = new EmptyNode()
+            };
 
-            sample.Next = new EmptyNode();
+            const string input = "a = 1;";
+            string errorMessage = null;
 
-            string input = "a = 1;";
-            string error_message = null;
-
-            DoTest(sample, input, error_message);
+            DoTest(sample, input, errorMessage);
         }
 
         [TestMethod]
         public void Assign_With_Arithmetic_Expression()
         {
-            var sample = new AssignNode(new Token() { Value = "a" });
-            sample.Expression                 = new ExprNode(Token("-"));
-            sample.Expression.Right           = new ExprNode(Token("6"));
-            sample.Expression.Left            = new ExprNode(Token("*"));
-            sample.Expression.Left.Right      = new ExprNode(Token("3"));
-            sample.Expression.Left.Left       = new ExprNode(Token("+"));
-            sample.Expression.Left.Left.Right = new ExprNode(Token("2"));
-            sample.Expression.Left.Left.Left  = new ExprNode(Token("1"));
+            var sample = new AssignNode(new Token() { Value = "a" })
+            {
+                Expression = new ExprNode(Token("-"))
+                {
+                    Right = new ExprNode(Token("6")),
+                    Left = new ExprNode(Token("*"))
+                    {
+                        Right = new ExprNode(Token("3")),
+                        Left = new ExprNode(Token("+"))
+                        {
+                            Right = new ExprNode(Token("2")),
+                            Left = new ExprNode(Token("1"))
+                        }
+                    }
+                },
+                Next = new EmptyNode()
+            };
 
-            sample.Next = new EmptyNode();
+            const string input = "a = (1 + 2) * 3 - 6;";
+            string errorMessage = null;
 
-            string input = "a = (1 + 2) * 3 - 6;";
-            string error_message = null;
-
-            DoTest(sample, input, error_message);
+            DoTest(sample, input, errorMessage);
         }
 
         [TestMethod]
         public void Assign_With_Logical_Expression()
         {
-            var sample = new AssignNode(new Token() { Value = "a" });
-            sample.Expression                 = new ExprNode(Token("or"));
-            sample.Expression.Right           = new ExprNode(Token("c"));
-            sample.Expression.Left            = new ExprNode(Token("and"));
-            sample.Expression.Left.Right      = new ExprNode(Token("b"));
-            sample.Expression.Left.Left       = new ExprNode(Token(">"));
-            sample.Expression.Left.Left.Right = new ExprNode(Token("2"));
-            sample.Expression.Left.Left.Left  = new ExprNode(Token("1"));
+            var sample = new AssignNode(new Token() { Value = "a" })
+            {
+                Expression = new ExprNode(Token(Keywords.Or))
+                {
+                    Right = new ExprNode(Token("c")),
+                    Left = new ExprNode(Token(Keywords.And))
+                    {
+                        Right = new ExprNode(Token("b")),
+                        Left = new ExprNode(Token(">"))
+                        {
+                            Right = new ExprNode(Token("2")),
+                            Left = new ExprNode(Token("1"))
+                        }
+                    }
+                },
+                Next = new EmptyNode()
+            };
 
-            sample.Next = new EmptyNode();
+            const string input = "a = (1 > 2) and b or c;";
+            string errorMessage = null;
 
-            string input = "a = (1 > 2) and b or c;";
-            string error_message = null;
-
-            DoTest(sample, input, error_message);
+            DoTest(sample, input, errorMessage);
         }
 
         [TestMethod]
         public void Assign_With_Object_Without_Nested_Objects()
         {
-            var sample_fields = new List<ObjectField>(2) 
+            var sampleFields = new List<ObjectField>(2) 
             {
                 new ObjectField()
                 {
@@ -210,15 +210,16 @@ namespace VkScriptAnalyzerTests
                 }
             };
 
-            var sample = new AssignNode(new Token() { Value = "a" });
-            sample.Expression = new ObjectNode(sample_fields);
+            var sample = new AssignNode(new Token() { Value = "a" })
+            {
+                Expression = new ObjectNode(sampleFields),
+                Next = new EmptyNode()
+            };
 
-            sample.Next = new EmptyNode();
+            const string input = """a = {"f1": 1, "f2": b};""";
+            string errorMessage = null;
 
-            string input = @"a = {""f1"": 1, ""f2"": b};";
-            string error_message = null;
-
-            DoTest(sample, input, error_message);
+            DoTest(sample, input, errorMessage);
         }
     }
 }
