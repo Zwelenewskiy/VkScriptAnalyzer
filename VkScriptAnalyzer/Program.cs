@@ -10,46 +10,36 @@ namespace VkScriptAnalyzer
 
         static void Main()
         {
-            string input = System.IO.File.ReadAllText(InputFileName);
+            var input = System.IO.File.ReadAllText(InputFileName);
 
             var parser = new SyntacticAnalyzer(input);
-            Node ast = parser.Parse();
+            var ast = parser.Parse();
 
-            if(ast == null)
+            if (ast == null)
             {
                 Console.WriteLine(parser.ErrorMessage);
-            }
-            else
+            } else
             {
-                var interpreter = new EmulatorMashine(ast);
-                CalculateResult result = interpreter.StartEmulate();
+                var interpreter = new EmulatorMachine(ast);
+                var result = interpreter.StartEmulate();
+
                 if (result == null)
                 {
-                    string error_message = interpreter.ErrorMessage;
-                    if(error_message != null)
-                    {
-                        Console.WriteLine(error_message);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Программа успешно завершена.");
-                    }
-                }
-                else
+                    var errorMessage = interpreter.ErrorMessage;
+                    Console.WriteLine(errorMessage ?? "Программа успешно завершена.");
+                } else
                 {
-                    if(result.DataType == DataType.Object)
+                    if (result.DataType == DataType.Object)
                     {
-                        if(result.GetResult() == null)
+                        if (result.GetResult() == null)
                         {
                             Console.WriteLine("Результат: null");
-                        }
-                        else
+                        } else
                         {
                             Console.WriteLine("Результат:");
                             PrintObject(node: result.GetResult() as ObjectSymbol);
                         }
-                    }
-                    else
+                    } else
                     {
                         Console.WriteLine("Результат: " + result.GetResult());
                     }
@@ -81,6 +71,7 @@ namespace VkScriptAnalyzer
             if (node.Fields.Keys.Count == 0)
             {
                 Console.WriteLine(new string(' ', depth) + "null");
+
                 return;
             }
 
@@ -89,11 +80,11 @@ namespace VkScriptAnalyzer
                 PrintString(depth, "{", printComma: false);
             }
 
-            int i = 0;
+            var i = 0;
 
             foreach (string field_name in node.Fields.Keys)
             {
-                bool print_comma = i < node.Fields.Keys.Count - 1;
+                var print_comma = i < node.Fields.Keys.Count - 1;
 
                 if ((node.Fields[field_name] as VariableSymbol).Value is ObjectSymbol)
                 {
@@ -102,8 +93,7 @@ namespace VkScriptAnalyzer
                     PrintObject(node: (node.Fields[field_name] as VariableSymbol).Value as ObjectSymbol, depth: depth + 2, printBracket: false);
 
                     PrintString(depth + 2, "}", print_comma);
-                }
-                else
+                } else
                 {
                     PrintString(depth + 2, $"{field_name}: {(node.Fields[field_name] as VariableSymbol).Value}", print_comma);
                 }
@@ -121,7 +111,7 @@ namespace VkScriptAnalyzer
         {
             Console.Write($"{new string(' ', indent)}{value}");
 
-            if(printComma)
+            if (printComma)
             {
                 Console.Write(",");
             }

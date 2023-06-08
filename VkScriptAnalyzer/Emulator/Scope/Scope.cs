@@ -2,7 +2,7 @@
 {
     public class Scope
     {
-        private System.Collections.Hashtable _symbolTable;
+        private readonly System.Collections.Hashtable _symbolTable;
 
         public Scope Prev { get; set; }
 

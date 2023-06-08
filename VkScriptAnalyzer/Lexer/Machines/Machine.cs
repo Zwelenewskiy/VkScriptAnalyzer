@@ -2,7 +2,7 @@
 using System.Linq;
 
 namespace VkScriptAnalyzer.Lexer.Mashines
-{   
+{
     public enum InputSignal
     {
         Digit,
@@ -17,11 +17,11 @@ namespace VkScriptAnalyzer.Lexer.Mashines
         Equal1,
         Equal2,
         Quote,
-        ExclamationMark,// !
+        ExclamationMark, // !
         Other,
         End,
-
     }
+
     public enum State
     {
         S0,
@@ -40,51 +40,51 @@ namespace VkScriptAnalyzer.Lexer.Mashines
         public string LexValue { get; set; }
 
         private readonly Dictionary<InputSignal, Dictionary<State, State>> _nextState;
-        private State[] _finishedStates;
+        private readonly State[] _finishedStates;
 
         public abstract InputSignal DefineSignal(char symbol);
 
-        protected Machine() { }
+        protected Machine()
+        {
+        }
 
         protected Machine(Dictionary<InputSignal, Dictionary<State, State>> stateTable, TokenType type, State[] finishedStates)
         {
-            this._nextState = stateTable;
-            this.Type = type;
-            this._finishedStates = finishedStates;
+            _nextState = stateTable;
+            Type = type;
+            _finishedStates = finishedStates;
             State = State.S0;
             LexValue = string.Empty;
         }
 
         public void Parse(char symbol)
         {
-            InputSignal signal = DefineSignal(symbol);
+            var signal = DefineSignal(symbol);
 
-            if (signal != InputSignal.End)
+            if (signal == InputSignal.End)
             {
-                if (!_nextState.ContainsKey(signal))
-                {
-                    State = State.SError;
-                }
-                else if (State != State.SError)
-                {
-                    State = _nextState[signal][State];
-                }
+                return;
+            }
 
-                LexValue += symbol;
-                
-                if(State != State.SError)
-                {
-                    if (signal == InputSignal.Other)
-                    {
-                        State = State.S0;
-                    }
-                }
+            if (!_nextState.ContainsKey(signal))
+            {
+                State = State.SError;
+            } else if (State != State.SError)
+            {
+                State = _nextState[signal][State];
+            }
 
-                /*if (signal != Input_signal.Other)
+            LexValue += symbol;
+
+            if (State != State.SError && signal == InputSignal.Other)
+            {
+                State = State.S0;
+            }
+
+            /*if (signal != Input_signal.Other)
                     lex_value += symbol;
                 else
                     state = State.S0;*/
-            }
         }
 
         public bool InError()

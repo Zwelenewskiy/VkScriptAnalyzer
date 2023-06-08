@@ -2,54 +2,73 @@
 
 namespace VkScriptAnalyzer.Lexer.Mashines
 {
-    public class MashineAssign : Machine
+    public class MaсhineAssign : Machine
     {
-        public MashineAssign() :
+        public MaсhineAssign() :
             base(
-                    stateTable: new Dictionary<InputSignal, Dictionary<State, State>>()
-                                {
-                                    { InputSignal.Colon,
-                                        new Dictionary<State, State>() {
-                                        {  State.S0, State.S1 },
-                                        {  State.S1, State.SError },
-                                        {  State.S2, State.SError }
-                                    } },
-                                    { InputSignal.Equal,
-                                        new Dictionary<State, State>() {
-                                        {  State.S0, State.SError },
-                                        {  State.S1, State.S2 },
-                                        {  State.S2, State.SError }
-                                    } },
-                                    { InputSignal.Other,
-                                        new Dictionary<State, State>() {
-                                        {  State.S0, State.SError },
-                                        {  State.S1, State.SError },
-                                        {  State.S2, State.SError }
-                                    } },
-                                }, 
-                    type: TokenType.Assign,
-                    finishedStates: new State[] { State.S2 }
-                )
+                stateTable: new()
+                {
+                    {
+                        InputSignal.Colon, new()
+                        {
+                            {
+                                State.S0, State.S1
+                            },
+                            {
+                                State.S1, State.SError
+                            },
+                            {
+                                State.S2, State.SError
+                            }
+                        }
+                    },
+                    {
+                        InputSignal.Equal, new()
+                        {
+                            {
+                                State.S0, State.SError
+                            },
+                            {
+                                State.S1, State.S2
+                            },
+                            {
+                                State.S2, State.SError
+                            }
+                        }
+                    },
+                    {
+                        InputSignal.Other, new()
+                        {
+                            {
+                                State.S0, State.SError
+                            },
+                            {
+                                State.S1, State.SError
+                            },
+                            {
+                                State.S2, State.SError
+                            }
+                        }
+                    },
+                },
+                type: TokenType.Assign,
+                finishedStates: new State[]
+                {
+                    State.S2
+                }
+            )
         {
-
         }
 
         public override InputSignal DefineSignal(char symbol)
         {
-            if (symbol == ':')
+            return symbol switch
             {
-                return InputSignal.Colon;
-            }
-
-            if (symbol == '=')
-            {
-                return InputSignal.Equal;
-            }
-            if (symbol == ' ')
-            {
-                return InputSignal.End;
-            }
-            return InputSignal.Other;
+                ':' => InputSignal.Colon,
+                '=' => InputSignal.Equal,
+                ' ' => InputSignal.End,
+                _ => InputSignal.Other
+            };
         }
     }
 }

@@ -36,13 +36,13 @@
             while (tmp_scope != null)
             {
                 var symbol = tmp_scope.GetSymbol(name);
-                if (symbol == null)
+
+                if (symbol != null)
                 {
-                    tmp_scope = tmp_scope.Prev;
-                    continue;
+                    return symbol;
                 }
 
-                return symbol;
+                tmp_scope = tmp_scope.Prev;
             }
 
             return null;

@@ -2,51 +2,64 @@
 
 namespace VkScriptAnalyzer.Lexer.Mashines
 {
-    public class MashineIdentifier : Machine
+    public class MaсhineIdentifier : Machine
     {
-        public MashineIdentifier() :
+        public MaсhineIdentifier() :
             base(
-                    stateTable: new Dictionary<InputSignal, Dictionary<State, State>>()
+                stateTable: new()
+                {
                     {
-                        { InputSignal.Digit,
-                            new Dictionary<State, State>() {
-                            {  State.S0, State.SError },
-                            {  State.S1, State.S1 }
-                        } },
-                        { InputSignal.Letter,
-                            new Dictionary<State, State>() {
-                            {  State.S0, State.S1 },
-                            {  State.S1, State.S1 }
-                        } },
-                        { InputSignal.Other,
-                            new Dictionary<State, State>() {
-                            {  State.S0, State.SError },
-                            {  State.S1, State.SError }
-                        } },
+                        InputSignal.Digit, new()
+                        {
+                            {
+                                State.S0, State.SError
+                            },
+                            {
+                                State.S1, State.S1
+                            }
+                        }
                     },
-                    type: TokenType.Identifier,
-                    finishedStates: new State[] { State.S1 }
-                )
+                    {
+                        InputSignal.Letter, new()
+                        {
+                            {
+                                State.S0, State.S1
+                            },
+                            {
+                                State.S1, State.S1
+                            }
+                        }
+                    },
+                    {
+                        InputSignal.Other, new()
+                        {
+                            {
+                                State.S0, State.SError
+                            },
+                            {
+                                State.S1, State.SError
+                            }
+                        }
+                    },
+                },
+                type: TokenType.Identifier,
+                finishedStates: new State[]
+                {
+                    State.S1
+                }
+            )
         {
-
         }
 
         public override InputSignal DefineSignal(char symbol)
         {
-            if (symbol >= 'a' && symbol <= 'z' || symbol >= 'A' && symbol <= 'Z')
+            return symbol switch
             {
-                return InputSignal.Letter;
-            }
-
-            if (symbol >= '0' && symbol <= '9')
-            {
-                return InputSignal.Digit;
-            }
-            if (symbol == ' ')
-            {
-                return InputSignal.End;
-            }
-            return InputSignal.Other;
+                >= 'a' and <= 'z' or >= 'A' and <= 'Z' => InputSignal.Letter,
+                >= '0' and <= '9' => InputSignal.Digit,
+                ' ' => InputSignal.End,
+                _ => InputSignal.Other
+            };
         }
     }
 }
