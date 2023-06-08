@@ -85,7 +85,9 @@ namespace VkScriptAnalyzer
             }
 
             if (printBracket)
+            {
                 PrintString(depth, "{", printComma: false);
+            }
 
             int i = 0;
 
@@ -110,7 +112,9 @@ namespace VkScriptAnalyzer
             }
 
             if (printBracket)
+            {
                 Console.WriteLine(new string(' ', depth) + "}");
+            }
         }
 
         static void PrintString(int indent, string value, bool printComma)
@@ -118,7 +122,9 @@ namespace VkScriptAnalyzer
             Console.Write($"{new string(' ', indent)}{value}");
 
             if(printComma)
+            {
                 Console.Write(",");
+            }
 
             Console.WriteLine();
         }

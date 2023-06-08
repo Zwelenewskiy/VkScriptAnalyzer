@@ -33,10 +33,15 @@ namespace VkScriptAnalyzer.Lexer.Mashines
         public override InputSignal DefineSignal(char symbol)
 		{
 			if (EnableOneSymbols.Contains(symbol))
+			{
 				return InputSignal.Letter;
-			else if (symbol == ' ')
+			}
+
+			if (symbol == ' ')
+			{
 				return InputSignal.End;
-			else return InputSignal.Other;
+			}
+			return InputSignal.Other;
 		}
 	}
 }

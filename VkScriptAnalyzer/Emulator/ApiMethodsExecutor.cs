@@ -37,9 +37,11 @@ namespace VkScriptAnalyzer.Emulator
                 if(methodName == "setOffline")
                 {
                     if (_api.Account.SetOffline())
+                    {
                         return new CalculateResult(1, DataType.Double);
-                    else
-                        return new CalculateResult(0, DataType.Double);
+                    }
+
+                    return new CalculateResult(0, DataType.Double);
                 }
             }
 

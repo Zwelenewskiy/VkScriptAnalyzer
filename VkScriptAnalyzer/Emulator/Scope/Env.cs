@@ -41,10 +41,8 @@
                     tmp_scope = tmp_scope.Prev;
                     continue;
                 }
-                else
-                {
-                    return symbol;
-                }
+
+                return symbol;
             }
 
             return null;

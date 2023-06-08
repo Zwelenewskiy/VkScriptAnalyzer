@@ -37,12 +37,19 @@ namespace VkScriptAnalyzer.Lexer.Mashines
         public override InputSignal DefineSignal(char symbol)
         {
             if (symbol == '"')
+            {
                 return InputSignal.Quote;
-            else if (symbol >= 'a' && symbol <= 'z' || symbol >= 'A' && symbol <= 'Z' || symbol >= '0' && symbol <= '9')
+            }
+
+            if (symbol >= 'a' && symbol <= 'z' || symbol >= 'A' && symbol <= 'Z' || symbol >= '0' && symbol <= '9')
+            {
                 return InputSignal.Letter;
-            else if (symbol == ' ')
+            }
+            if (symbol == ' ')
+            {
                 return InputSignal.End;
-            else return InputSignal.Other;
+            }
+            return InputSignal.Other;
         }
     }
 }

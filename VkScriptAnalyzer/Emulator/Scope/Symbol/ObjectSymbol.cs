@@ -24,7 +24,9 @@
         public object GetMember(string name)
         {
             if (Fields.ContainsKey(name))
+            {
                 return Fields[name];
+            }
 
             return null;
         }

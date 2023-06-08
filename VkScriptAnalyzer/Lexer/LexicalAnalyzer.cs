@@ -74,9 +74,11 @@ namespace VkScriptAnalyzer.Lexer
         private char? CheckNextSymbol()
         {
             if (_input.Length == 0)
+            {
                 return null;
-            else
-                return _input[0];
+            }
+
+            return _input[0];
         }
 
         private Token CheckParsers()
@@ -97,11 +99,15 @@ namespace VkScriptAnalyzer.Lexer
                 if (parser.IsEnd())
                 {
                     if (parser.Type == TokenType.Identifier && _keyWords.Contains(value))
+                    {
                         token.Type = TokenType.KeyWord;
-                    else if (parser.Type == TokenType.Identifier && _boolDataTypes.Contains(value))
+                    } else if (parser.Type == TokenType.Identifier && _boolDataTypes.Contains(value))
+                    {
                         token.Type = TokenType.BoolDataType;
-                    else
+                    } else
+                    {
                         token.Type = parser.Type;
+                    }
 
                     token.Value = value;
                     token.Pos = PosNumber;
@@ -150,10 +156,8 @@ namespace VkScriptAnalyzer.Lexer
                         _fastToken = token;
                         return CheckParsers();
                     }
-                    else
-                    {
-                        return token;
-                    }
+
+                    return token;
                 }
             }
             else if (firstDividingChar == '!')
@@ -174,10 +178,8 @@ namespace VkScriptAnalyzer.Lexer
 
                         return CheckParsers();
                     }
-                    else
-                    {
-                        return token;
-                    }
+
+                    return token;
                 }
             }
 
@@ -204,13 +206,17 @@ namespace VkScriptAnalyzer.Lexer
             if (_input.Length == 0)
             {
                 if (_fastToken != null)
+                {
                     return _fastToken;
-                else
-                    return null;
+                }
+
+                return null;
             }
 
             if (_wasChecked)
+            {
                 _wasChecked = false;
+            }
 
             bool parse_not_dividing_lexem = false;
             bool is_white_space = false;
@@ -221,7 +227,9 @@ namespace VkScriptAnalyzer.Lexer
                 if (_whitespaceChars.Contains(symbol))
                 {
                     if(symbol == '\n')
+                    {
                         PosNumber++;
+                    }
 
                     is_white_space = true;
                 }
@@ -233,7 +241,9 @@ namespace VkScriptAnalyzer.Lexer
                 {
                     var double_dividing_token = CheckDoubleDividingChars(symbol, parse_not_dividing_lexem);
                     if (double_dividing_token != null)
+                    {
                         return double_dividing_token;
+                    }
 
                     dividing_lexem = true;
 
@@ -305,7 +315,9 @@ namespace VkScriptAnalyzer.Lexer
             }
 
             if(!is_white_space)
+            {
                 return CheckParsers();
+            }
 
             return null;
         }

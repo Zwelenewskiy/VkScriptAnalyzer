@@ -14,9 +14,11 @@
         public Symbol GetSymbol(string name)
         {
             if (_symbolTable.ContainsKey(name))
+            {
                 return (Symbol)_symbolTable[name];
-            else
-                return null;
+            }
+
+            return null;
         }
 
         public bool ContainsName(string name)

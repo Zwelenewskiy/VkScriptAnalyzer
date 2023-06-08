@@ -58,7 +58,9 @@ namespace VkScriptAnalyzer.Emulator
                     CalculateResult field_value = ExprInterpret(field.Expression);
 
                     if (field_value == null)
+                    {
                         return null;
+                    }
 
                     res.Add(new VariableSymbol(
                         name: field.Name.Value,
@@ -77,12 +79,16 @@ namespace VkScriptAnalyzer.Emulator
             if(node is VarNode)
             {
                 if (VarInterpret(node as VarNode))
+                {
                     return Emulate(node.Next);
+                }
             }
             if (node is AssignNode)
             {
                 if (AssignInterpret(node as AssignNode))
+                {
                     return Emulate(node.Next);
+                }
             }
             if (node is IfNode)
             {
@@ -93,9 +99,11 @@ namespace VkScriptAnalyzer.Emulator
                 _env.CloseScope();   
                 
                 if (if_result == null)
+                {
                     return Emulate(node.Next);
-                else
-                    return if_result;
+                }
+
+                return if_result;
             }
             if (node is WhileNode)
             {
@@ -106,9 +114,11 @@ namespace VkScriptAnalyzer.Emulator
                 _env.CloseScope();
 
                 if (while_result == null)
+                {
                     return Emulate(node.Next);
-                else
-                    return while_result;
+                }
+
+                return while_result;
             }
             if (node is ReturnNode)
             {
@@ -140,9 +150,11 @@ namespace VkScriptAnalyzer.Emulator
                         ));
 
                         if (node.NextVar == null)
+                        {
                             return true;
-                        else
-                            return VarInterpret(node.NextVar);
+                        }
+
+                        return VarInterpret(node.NextVar);
                     }
                 }
                 else
@@ -154,9 +166,11 @@ namespace VkScriptAnalyzer.Emulator
                         _env.UpdateSymbolValue(symbol);
 
                         if (node.NextVar == null)
+                        {
                             return true;
-                        else
-                            return VarInterpret(node.NextVar);
+                        }
+
+                        return VarInterpret(node.NextVar);
                     }
                 }
             }
@@ -175,19 +189,19 @@ namespace VkScriptAnalyzer.Emulator
             var field = obj.GetMember(node.Left.Token.Value) as VariableSymbol;
 
             if (field == null || field.Value is ObjectSymbol == false)
+            {
                 return new CalculateResult(null, DataType.Object);
+            }
 
             if (node.Right.Token.Type == TokenType.Identifier
-                   && node.Left.Token.Type == TokenType.Identifier)// базовый случай, когда потомки узла - идентификаторы. Ниже идти не нужно
+                && node.Left.Token.Type == TokenType.Identifier)// базовый случай, когда потомки узла - идентификаторы. Ниже идти не нужно
             {
                 var res = (field.Value as ObjectSymbol).GetMember(node.Right.Token.Value) as VariableSymbol;
 
                 return new CalculateResult(res.Value, res.DataType);
             }
-            else
-            {
-                return KvalidentInterpret(node.Right as KvalidentNode, field.Value as ObjectSymbol);
-            }
+
+            return KvalidentInterpret(node.Right as KvalidentNode, field.Value as ObjectSymbol);
         }
 
         private CalculateResult ExprInterpret(ExprNode node)
@@ -211,10 +225,8 @@ namespace VkScriptAnalyzer.Emulator
 
                     return KvalidentInterpret(node.Right as KvalidentNode, left_symbol.Value as ObjectSymbol);
                 }
-                else
-                {
-                    return new CalculateResult(null, DataType.Object);
-                }
+
+                return new CalculateResult(null, DataType.Object);
             }
 
             if(node is ObjectNode)
@@ -223,7 +235,9 @@ namespace VkScriptAnalyzer.Emulator
                 var fields = NodeFieldToObjectField(obj_node);
 
                 if (fields == null)
+                {
                     return null;
+                }
 
                 return new CalculateResult(new ObjectSymbol(
                         name:   null,
@@ -280,11 +294,9 @@ namespace VkScriptAnalyzer.Emulator
                         return null;
                     }
                 }
-                else
-                {
-                    ErrorMessage = $"Вызов несуществующего метода: '{call_node.SectionName.Value}.{call_node.Token.Value}' \nСтрока: {call_node.Token.Pos}";
-                    return null;
-                }
+
+                ErrorMessage = $"Вызов несуществующего метода: '{call_node.SectionName.Value}.{call_node.Token.Value}' \nСтрока: {call_node.Token.Pos}";
+                return null;
             }
 
             if(node.Token.Type == TokenType.Number)
@@ -320,25 +332,43 @@ namespace VkScriptAnalyzer.Emulator
                             try
                             {
                                 if (op == "+")
+                                {
                                     return new CalculateResult((double)left_val.GetResult() + (double)right_val.GetResult(), DataType.Double);
-                                else if (op == "-")
+                                }
+
+                                if (op == "-")
+                                {
                                     return new CalculateResult((double)left_val.GetResult() - (double)right_val.GetResult(), DataType.Double);
-                                else if (op == "*")
+                                }
+                                if (op == "*")
+                                {
                                     return new CalculateResult((double)left_val.GetResult() * (double)right_val.GetResult(), DataType.Double);
-                                else if (op == "/")
+                                }
+                                if (op == "/")
+                                {
                                     return new CalculateResult((double)left_val.GetResult() / (double)right_val.GetResult(), DataType.Double);
-                                else if (op == ">")
+                                }
+                                if (op == ">")
+                                {
                                     return new CalculateResult((double)left_val.GetResult() > (double)right_val.GetResult(), DataType.Bool);
-                                else if (op == "<")
+                                }
+                                if (op == "<")
+                                {
                                     return new CalculateResult((double)left_val.GetResult() < (double)right_val.GetResult(), DataType.Bool);
-                                else if (op == ">=")
+                                }
+                                if (op == ">=")
+                                {
                                     return new CalculateResult((double)left_val.GetResult() >= (double)right_val.GetResult(), DataType.Bool);
-                                else if (op == "<=")
+                                }
+                                if (op == "<=")
+                                {
                                     return new CalculateResult((double)left_val.GetResult() <= (double)right_val.GetResult(), DataType.Bool);
-                                else if (op == "==")
+                                }
+                                if (op == "==")
+                                {
                                     return new CalculateResult((double)left_val.GetResult() == (double)right_val.GetResult(), DataType.Bool);
-                                else
-                                    return new CalculateResult((double)left_val.GetResult() != (double)right_val.GetResult(), DataType.Bool);
+                                }
+                                return new CalculateResult((double)left_val.GetResult() != (double)right_val.GetResult(), DataType.Bool);
                             }
                             catch (System.OverflowException)
                             {
@@ -349,11 +379,9 @@ namespace VkScriptAnalyzer.Emulator
                             }
                             
                         }
-                        else
-                        {
-                            // несоответствие типов
-                            ErrorMessage = $"Оператор '{node.Token.Value}' ожидает тип Double, но обнаружены {left_val.DataType} и {right_val.DataType} \nСтрока: {node.Token.Pos}";
-                        }
+
+                        // несоответствие типов
+                        ErrorMessage = $"Оператор '{node.Token.Value}' ожидает тип Double, но обнаружены {left_val.DataType} и {right_val.DataType} \nСтрока: {node.Token.Pos}";
                     }
                 }
             }
@@ -370,14 +398,14 @@ namespace VkScriptAnalyzer.Emulator
                         if (left_val.DataType == DataType.Bool && right_val.DataType == DataType.Bool)
                         {
                             if(op == "and")
+                            {
                                 return new CalculateResult((bool)left_val.GetResult() && (bool)right_val.GetResult(), DataType.Bool);
-                            else 
-                                return new CalculateResult((bool)left_val.GetResult() || (bool)right_val.GetResult(), DataType.Bool);
+                            }
+
+                            return new CalculateResult((bool)left_val.GetResult() || (bool)right_val.GetResult(), DataType.Bool);
                         }
-                        else
-                        {
-                            ErrorMessage = $"Оператор '{node.Token.Value}' ожидает тип Bool, но обнаружены {left_val.DataType} и {right_val.DataType} \nСтрока: {node.Token.Pos}";
-                        }
+
+                        ErrorMessage = $"Оператор '{node.Token.Value}' ожидает тип Bool, но обнаружены {left_val.DataType} и {right_val.DataType} \nСтрока: {node.Token.Pos}";
                     }
                 }
             }
@@ -401,7 +429,8 @@ namespace VkScriptAnalyzer.Emulator
 
                         return new CalculateResult(var_sym.Value, var_sym.DataType);
                     }
-                    else if (var is FunctionSymbol)
+
+                    if (var is FunctionSymbol)
                     {
                         // создание функций не поддерживается
                     }
@@ -443,13 +472,13 @@ namespace VkScriptAnalyzer.Emulator
             {
                 return (bool)exprResult.GetResult();
             }
-            else
+
+            if (((double)exprResult.GetResult()) == 0)
             {
-                if (((double)exprResult.GetResult()) == 0)
-                    return false;
-                else
-                    return true;
+                return false;
             }
+
+            return true;
         }
 
         private CalculateResult IfInterpret(IfNode node)
@@ -461,12 +490,16 @@ namespace VkScriptAnalyzer.Emulator
                 if (cond_val)
                 {
                     if (node.Body is EmptyNode == false)
+                    {
                         return Emulate(node.Body);
+                    }
                 }
                 else
                 {
                     if (node.Else != null)
+                    {
                         return Emulate(node.Else);
+                    }
                 }
             }
 
@@ -490,9 +523,11 @@ namespace VkScriptAnalyzer.Emulator
 
                         cond_expr = ExprInterpret(node.Condition);
                         if (cond_expr == null)
+                        {
                             break;
-                        else
-                            cond_val = ExprValueToBool(cond_expr);
+                        }
+
+                        cond_val = ExprValueToBool(cond_expr);
                     }
 
                     return res;

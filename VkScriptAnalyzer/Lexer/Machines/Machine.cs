@@ -75,7 +75,9 @@ namespace VkScriptAnalyzer.Lexer.Mashines
                 if(State != State.SError)
                 {
                     if (signal == InputSignal.Other)
+                    {
                         State = State.S0;
+                    }
                 }
 
                 /*if (signal != Input_signal.Other)

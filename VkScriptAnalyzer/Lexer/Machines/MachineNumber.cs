@@ -67,10 +67,15 @@ namespace VkScriptAnalyzer.Lexer.Mashines
             }
 
             if (symbol >= '0' && symbol <= '9')
+            {
                 return InputSignal.Digit;
-            else if (symbol == ' ')
+            }
+
+            if (symbol == ' ')
+            {
                 return InputSignal.End;
-            else return InputSignal.Other;
+            }
+            return InputSignal.Other;
         }
     }
 }
