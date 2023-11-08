@@ -6,50 +6,40 @@ namespace VkScriptAnalyzer
 {
     class Program
     {
-        private const string INPUT_FILE_NAME = "input.vkscript";
+        private const string InputFileName = "input.vkscript";
 
         static void Main()
         {
-            string input = System.IO.File.ReadAllText(INPUT_FILE_NAME);
+            var input = System.IO.File.ReadAllText(InputFileName);
 
             var parser = new SyntacticAnalyzer(input);
-            Node ast = parser.Parse();
+            var ast = parser.Parse();
 
-            if(ast == null)
+            if (ast == null)
             {
                 Console.WriteLine(parser.ErrorMessage);
-            }
-            else
+            } else
             {
-                var interpreter = new EmulatorMashine(ast);
-                CalculateResult result = interpreter.StartEmulate();
+                var interpreter = new EmulatorMachine(ast);
+                var result = interpreter.StartEmulate();
+
                 if (result == null)
                 {
-                    string error_message = interpreter.ErrorMessage;
-                    if(error_message != null)
-                    {
-                        Console.WriteLine(error_message);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Программа успешно завершена.");
-                    }
-                }
-                else
+                    var errorMessage = interpreter.ErrorMessage;
+                    Console.WriteLine(errorMessage ?? "Программа успешно завершена.");
+                } else
                 {
-                    if(result.DataType == DataType.Object)
+                    if (result.DataType == DataType.Object)
                     {
-                        if(result.GetResult() == null)
+                        if (result.GetResult() == null)
                         {
                             Console.WriteLine("Результат: null");
-                        }
-                        else
+                        } else
                         {
                             Console.WriteLine("Результат:");
                             PrintObject(node: result.GetResult() as ObjectSymbol);
                         }
-                    }
-                    else
+                    } else
                     {
                         Console.WriteLine("Результат: " + result.GetResult());
                     }
@@ -76,49 +66,55 @@ namespace VkScriptAnalyzer
             Console.ReadKey();
         }
 
-        static void PrintObject(ObjectSymbol node, int depth = 0, bool print_bracket = true)
+        static void PrintObject(ObjectSymbol node, int depth = 0, bool printBracket = true)
         {
             if (node.Fields.Keys.Count == 0)
             {
                 Console.WriteLine(new string(' ', depth) + "null");
+
                 return;
             }
 
-            if (print_bracket)
-                PrintString(depth, "{", print_comma: false);
-
-            int i = 0;
-
-            foreach (string field_name in node.Fields.Keys)
+            if (printBracket)
             {
-                bool print_comma = i < node.Fields.Keys.Count - 1;
+                PrintString(depth, "{", printComma: false);
+            }
 
-                if ((node.Fields[field_name] as VariableSymbol).Value is ObjectSymbol)
+            var i = 0;
+
+            foreach (string fieldName in node.Fields.Keys)
+            {
+                var printComma = i < node.Fields.Keys.Count - 1;
+
+                if ((node.Fields[fieldName] as VariableSymbol).Value is ObjectSymbol)
                 {
-                    PrintString(depth + 2, field_name + ": {", print_comma: false);
+                    PrintString(depth + 2, fieldName + ": {", printComma: false);
 
-                    PrintObject(node: (node.Fields[field_name] as VariableSymbol).Value as ObjectSymbol, depth: depth + 2, print_bracket: false);
+                    PrintObject(node: (node.Fields[fieldName] as VariableSymbol).Value as ObjectSymbol, depth: depth + 2, printBracket: false);
 
-                    PrintString(depth + 2, "}", print_comma);
-                }
-                else
+                    PrintString(depth + 2, "}", printComma);
+                } else
                 {
-                    PrintString(depth + 2, $"{field_name}: {(node.Fields[field_name] as VariableSymbol).Value}", print_comma);
+                    PrintString(depth + 2, $"{fieldName}: {(node.Fields[fieldName] as VariableSymbol).Value}", printComma);
                 }
 
                 i++;
             }
 
-            if (print_bracket)
+            if (printBracket)
+            {
                 Console.WriteLine(new string(' ', depth) + "}");
+            }
         }
 
-        static void PrintString(int indent, string value, bool print_comma)
+        static void PrintString(int indent, string value, bool printComma)
         {
             Console.Write($"{new string(' ', indent)}{value}");
 
-            if(print_comma)
+            if (printComma)
+            {
                 Console.Write(",");
+            }
 
             Console.WriteLine();
         }

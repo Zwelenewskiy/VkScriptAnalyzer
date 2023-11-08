@@ -2,26 +2,26 @@
 using System.Linq;
 
 namespace VkScriptAnalyzer.Lexer.Mashines
-{   
-    public enum Input_signal
+{
+    public enum InputSignal
     {
         Digit,
         Letter,
         Dot,
         Comma,
         Minus,
-        Letter_i,
-        Letter_f,
+        LetterI,
+        LetterF,
         Colon,
         Equal,
-        Equal_1,
-        Equal_2,
+        Equal1,
+        Equal2,
         Quote,
-        ExclamationMark,// !
+        ExclamationMark, // !
         Other,
         End,
-
     }
+
     public enum State
     {
         S0,
@@ -30,75 +30,77 @@ namespace VkScriptAnalyzer.Lexer.Mashines
         S3,
         S4,
         S5,
-        S_error
+        SError
     }
 
     public abstract class Machine
     {
-        public TokenType type { get; set; }
-        public State state { get; set; }
-        public string lex_value { get; set; }
+        public TokenType Type { get; set; }
+        public State State { get; set; }
+        public string LexValue { get; set; }
 
-        private readonly Dictionary<Input_signal, Dictionary<State, State>> next_state;
-        private State[] finished_states;
+        private readonly Dictionary<InputSignal, Dictionary<State, State>> _nextState;
+        private readonly State[] _finishedStates;
 
-        public abstract Input_signal DefineSignal(char symbol);
+        public abstract InputSignal DefineSignal(char symbol);
 
-        protected Machine() { }
-
-        protected Machine(Dictionary<Input_signal, Dictionary<State, State>> state_table, TokenType type, State[] finished_states)
+        protected Machine()
         {
-            this.next_state = state_table;
-            this.type = type;
-            this.finished_states = finished_states;
-            state = State.S0;
-            lex_value = string.Empty;
+        }
+
+        protected Machine(Dictionary<InputSignal, Dictionary<State, State>> stateTable, TokenType type, State[] finishedStates)
+        {
+            _nextState = stateTable;
+            Type = type;
+            _finishedStates = finishedStates;
+            State = State.S0;
+            LexValue = string.Empty;
         }
 
         public void Parse(char symbol)
         {
-            Input_signal signal = DefineSignal(symbol);
+            var signal = DefineSignal(symbol);
 
-            if (signal != Input_signal.End)
+            if (signal == InputSignal.End)
             {
-                if (!next_state.ContainsKey(signal))
-                {
-                    state = State.S_error;
-                }
-                else if (state != State.S_error)
-                {
-                    state = next_state[signal][state];
-                }
+                return;
+            }
 
-                lex_value += symbol;
-                
-                if(state != State.S_error)
-                {
-                    if (signal == Input_signal.Other)
-                        state = State.S0;
-                }
+            if (!_nextState.ContainsKey(signal))
+            {
+                State = State.SError;
+            } else if (State != State.SError)
+            {
+                State = _nextState[signal][State];
+            }
 
-                /*if (signal != Input_signal.Other)
+            LexValue += symbol;
+
+            if (State != State.SError && signal == InputSignal.Other)
+            {
+                State = State.S0;
+            }
+
+            /*if (signal != Input_signal.Other)
                     lex_value += symbol;
                 else
                     state = State.S0;*/
-            }
         }
 
         public bool InError()
         {
-            return state == State.S_error;
+            return State == State.SError;
         }
 
         public bool IsEnd()
         {
-            return state != State.S_error && finished_states.Contains(state);
+            return State != State.SError && _finishedStates.Contains(State);
         }
 
         public void Reset()
         {
-            state = State.S0;
-            lex_value = null;
+            State = State.S0;
+            LexValue = null;
         }
     }
 }

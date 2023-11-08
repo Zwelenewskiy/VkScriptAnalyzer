@@ -2,36 +2,38 @@
 {
     public class Scope
     {
-        private System.Collections.Hashtable symbol_table;
+        private readonly System.Collections.Hashtable _symbolTable;
 
         public Scope Prev { get; set; }
 
         public Scope()
         {
-            symbol_table = new System.Collections.Hashtable();
+            _symbolTable = new System.Collections.Hashtable();
         }
 
         public Symbol GetSymbol(string name)
         {
-            if (symbol_table.ContainsKey(name))
-                return (Symbol)symbol_table[name];
-            else
-                return null;
+            if (_symbolTable.ContainsKey(name))
+            {
+                return (Symbol)_symbolTable[name];
+            }
+
+            return null;
         }
 
         public bool ContainsName(string name)
         {
-            return symbol_table.ContainsKey(name);
+            return _symbolTable.ContainsKey(name);
         }
 
         public void AddSymbol(Symbol symbol)
         {
-            symbol_table.Add(symbol.Name, symbol);
+            _symbolTable.Add(symbol.Name, symbol);
         }
 
         public void UpdateSymbolValue(Symbol symbol)
         {
-            symbol_table[symbol.Name] = symbol;
+            _symbolTable[symbol.Name] = symbol;
         }
     }
 }

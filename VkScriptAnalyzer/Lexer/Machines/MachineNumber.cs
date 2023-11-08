@@ -2,75 +2,137 @@
 
 namespace VkScriptAnalyzer.Lexer.Mashines
 {
-    public class MashineNumber : Machine
+    public class MaсhineNumber : Machine
     {
-        public MashineNumber() :
+        public MaсhineNumber() :
             base(
-                    state_table: new Dictionary<Input_signal, Dictionary<State, State>>()
+                stateTable: new()
+                {
                     {
-                        { Input_signal.Digit,
-                            new Dictionary<State, State>() {
-                            {  State.S0, State.S2 },
-                            {  State.S1, State.S2 },
-                            {  State.S2, State.S2 },
-                            {  State.S3, State.S4 },
-                            {  State.S4, State.S4 }
-                        } },
-                        { Input_signal.Dot,
-                            new Dictionary<State, State>() {
-                            {  State.S0, State.S_error },
-                            {  State.S1, State.S_error },
-                            {  State.S2, State.S3 },
-                            {  State.S3, State.S_error },
-                            {  State.S4, State.S_error },
-                        } },
-                        { Input_signal.Comma,
-                            new Dictionary<State, State>() {
-                            {  State.S0, State.S_error },
-                            {  State.S1, State.S_error },
-                            {  State.S2, State.S3 },
-                            {  State.S3, State.S_error },
-                            {  State.S4, State.S_error },
-                        } },
-                        { Input_signal.Minus,
-                            new Dictionary<State, State>() {
-                            {  State.S0, State.S1 },
-                            {  State.S1, State.S_error },
-                            {  State.S2, State.S_error },
-                            {  State.S3, State.S_error },
-                            {  State.S4, State.S_error },
-                        } },
-                        { Input_signal.Other,
-                            new Dictionary<State, State>() {
-                            {  State.S0, State.S_error },
-                            {  State.S1, State.S_error },
-                            {  State.S2, State.S_error },
-                            {  State.S3, State.S_error },
-                            {  State.S4, State.S_error }
+                        InputSignal.Digit, new()
+                        {
+                            {
+                                State.S0, State.S2
+                            },
+                            {
+                                State.S1, State.S2
+                            },
+                            {
+                                State.S2, State.S2
+                            },
+                            {
+                                State.S3, State.S4
+                            },
+                            {
+                                State.S4, State.S4
                             }
-                        },
+                        }
                     },
-                    type: TokenType.Number,
-                    finished_states: new State[] { State.S2, State.S4 }
-                )
+                    {
+                        InputSignal.Dot, new()
+                        {
+                            {
+                                State.S0, State.SError
+                            },
+                            {
+                                State.S1, State.SError
+                            },
+                            {
+                                State.S2, State.S3
+                            },
+                            {
+                                State.S3, State.SError
+                            },
+                            {
+                                State.S4, State.SError
+                            },
+                        }
+                    },
+                    {
+                        InputSignal.Comma, new()
+                        {
+                            {
+                                State.S0, State.SError
+                            },
+                            {
+                                State.S1, State.SError
+                            },
+                            {
+                                State.S2, State.S3
+                            },
+                            {
+                                State.S3, State.SError
+                            },
+                            {
+                                State.S4, State.SError
+                            },
+                        }
+                    },
+                    {
+                        InputSignal.Minus, new()
+                        {
+                            {
+                                State.S0, State.S1
+                            },
+                            {
+                                State.S1, State.SError
+                            },
+                            {
+                                State.S2, State.SError
+                            },
+                            {
+                                State.S3, State.SError
+                            },
+                            {
+                                State.S4, State.SError
+                            },
+                        }
+                    },
+                    {
+                        InputSignal.Other, new()
+                        {
+                            {
+                                State.S0, State.SError
+                            },
+                            {
+                                State.S1, State.SError
+                            },
+                            {
+                                State.S2, State.SError
+                            },
+                            {
+                                State.S3, State.SError
+                            },
+                            {
+                                State.S4, State.SError
+                            }
+                        }
+                    },
+                },
+                type: TokenType.Number,
+                finishedStates: new State[]
+                {
+                    State.S2,
+                    State.S4
+                }
+            )
         {
-
         }
 
-        public override Input_signal DefineSignal(char symbol)
+        public override InputSignal DefineSignal(char symbol)
         {
-            switch (symbol)
+            return symbol switch
             {
-                case '-': return Input_signal.Minus;
-                case '.': return Input_signal.Dot;
-                case ',': return Input_signal.Comma;
-            }
-
-            if (symbol >= '0' && symbol <= '9')
-                return Input_signal.Digit;
-            else if (symbol == ' ')
-                return Input_signal.End;
-            else return Input_signal.Other;
+                '-' => InputSignal.Minus,
+                '.' => InputSignal.Dot,
+                ',' => InputSignal.Comma,
+                _ => symbol switch
+                {
+                    >= '0' and <= '9' => InputSignal.Digit,
+                    ' ' => InputSignal.End,
+                    _ => InputSignal.Other
+                }
+            };
         }
     }
 }

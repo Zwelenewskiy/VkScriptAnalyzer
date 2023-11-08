@@ -1,5 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
+using VkScriptAnalyzer;
 using VkScriptAnalyzer.Lexer;
 
 namespace VkScriptAnalyzerTests
@@ -8,25 +9,23 @@ namespace VkScriptAnalyzerTests
     {
         public int Compare(object x, object y)
         {
-            Token t1 = (Token)x;
-            Token t2 = (Token)y;
+            var t1 = (Token)x;
+            var t2 = (Token)y;
 
-            if (t1.value == t2.value
-                && t1.type == t2.type)
+            if (t1.Value == t2.Value
+                && t1.Type == t2.Type)
             {
                 return 0;
             }
-            else
-            {
-                return -1;
-            }
+
+            return -1;
         }
     }
 
     internal class TestParameters
     {
-        public string input_text { get; set; }
-        public List<Token> sample { get; set; }
+        public string InputText { get; set; }
+        public List<Token> Sample { get; set; }
     }
 
     [TestClass]
@@ -34,21 +33,23 @@ namespace VkScriptAnalyzerTests
     {
         private void DoTest(TestParameters @params)
         {
-            var lexer = new LexicalAnalyzer(@params.input_text);
+            var lexer = new LexicalAnalyzer(@params.InputText);
 
-            List<Token> result = new List<Token>();
+            var result = new List<Token>();
             var token = lexer.GetToken();
             while (true)
             {
                 if (token == null)
+                {
                     break;
+                }
 
                 result.Add(token);
 
                 token = lexer.GetToken();
             }
 
-            CollectionAssert.AreEqual(@params.sample, result, new TokenListComparer());
+            CollectionAssert.AreEqual(@params.Sample, result, new TokenListComparer());
         }
 
         [TestMethod]
@@ -56,80 +57,80 @@ namespace VkScriptAnalyzerTests
         {
             DoTest(new TestParameters()
             {
-                input_text = "123 1.23 1,23 1v23",
-                sample = new List<Token>()
+                InputText = "123 1.23 1,23 1v23",
+                Sample = new List<Token>()
                 {
                     new Token()
                     {
-                        value = "123",
-                        type = TokenType.Number
+                        Value = "123",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = "1.23",
-                        type = TokenType.Number
+                        Value = "1.23",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = "1",
-                        type = TokenType.Number
+                        Value = "1",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = ",",
-                        type = TokenType.Comma
+                        Value = ",",
+                        Type = TokenType.Comma
                     },
                     new Token()
                     {
-                        value = "23",
-                        type = TokenType.Number
+                        Value = "23",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = "1v23",
-                        type = TokenType.Unknown
+                        Value = "1v23",
+                        Type = TokenType.Unknown
                     }
                 }
             });
         }
 
         [TestMethod]
-        public void NumbersWithWhitepacesTest()
+        public void NumbersWithWhitespacesTest()
         {
             DoTest(new TestParameters()
             {
-                input_text = "123     1.23  1,23            1v23",
-                sample = new List<Token>()
+                InputText = "123     1.23  1,23            1v23",
+                Sample = new List<Token>()
                 {
                     new Token()
                     {
-                        value = "123",
-                        type = TokenType.Number
+                        Value = "123",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = "1.23",
-                        type = TokenType.Number
+                        Value = "1.23",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = "1",
-                        type = TokenType.Number
+                        Value = "1",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = ",",
-                        type = TokenType.Comma
+                        Value = ",",
+                        Type = TokenType.Comma
                     },
                     new Token()
                     {
-                        value = "23",
-                        type = TokenType.Number
+                        Value = "23",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = "1v23",
-                        type = TokenType.Unknown
+                        Value = "1v23",
+                        Type = TokenType.Unknown
                     }
                 }
             });
@@ -140,33 +141,33 @@ namespace VkScriptAnalyzerTests
         {
             DoTest(new TestParameters()
             {
-                input_text = "abc ABC 1a a1 a1b",
-                sample = new List<Token>()
+                InputText = "abc ABC 1a a1 a1b",
+                Sample = new List<Token>()
                 {
                     new Token()
                     {
-                        value = "abc",
-                        type = TokenType.Identifier
+                        Value = "abc",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = "ABC",
-                        type = TokenType.Identifier
+                        Value = "ABC",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = "1a",
-                        type = TokenType.Unknown
+                        Value = "1a",
+                        Type = TokenType.Unknown
                     },
                     new Token()
                     {
-                        value = "a1",
-                        type = TokenType.Identifier
+                        Value = "a1",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = "a1b",
-                        type = TokenType.Identifier
+                        Value = "a1b",
+                        Type = TokenType.Identifier
                     }
                 }
             });
@@ -177,18 +178,18 @@ namespace VkScriptAnalyzerTests
         {
             DoTest(new TestParameters()
             {
-                input_text = "       abc 123       ",
-                sample = new List<Token>()
+                InputText = "       abc 123       ",
+                Sample = new List<Token>()
                 {
                     new Token()
                     {
-                        value = "abc",
-                        type = TokenType.Identifier
+                        Value = "abc",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = "123",
-                        type = TokenType.Number
+                        Value = "123",
+                        Type = TokenType.Number
                     }
                 }
             });
@@ -199,28 +200,28 @@ namespace VkScriptAnalyzerTests
         {
             DoTest(new TestParameters()
             {
-                input_text = "+  - * /",
-                sample = new List<Token>()
+                InputText = "+  - * /",
+                Sample = new List<Token>()
                 {
                     new Token()
                     {
-                        value = "+",
-                        type = TokenType.Plus_Op
+                        Value = "+",
+                        Type = TokenType.PlusOp
                     },
                     new Token()
                     {
-                        value = "-",
-                        type = TokenType.Minus_Op
+                        Value = "-",
+                        Type = TokenType.MinusOp
                     },
                     new Token()
                     {
-                        value = "*",
-                        type = TokenType.Mul_Op
+                        Value = "*",
+                        Type = TokenType.MulOp
                     },
                     new Token()
                     {
-                        value = "/",
-                        type = TokenType.Div_Op
+                        Value = "/",
+                        Type = TokenType.DivOp
                     },
                 }
             });
@@ -231,48 +232,48 @@ namespace VkScriptAnalyzerTests
         {
             DoTest(new TestParameters()
             {
-                input_text = "++  -- ** //",
-                sample = new List<Token>()
+                InputText = "++  -- ** //",
+                Sample = new List<Token>()
                 {
                     new Token()
                     {
-                        value = "+",
-                        type = TokenType.Plus_Op
+                        Value = "+",
+                        Type = TokenType.PlusOp
                     },
                     new Token()
                     {
-                        value = "+",
-                        type = TokenType.Plus_Op
+                        Value = "+",
+                        Type = TokenType.PlusOp
                     },
                     new Token()
                     {
-                        value = "-",
-                        type = TokenType.Minus_Op
+                        Value = "-",
+                        Type = TokenType.MinusOp
                     },
                     new Token()
                     {
-                        value = "-",
-                        type = TokenType.Minus_Op
+                        Value = "-",
+                        Type = TokenType.MinusOp
                     },
                     new Token()
                     {
-                        value = "*",
-                        type = TokenType.Mul_Op
+                        Value = "*",
+                        Type = TokenType.MulOp
                     },
                     new Token()
                     {
-                        value = "*",
-                        type = TokenType.Mul_Op
+                        Value = "*",
+                        Type = TokenType.MulOp
                     },
                     new Token()
                     {
-                        value = "/",
-                        type = TokenType.Div_Op
+                        Value = "/",
+                        Type = TokenType.DivOp
                     },
                     new Token()
                     {
-                        value = "/",
-                        type = TokenType.Div_Op
+                        Value = "/",
+                        Type = TokenType.DivOp
                     },
                 }
             });
@@ -283,18 +284,18 @@ namespace VkScriptAnalyzerTests
         {
             DoTest(new TestParameters()
             {
-                input_text = "!= ==",
-                sample = new List<Token>()
+                InputText = "!= ==",
+                Sample = new List<Token>()
                 {
                     new Token()
                     {
-                        value = "!=",
-                        type = TokenType.NonEqual
+                        Value = "!=",
+                        Type = TokenType.NonEqual
                     },
                     new Token()
                     {
-                        value = "==",
-                        type = TokenType.Equal
+                        Value = "==",
+                        Type = TokenType.Equal
                     },
                 }
             });
@@ -305,43 +306,43 @@ namespace VkScriptAnalyzerTests
         {
             DoTest(new TestParameters()
             {
-                input_text = "var if else while and or return",
-                sample = new List<Token>()
+                InputText = "var if else while and or return",
+                Sample = new List<Token>()
                 {
                     new Token()
                     {
-                        value = "var",
-                        type = TokenType.KeyWord
+                        Value = Keywords.Var,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "if",
-                        type = TokenType.KeyWord
+                        Value = Keywords.If,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "else",
-                        type = TokenType.KeyWord
+                        Value = Keywords.Else,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "while",
-                        type = TokenType.KeyWord
+                        Value = Keywords.While,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "and",
-                        type = TokenType.KeyWord
+                        Value = Keywords.And,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "or",
-                        type = TokenType.KeyWord
+                        Value = Keywords.Or,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "return",
-                        type = TokenType.KeyWord
+                        Value = Keywords.Return,
+                        Type = TokenType.KeyWord
                     },
                 }
             });
@@ -352,253 +353,255 @@ namespace VkScriptAnalyzerTests
         {
             DoTest(new TestParameters()
             {
-                input_text = @"var a = 1.8;
-                                var b = true;
+                InputText = """
+                            var a = 1.8;
+                            var b = true;
 
-                                if(b){
-	                                a = 4;
-                                }
-                                else{
-	                                a = 5;
-                                }
+                            if(b){
+                                a = 4;
+                            }
+                            else{
+                                a = 5;
+                            }
 
-                                while(b and a > 123){
-	                                a = a + 1;
-                                }
+                            while(b and a > 123){
+                                a = a + 1;
+                            }
 
-                                return a;",
-                sample = new List<Token>()
+                            return a;
+                            """,
+                Sample = new List<Token>()
                 {
                     new Token()
                     {
-                        value = "var",
-                        type = TokenType.KeyWord
+                        Value = Keywords.Var,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "a",
-                        type = TokenType.Identifier
+                        Value = "a",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = "=",
-                        type = TokenType.Assign
+                        Value = "=",
+                        Type = TokenType.Assign
                     },
                     new Token()
                     {
-                        value = "1.8",
-                        type = TokenType.Number
+                        Value = "1.8",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = ";",
-                        type = TokenType.Colon
+                        Value = ";",
+                        Type = TokenType.Colon
                     },
                     new Token()
                     {
-                        value = "var",
-                        type = TokenType.KeyWord
+                        Value = Keywords.Var,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "b",
-                        type = TokenType.Identifier
+                        Value = "b",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = "=",
-                        type = TokenType.Assign
+                        Value = "=",
+                        Type = TokenType.Assign
                     },
                     new Token()
                     {
-                        value = "true",
-                        type = TokenType.BoolDataType
+                        Value = "true",
+                        Type = TokenType.BoolDataType
                     },
                     new Token()
                     {
-                        value = ";",
-                        type = TokenType.Colon
+                        Value = ";",
+                        Type = TokenType.Colon
                     },
                     new Token()
                     {
-                        value = "if",
-                        type = TokenType.KeyWord
+                        Value = Keywords.If,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "(",
-                        type = TokenType.LeftBracket
+                        Value = "(",
+                        Type = TokenType.LeftBracket
                     },
                     new Token()
                     {
-                        value = "b",
-                        type = TokenType.Identifier
+                        Value = "b",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = ")",
-                        type = TokenType.RightBracket
+                        Value = ")",
+                        Type = TokenType.RightBracket
                     },
                     new Token()
                     {
-                        value = "{",
-                        type = TokenType.CurlyLeftBracket
+                        Value = "{",
+                        Type = TokenType.CurlyLeftBracket
                     },
                     new Token()
                     {
-                        value = "a",
-                        type = TokenType.Identifier
+                        Value = "a",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = "=",
-                        type = TokenType.Assign
+                        Value = "=",
+                        Type = TokenType.Assign
                     },
                     new Token()
                     {
-                        value = "4",
-                        type = TokenType.Number
+                        Value = "4",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = ";",
-                        type = TokenType.Colon
+                        Value = ";",
+                        Type = TokenType.Colon
                     },
                     new Token()
                     {
-                        value = "}",
-                        type = TokenType.CurlyRightBracket
+                        Value = "}",
+                        Type = TokenType.CurlyRightBracket
                     },
                     new Token()
                     {
-                        value = "else",
-                        type = TokenType.KeyWord
+                        Value = Keywords.Else,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "{",
-                        type = TokenType.CurlyLeftBracket
+                        Value = "{",
+                        Type = TokenType.CurlyLeftBracket
                     },
                     new Token()
                     {
-                        value = "a",
-                        type = TokenType.Identifier
+                        Value = "a",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = "=",
-                        type = TokenType.Assign
+                        Value = "=",
+                        Type = TokenType.Assign
                     },
                     new Token()
                     {
-                        value = "5",
-                        type = TokenType.Number
+                        Value = "5",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = ";",
-                        type = TokenType.Colon
+                        Value = ";",
+                        Type = TokenType.Colon
                     },
                     new Token()
                     {
-                        value = "}",
-                        type = TokenType.CurlyRightBracket
+                        Value = "}",
+                        Type = TokenType.CurlyRightBracket
                     },
 
                     new Token()
                     {
-                        value = "while",
-                        type = TokenType.KeyWord
+                        Value = Keywords.While,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "(",
-                        type = TokenType.LeftBracket
+                        Value = "(",
+                        Type = TokenType.LeftBracket
                     },
                     new Token()
                     {
-                        value = "b",
-                        type = TokenType.Identifier
+                        Value = "b",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = "and",
-                        type = TokenType.KeyWord
+                        Value = Keywords.And,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "a",
-                        type = TokenType.Identifier
+                        Value = "a",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = ">",
-                        type = TokenType.CloseQuotationMark
+                        Value = ">",
+                        Type = TokenType.CloseQuotationMark
                     },
                     new Token()
                     {
-                        value = "123",
-                        type = TokenType.Number
+                        Value = "123",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = ")",
-                        type = TokenType.RightBracket
+                        Value = ")",
+                        Type = TokenType.RightBracket
                     },
                     new Token()
                     {
-                        value = "{",
-                        type = TokenType.CurlyLeftBracket
+                        Value = "{",
+                        Type = TokenType.CurlyLeftBracket
                     },
                     new Token()
                     {
-                        value = "a",
-                        type = TokenType.Identifier
+                        Value = "a",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = "=",
-                        type = TokenType.Assign
+                        Value = "=",
+                        Type = TokenType.Assign
                     },
                     new Token()
                     {
-                        value = "a",
-                        type = TokenType.Identifier
+                        Value = "a",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = "+",
-                        type = TokenType.Plus_Op
+                        Value = "+",
+                        Type = TokenType.PlusOp
                     },
                     new Token()
                     {
-                        value = "1",
-                        type = TokenType.Number
+                        Value = "1",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = ";",
-                        type = TokenType.Colon
+                        Value = ";",
+                        Type = TokenType.Colon
                     },
                     new Token()
                     {
-                        value = "}",
-                        type = TokenType.CurlyRightBracket
+                        Value = "}",
+                        Type = TokenType.CurlyRightBracket
                     },
                     new Token()
                     {
-                        value = "return",
-                        type = TokenType.KeyWord
+                        Value = Keywords.Return,
+                        Type = TokenType.KeyWord
                     },
                     new Token()
                     {
-                        value = "a",
-                        type = TokenType.Identifier
+                        Value = "a",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = ";",
-                        type = TokenType.Colon
+                        Value = ";",
+                        Type = TokenType.Colon
                     },
                 }
             });
@@ -611,28 +614,28 @@ namespace VkScriptAnalyzerTests
         {
             DoTest(new TestParameters()
             {
-                input_text = "1.2 a.b",
-                sample = new List<Token>()
+                InputText = "1.2 a.b",
+                Sample = new List<Token>()
                 {
                     new Token()
                     {
-                        value = "1.2",
-                        type = TokenType.Number
+                        Value = "1.2",
+                        Type = TokenType.Number
                     },
                     new Token()
                     {
-                        value = "a",
-                        type = TokenType.Identifier
+                        Value = "a",
+                        Type = TokenType.Identifier
                     },
                     new Token()
                     {
-                        value = ".",
-                        type = TokenType.Dot
+                        Value = ".",
+                        Type = TokenType.Dot
                     },
                     new Token()
                     {
-                        value = "b",
-                        type = TokenType.Identifier
+                        Value = "b",
+                        Type = TokenType.Identifier
                     },
                 }
             });
