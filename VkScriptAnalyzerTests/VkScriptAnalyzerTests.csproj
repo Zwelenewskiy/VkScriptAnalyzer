@@ -5,8 +5,6 @@
         <ProjectGuid>{9582A312-9A39-45F0-8049-99C593B07895}</ProjectGuid>
         <OutputType>Library</OutputType>
         <AppDesignerFolder>Properties</AppDesignerFolder>
-        <RootNamespace>UnitTestProject1</RootNamespace>
-        <AssemblyName>UnitTestProject1</AssemblyName>
         <TargetFramework>net7.0</TargetFramework>
         <FileAlignment>512</FileAlignment>
         <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -42,8 +40,17 @@
         </ProjectReference>
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.2" />
-        <PackageReference Include="MSTest.TestAdapter" Version="2.1.2" />
-        <PackageReference Include="MSTest.TestFramework" Version="2.1.2" />
+        <PackageReference Include="FluentAssertions" Version="6.12.0" />
+        <PackageReference Include="Meziantou.FluentAssertionsAnalyzers" Version="1.0.10">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+        <PackageReference Include="xunit" Version="2.6.1" />
+        <PackageReference Include="xunit.analyzers" Version="1.5.0" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
     </ItemGroup>
 </Project>
