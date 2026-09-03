@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Entities.Lexer;
 using Entities.Parser;
-using VkScriptAnalyzer.Parser;
+using Core.Parser;
 
 namespace VkScriptAnalyzerTests
 {

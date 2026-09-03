@@ -1,9 +1,9 @@
-﻿using System;
+using System;
 using System.Linq;
 using Entities.Lexer;
-using VkScriptAnalyzer.Lexer.Mashines;
+using Core.Lexer.Mashines;
 
-namespace VkScriptAnalyzer.Lexer
+namespace Core.Lexer
 {       
     public class LexicalAnalyzer
     {
@@ -87,22 +87,22 @@ namespace VkScriptAnalyzer.Lexer
             string value = null;
 
             var tempParsers = PARSERS
-                        .Where(p => p.lexValue != string.Empty && p.lexValue != null)
-                        .OrderByDescending(p => p.lexValue.Length)
+                        .Where(p => p.LexValue != string.Empty && p.LexValue != null)
+                        .OrderByDescending(p => p.LexValue.Length)
                         .ToArray();
 
             foreach (Machine parser in tempParsers)
             {
-                value = parser.lexValue;
+                value = parser.LexValue;
 
                 if (parser.IsEnd())
                 {
-                    if (parser.type == TokenType.Identifier && KEY_WORDS.Contains(value))
+                    if (parser.Type == TokenType.Identifier && KEY_WORDS.Contains(value))
                         token.Type = TokenType.KeyWord;
-                    else if (parser.type == TokenType.Identifier && BOOL_DATA_TYPES.Contains(value))
+                    else if (parser.Type == TokenType.Identifier && BOOL_DATA_TYPES.Contains(value))
                         token.Type = TokenType.BoolDataType;
                     else
-                        token.Type = parser.type;
+                        token.Type = parser.Type;
 
                     token.Value = value;
                     token.PosNumber = PosNumber;

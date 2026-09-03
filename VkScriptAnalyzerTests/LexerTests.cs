@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 using Entities.Lexer;
-using VkScriptAnalyzer.Lexer;
+using Core.Lexer;
 
 namespace VkScriptAnalyzerTests
 {

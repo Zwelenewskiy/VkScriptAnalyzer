@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Entities.Lexer;
 using Entities.Parser;
-using VkScriptAnalyzer.Lexer;
+using Core.Lexer;
 
-namespace VkScriptAnalyzer.Parser
+namespace Core.Parser
 {
     public class SyntacticAnalyzer
     {

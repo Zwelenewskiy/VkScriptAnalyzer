@@ -1,10 +1,10 @@
-﻿using System.Linq;
+using System.Linq;
 using Entities.Emulator;
 using Entities.Lexer;
 using Entities.Parser;
 using VkApi;
 
-namespace VkScriptAnalyzer.Emulator
+namespace Core.Emulator
 {
     public class EmulatorMashine
     {
