@@ -1,14 +1,14 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
+using Entities.ApiMethodsExecutor;
 using Entities.Emulator;
-using VkNet;
 using VkNet.Model;
 
-namespace VkScriptAnalyzer.Emulator
+namespace VkApi
 {
-    public class ApiMethodsExecutor
+    public class ApiMethodsExecutor : IApiMethodsExecutor
     {
         private static ApiMethodsExecutor _instance;
-        private VkApi api;
+        private readonly VkNet.VkApi _api;
 
         public static ApiMethodsExecutor Instance
         {
@@ -20,9 +20,9 @@ namespace VkScriptAnalyzer.Emulator
 
         private ApiMethodsExecutor()
         {
-            api = new VkApi();
+            _api = new VkNet.VkApi();
 
-            api.Authorize(new ApiAuthParams
+            _api.Authorize(new ApiAuthParams
             {
                 ApplicationId = 7911433,
                 Login         = "89534798532",
@@ -37,7 +37,7 @@ namespace VkScriptAnalyzer.Emulator
             {
                 if(methodname == "setOffline")
                 {
-                    if (api.Account.SetOffline())
+                    if (_api.Account.SetOffline())
                         return new CalculateResult(1, DataType.Double);
                     else
                         return new CalculateResult(0, DataType.Double);

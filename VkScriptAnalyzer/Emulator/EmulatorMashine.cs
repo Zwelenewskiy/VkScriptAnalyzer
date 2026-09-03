@@ -2,6 +2,7 @@
 using Entities.Emulator;
 using Entities.Lexer;
 using Entities.Parser;
+using VkApi;
 
 namespace VkScriptAnalyzer.Emulator
 {
