@@ -36,17 +36,13 @@ namespace VkScriptAnalyzer
             {
                 var interpreter = new EmulatorMashine(ast, new ApiMethodsExecutor(vkLogin, vkPassword, applicationId));
                 CalculateResult result = interpreter.StartEmulate();
-                if (result == null)
+                if (result != null && !result.IsSuccess)
                 {
-                    string errorMessage = interpreter.ErrorMessage;
-                    if(errorMessage != null)
-                    {
-                        Console.WriteLine(errorMessage);
-                    }
-                    else
-                    {
-                        Console.WriteLine("Программа успешно завершена.");
-                    }
+                    Console.WriteLine(result.ErrorMessage);
+                }
+                else if (result == null)
+                {
+                    Console.WriteLine("Программа успешно завершена.");
                 }
                 else
                 {

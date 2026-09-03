@@ -14,8 +14,6 @@ namespace Core.Emulator
         private Env _env;
         private int _apiCallsCount;
 
-        public string ErrorMessage { get; private set; }
-
         public EmulatorMashine(Node ast, IApiMethodsExecutor api)
         {
             _ast = ast;
@@ -34,8 +32,9 @@ namespace Core.Emulator
         /// <summary>
         /// Возвращает список вычисленных переменных из списка полей вершины AST
         /// </summary>
-        private System.Collections.Generic.List<VariableSymbol> NodeFieldToObjectField(ObjectNode node)
+        private System.Collections.Generic.List<VariableSymbol> NodeFieldToObjectField(ObjectNode node, out CalculateResult error)
         {
+            error = null;
             var res = new System.Collections.Generic.List<VariableSymbol>();
 
             if (node != null)
@@ -44,8 +43,11 @@ namespace Core.Emulator
                 {
                     CalculateResult fieldValue = ExprInterpret(field.Expression);
 
-                    if (fieldValue == null)
+                    if (fieldValue == null || !fieldValue.IsSuccess)
+                    {
+                        error = fieldValue ?? new CalculateResult("Ошибка вычисления поля объекта");
                         return null;
+                    }
 
                     res.Add(new VariableSymbol(
                         name: field.Name.Value,
@@ -63,13 +65,19 @@ namespace Core.Emulator
         {
             if(node is VarNode)
             {
-                if (VarInterpret(node as VarNode))
-                    return Emulate(node.Next);
+                var varResult = VarInterpret(node as VarNode);
+                if (varResult != null && !varResult.IsSuccess)
+                    return varResult;
+
+                return Emulate(node.Next);
             }
             if (node is AssignNode)
             {
-                if (AssignInterpret(node as AssignNode))
-                    return Emulate(node.Next);
+                var assignResult = AssignInterpret(node as AssignNode);
+                if (assignResult != null && !assignResult.IsSuccess)
+                    return assignResult;
+
+                return Emulate(node.Next);
             }
             if (node is IfNode)
             {
@@ -81,8 +89,10 @@ namespace Core.Emulator
                 
                 if (ifResult == null)
                     return Emulate(node.Next);
-                else
+                if (!ifResult.IsSuccess)
                     return ifResult;
+
+                return ifResult;
             }
             if (node is WhileNode)
             {
@@ -94,8 +104,10 @@ namespace Core.Emulator
 
                 if (whileResult == null)
                     return Emulate(node.Next);
-                else
+                if (!whileResult.IsSuccess)
                     return whileResult;
+
+                return whileResult;
             }
             if (node is ReturnNode)
             {
@@ -105,50 +117,50 @@ namespace Core.Emulator
             return null;
         }
 
-        private bool VarInterpret(VarNode node)
+        private CalculateResult VarInterpret(VarNode node)
         {
             if(node != null)
             {
                 var symbol = _env.GetSymbolLocal(node.Id.Value);
                 if (symbol == null)
                 {
-                    CalculateResult expr_val = ExprInterpret(node.Expression);                    
+                    CalculateResult exprVal = ExprInterpret(node.Expression);                    
 
-                    if (expr_val != null)
-                    {
-                        var result = expr_val.GetResult();
-                        var scope = _env.GetCurrentScope();
+                    if (exprVal == null || !exprVal.IsSuccess)
+                        return exprVal;
 
-                        _env.AddSymbol(new VariableSymbol(
-                            name:  node.Id.Value, 
-                            value: result,
-                            type:  expr_val.DataType,
-                            scope: scope
-                        ));
+                    var result = exprVal.GetResult();
+                    var scope = _env.GetCurrentScope();
 
-                        if (node.NextVar == null)
-                            return true;
-                        else
-                            return VarInterpret(node.NextVar);
-                    }
+                    _env.AddSymbol(new VariableSymbol(
+                        name:  node.Id.Value, 
+                        value: result,
+                        type:  exprVal.DataType,
+                        scope: scope
+                    ));
+
+                    if (node.NextVar == null)
+                        return null;
+                    else
+                        return VarInterpret(node.NextVar);
                 }
                 else
                 {
-                    CalculateResult expr_val = ExprInterpret(node.Expression);
-                    if (expr_val != null)
-                    {
-                        (symbol as VariableSymbol).Value = expr_val.GetResult();
-                        _env.UpdateSymbolValue(symbol);
+                    CalculateResult exprVal = ExprInterpret(node.Expression);
+                    if (exprVal == null || !exprVal.IsSuccess)
+                        return exprVal;
 
-                        if (node.NextVar == null)
-                            return true;
-                        else
-                            return VarInterpret(node.NextVar);
-                    }
+                    (symbol as VariableSymbol).Value = exprVal.GetResult();
+                    _env.UpdateSymbolValue(symbol);
+
+                    if (node.NextVar == null)
+                        return null;
+                    else
+                        return VarInterpret(node.NextVar);
                 }
             }
 
-            return false;
+            return new CalculateResult("Ошибка объявления переменной");
         }
 
         // b.c.d
@@ -184,8 +196,7 @@ namespace Core.Emulator
                 var leftSymbol = _env.GetSymbol(node.Left.Token.Value) as VariableSymbol;
                 if (leftSymbol == null)
                 {
-                    ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.Left.Token.Value}' \nСтрока: {node.Left.Token.PosNumber}";
-                    return null;
+                    return new CalculateResult($"Обнаружен необъявленный идентификатор: '{node.Left.Token.Value}' \nСтрока: {node.Left.Token.PosNumber}");
                 }
 
                 if (leftSymbol.Value is ObjectSymbol)
@@ -206,11 +217,11 @@ namespace Core.Emulator
 
             if(node is ObjectNode)
             {
-                var obj_node = node as ObjectNode;
-                var fields = NodeFieldToObjectField(obj_node);
+                var objNode = node as ObjectNode;
+                var fields = NodeFieldToObjectField(objNode, out CalculateResult fieldsError);
 
                 if (fields == null)
-                    return null;
+                    return fieldsError;
 
                 return new CalculateResult(new ObjectSymbol(
                         name:   null,
@@ -234,6 +245,9 @@ namespace Core.Emulator
                         {
                             CalculateResult fieldValue = ExprInterpret(field.Expression);
 
+                            if (fieldValue == null || !fieldValue.IsSuccess)
+                                return fieldValue ?? new CalculateResult("Ошибка вычисления параметра метода");
+
                             parameters.Add(new VariableSymbol(
                                 name: field.Name.Value,
                                 value: fieldValue.GetResult(),
@@ -247,8 +261,7 @@ namespace Core.Emulator
                     {
                         if(_apiCallsCount == 25)
                         {
-                            ErrorMessage = $"Превышено количество вызовов методов API.";
-                            return null;
+                            return new CalculateResult("Превышено количество вызовов методов API.");
                         }
 
                         var res = _api.Execute(
@@ -262,15 +275,12 @@ namespace Core.Emulator
                     }
                     catch (System.Exception ex)
                     {
-                        ErrorMessage = $"Ошибка во время выполнения метода: '{callNode.SectionName.Value}.{callNode.Token.Value}' \nСтрока: {callNode.Token.PosNumber} \nОшибка: {ex.Message}";
-
-                        return null;
+                        return new CalculateResult($"Ошибка во время выполнения метода: '{callNode.SectionName.Value}.{callNode.Token.Value}' \nСтрока: {callNode.Token.PosNumber} \nОшибка: {ex.Message}");
                     }
                 }
                 else
                 {
-                    ErrorMessage = $"Вызов несуществующего метода: '{callNode.SectionName.Value}.{callNode.Token.Value}' \nСтрока: {callNode.Token.PosNumber}";
-                    return null;
+                    return new CalculateResult($"Вызов несуществующего метода: '{callNode.SectionName.Value}.{callNode.Token.Value}' \nСтрока: {callNode.Token.PosNumber}");
                 }
             }
 
@@ -294,78 +304,74 @@ namespace Core.Emulator
                 || op == ">" || op == "<" || op == ">=" || op == "<=" || op == "==" || op == "!="
             )
             {
-                var left_val = ExprInterpret(node.Left);
+                var leftVal = ExprInterpret(node.Left);
 
-                if (left_val != null)
+                if (leftVal == null || !leftVal.IsSuccess)
+                    return leftVal;
+
+                var rightVal = ExprInterpret(node.Right);
+
+                if (rightVal == null || !rightVal.IsSuccess)
+                    return rightVal;
+
+                if (leftVal.DataType == DataType.Double && rightVal.DataType == DataType.Double)
                 {
-                    var right_val = ExprInterpret(node.Right);
-
-                    if (right_val != null)
+                    try
                     {
-                        if (left_val.DataType == DataType.Double && right_val.DataType == DataType.Double)
-                        {
-                            try
-                            {
-                                if (op == "+")
-                                    return new CalculateResult((double)left_val.GetResult() + (double)right_val.GetResult(), DataType.Double);
-                                else if (op == "-")
-                                    return new CalculateResult((double)left_val.GetResult() - (double)right_val.GetResult(), DataType.Double);
-                                else if (op == "*")
-                                    return new CalculateResult((double)left_val.GetResult() * (double)right_val.GetResult(), DataType.Double);
-                                else if (op == "/")
-                                    return new CalculateResult((double)left_val.GetResult() / (double)right_val.GetResult(), DataType.Double);
-                                else if (op == ">")
-                                    return new CalculateResult((double)left_val.GetResult() > (double)right_val.GetResult(), DataType.Bool);
-                                else if (op == "<")
-                                    return new CalculateResult((double)left_val.GetResult() < (double)right_val.GetResult(), DataType.Bool);
-                                else if (op == ">=")
-                                    return new CalculateResult((double)left_val.GetResult() >= (double)right_val.GetResult(), DataType.Bool);
-                                else if (op == "<=")
-                                    return new CalculateResult((double)left_val.GetResult() <= (double)right_val.GetResult(), DataType.Bool);
-                                else if (op == "==")
-                                    return new CalculateResult((double)left_val.GetResult() == (double)right_val.GetResult(), DataType.Bool);
-                                else
-                                    return new CalculateResult((double)left_val.GetResult() != (double)right_val.GetResult(), DataType.Bool);
-                            }
-                            catch (System.OverflowException)
-                            {
-                                ErrorMessage = $"Ошибка переполнения. Оператор '{node.Token.Value}'. Левый операнд: {(double)left_val.GetResult() } " +
-                                    $"Правый операнд: {(double)right_val.GetResult()} \nСтрока: {node.Token.PosNumber}";
-
-                                return null;
-                            }
-                            
-                        }
+                        if (op == "+")
+                            return new CalculateResult((double)leftVal.GetResult() + (double)rightVal.GetResult(), DataType.Double);
+                        else if (op == "-")
+                            return new CalculateResult((double)leftVal.GetResult() - (double)rightVal.GetResult(), DataType.Double);
+                        else if (op == "*")
+                            return new CalculateResult((double)leftVal.GetResult() * (double)rightVal.GetResult(), DataType.Double);
+                        else if (op == "/")
+                            return new CalculateResult((double)leftVal.GetResult() / (double)rightVal.GetResult(), DataType.Double);
+                        else if (op == ">")
+                            return new CalculateResult((double)leftVal.GetResult() > (double)rightVal.GetResult(), DataType.Bool);
+                        else if (op == "<")
+                            return new CalculateResult((double)leftVal.GetResult() < (double)rightVal.GetResult(), DataType.Bool);
+                        else if (op == ">=")
+                            return new CalculateResult((double)leftVal.GetResult() >= (double)rightVal.GetResult(), DataType.Bool);
+                        else if (op == "<=")
+                            return new CalculateResult((double)leftVal.GetResult() <= (double)rightVal.GetResult(), DataType.Bool);
+                        else if (op == "==")
+                            return new CalculateResult((double)leftVal.GetResult() == (double)rightVal.GetResult(), DataType.Bool);
                         else
-                        {
-                            // несоответствие типов
-                            ErrorMessage = $"Оператор '{node.Token.Value}' ожидает тип Double, но обнаружены {left_val.DataType} и {right_val.DataType} \nСтрока: {node.Token.PosNumber}";
-                        }
+                            return new CalculateResult((double)leftVal.GetResult() != (double)rightVal.GetResult(), DataType.Bool);
                     }
+                    catch (System.OverflowException)
+                    {
+                        return new CalculateResult($"Ошибка переполнения. Оператор '{node.Token.Value}'. Левый операнд: {(double)leftVal.GetResult() } " +
+                            $"Правый операнд: {(double)rightVal.GetResult()} \nСтрока: {node.Token.PosNumber}");
+                    }
+                }
+                else
+                {
+                    return new CalculateResult($"Оператор '{node.Token.Value}' ожидает тип Double, но обнаружены {leftVal.DataType} и {rightVal.DataType} \nСтрока: {node.Token.PosNumber}");
                 }
             }
             else if (op == "and" || op == "or")
             {
-                var left_val = ExprInterpret(node.Left);
+                var leftVal = ExprInterpret(node.Left);
 
-                if (left_val != null)
+                if (leftVal == null || !leftVal.IsSuccess)
+                    return leftVal;
+
+                var rightVal = ExprInterpret(node.Right);
+
+                if (rightVal == null || !rightVal.IsSuccess)
+                    return rightVal;
+
+                if (leftVal.DataType == DataType.Bool && rightVal.DataType == DataType.Bool)
                 {
-                    var right_val = ExprInterpret(node.Right);
-
-                    if (right_val != null)
-                    {
-                        if (left_val.DataType == DataType.Bool && right_val.DataType == DataType.Bool)
-                        {
-                            if(op == "and")
-                                return new CalculateResult((bool)left_val.GetResult() && (bool)right_val.GetResult(), DataType.Bool);
-                            else 
-                                return new CalculateResult((bool)left_val.GetResult() || (bool)right_val.GetResult(), DataType.Bool);
-                        }
-                        else
-                        {
-                            ErrorMessage = $"Оператор '{node.Token.Value}' ожидает тип Bool, но обнаружены {left_val.DataType} и {right_val.DataType} \nСтрока: {node.Token.PosNumber}";
-                        }
-                    }
+                    if(op == "and")
+                        return new CalculateResult((bool)leftVal.GetResult() && (bool)rightVal.GetResult(), DataType.Bool);
+                    else 
+                        return new CalculateResult((bool)leftVal.GetResult() || (bool)rightVal.GetResult(), DataType.Bool);
+                }
+                else
+                {
+                    return new CalculateResult($"Оператор '{node.Token.Value}' ожидает тип Bool, но обнаружены {leftVal.DataType} и {rightVal.DataType} \nСтрока: {node.Token.PosNumber}");
                 }
             }
             else if (node.Token.Type == TokenType.Identifier)
@@ -373,20 +379,15 @@ namespace Core.Emulator
                 var var = _env.GetSymbol(node.Token.Value);
                 if (var == null)
                 {
-                    ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.Token.Value}' \nСтрока: {node.Token.PosNumber}";
+                    return new CalculateResult($"Обнаружен необъявленный идентификатор: '{node.Token.Value}' \nСтрока: {node.Token.PosNumber}");
                 }
                 else
                 {
                     if (var is VariableSymbol)
                     {
-                        var var_sym = var as VariableSymbol;
+                        var varSym = var as VariableSymbol;
 
-                        /*if (var_sym.DataType == DataType.Double)
-                            return new CalculateResult(var_sym.Value, DataType.Double);
-                        else if (var_sym.DataType == DataType.Bool)
-                            return new CalculateResult(var_sym.Value, DataType.Bool);*/
-
-                        return new CalculateResult(var_sym.Value, var_sym.DataType);
+                        return new CalculateResult(varSym.Value, varSym.DataType);
                     }
                     else if (var is FunctionSymbol)
                     {
@@ -395,28 +396,24 @@ namespace Core.Emulator
                 }
             }
 
-            return null;
+            return new CalculateResult("Ошибка вычисления выражения");
         }
 
-        private bool AssignInterpret(AssignNode node)
+        private CalculateResult AssignInterpret(AssignNode node)
         {
-            var var_sym = (VariableSymbol)_env.GetSymbol(node.Id.Value);
-            if(var_sym != null)
+            var varSym = (VariableSymbol)_env.GetSymbol(node.Id.Value);
+            if(varSym != null)
             {
-                var expr_val = ExprInterpret(node.Expression);
-                if(expr_val != null)
-                {
-                    var_sym.Value = expr_val.GetResult();
-                    _env.UpdateSymbolValue(var_sym);
-                    return true;
-                }
-            }
-            else
-            {
-                ErrorMessage = $"Идентификатор '{node.Id.Value}' не объявлен \nСтрока: {node.Id.PosNumber}";
+                var exprVal = ExprInterpret(node.Expression);
+                if (exprVal == null || !exprVal.IsSuccess)
+                    return exprVal;
+
+                varSym.Value = exprVal.GetResult();
+                _env.UpdateSymbolValue(varSym);
+                return null;
             }
 
-            return false;
+            return new CalculateResult($"Идентификатор '{node.Id.Value}' не объявлен \nСтрока: {node.Id.PosNumber}");
         }
 
         private CalculateResult ReturnInterpret(ReturnNode node)
@@ -441,20 +438,20 @@ namespace Core.Emulator
 
         private CalculateResult IfInterpret(IfNode node)
         {
-            var cond_expr = ExprInterpret(node.Condition);
-            if(cond_expr != null)
+            var condExpr = ExprInterpret(node.Condition);
+            if (condExpr == null || !condExpr.IsSuccess)
+                return condExpr;
+
+            bool condVal = ExprValueToBool(condExpr);
+            if (condVal)
             {
-                bool cond_val = ExprValueToBool(cond_expr);
-                if (cond_val)
-                {
-                    if (node.Body is EmptyNode == false)
-                        return Emulate(node.Body);
-                }
-                else
-                {
-                    if (node.Else != null)
-                        return Emulate(node.Else);
-                }
+                if (node.Body is EmptyNode == false)
+                    return Emulate(node.Body);
+            }
+            else
+            {
+                if (node.Else != null)
+                    return Emulate(node.Else);
             }
 
             return null;
@@ -462,28 +459,29 @@ namespace Core.Emulator
 
         private CalculateResult WhileInterpret(WhileNode node)
         {
-            CalculateResult cond_expr = ExprInterpret(node.Condition);
-            if (cond_expr != null)
+            CalculateResult condExpr = ExprInterpret(node.Condition);
+            if (condExpr == null || !condExpr.IsSuccess)
+                return condExpr;
+
+            if (node.Body is EmptyNode == false)
             {
+                bool condVal = ExprValueToBool(condExpr);
 
-                if (node.Body is EmptyNode == false)
+                CalculateResult res = null;
+                while (condVal)
                 {
-                    bool cond_val = ExprValueToBool(cond_expr);
+                    res = Emulate(node.Body);
+                    if (res != null && !res.IsSuccess)
+                        return res;
 
-                    CalculateResult res = null;
-                    while (cond_val)
-                    {
-                        res = Emulate(node.Body);
+                    condExpr = ExprInterpret(node.Condition);
+                    if (condExpr == null || !condExpr.IsSuccess)
+                        return condExpr;
 
-                        cond_expr = ExprInterpret(node.Condition);
-                        if (cond_expr == null)
-                            break;
-                        else
-                            cond_val = ExprValueToBool(cond_expr);
-                    }
-
-                    return res;
+                    condVal = ExprValueToBool(condExpr);
                 }
+
+                return res;
             }
 
             return null;
