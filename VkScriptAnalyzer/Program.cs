@@ -3,6 +3,7 @@ using Core.Emulator;
 using Core.Parser;
 using Entities.Emulator;
 using Entities.Parser;
+using Microsoft.Extensions.Configuration;
 using VkApi;
 
 namespace VkScriptAnalyzer
@@ -10,12 +11,18 @@ namespace VkScriptAnalyzer
     class Program
     {
         private readonly static string INPUT_FILE_NAME = "input.vkscript";
-        private readonly static string _vkLogin = "";
-        private readonly static string _vkPassword = "";
-        private readonly static ulong _applicationId = 0;
 
         static void Main()
         {
+            IConfiguration config = new ConfigurationBuilder()
+                .SetBasePath(AppContext.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false)
+                .Build();
+
+            string vkLogin = config["vkLogin"];
+            string vkPassword = config["vkPassword"];
+            ulong applicationId = config.GetValue<ulong>("applicationId");
+
             string input = System.IO.File.ReadAllText(INPUT_FILE_NAME);
 
             var parser = new SyntacticAnalyzer(input);
@@ -27,7 +34,7 @@ namespace VkScriptAnalyzer
             }
             else
             {
-                var interpreter = new EmulatorMashine(ast, new ApiMethodsExecutor(_vkLogin, _vkPassword, _applicationId));
+                var interpreter = new EmulatorMashine(ast, new ApiMethodsExecutor(vkLogin, vkPassword, applicationId));
                 CalculateResult result = interpreter.StartEmulate();
                 if (result == null)
                 {
