@@ -1,6 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using VkScriptAnalyzer.Lexer;
+using Entities.Lexer;
+using Entities.Parser;
 using VkScriptAnalyzer.Parser;
 
 namespace VkScriptAnalyzerTests

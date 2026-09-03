@@ -1,6 +1,6 @@
-﻿using VkScriptAnalyzer.Lexer;
+using Entities.Lexer;
 
-namespace VkScriptAnalyzer.Parser
+namespace Entities.Parser
 {
     public class AssignNode : Node
     {

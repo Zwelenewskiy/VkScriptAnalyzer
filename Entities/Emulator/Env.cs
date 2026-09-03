@@ -1,4 +1,4 @@
-﻿namespace VkScriptAnalyzer.Emulator
+namespace Entities.Emulator
 {
     public class Env
     {
@@ -32,13 +32,13 @@
         /// </summary>
         public Symbol GetSymbol(string name)
         {
-            var tmp_scope = scope;
-            while (tmp_scope != null)
+            var tmpCcope = scope;
+            while (tmpCcope != null)
             {
-                var symbol = tmp_scope.GetSymbol(name);
+                var symbol = tmpCcope.GetSymbol(name);
                 if (symbol == null)
                 {
-                    tmp_scope = tmp_scope.Prev;
+                    tmpCcope = tmpCcope.Prev;
                     continue;
                 }
                 else

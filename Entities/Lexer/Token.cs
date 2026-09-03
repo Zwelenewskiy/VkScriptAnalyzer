@@ -1,4 +1,4 @@
-﻿namespace VkScriptAnalyzer.Lexer
+namespace Entities.Lexer
 {
     public enum TokenType
     {

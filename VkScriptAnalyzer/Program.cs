@@ -1,6 +1,8 @@
 ﻿using System;
-using VkScriptAnalyzer.Parser;
+using Entities.Emulator;
+using Entities.Parser;
 using VkScriptAnalyzer.Emulator;
+using VkScriptAnalyzer.Parser;
 
 namespace VkScriptAnalyzer
 {

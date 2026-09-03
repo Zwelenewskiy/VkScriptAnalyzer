@@ -1,11 +1,13 @@
-﻿namespace VkScriptAnalyzer.Parser
+using Entities.Lexer;
+
+namespace Entities.Parser
 {
     public class ObjectField
     {
-        public Lexer.Token Name { get; set; }
+        public Token Name { get; set; }
         public ExprNode Expression { get; set; }
 
-        public ObjectField(Lexer.Token token)
+        public ObjectField(Token token)
         {
             Name = token;
         }

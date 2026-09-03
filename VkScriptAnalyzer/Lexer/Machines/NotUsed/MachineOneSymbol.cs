@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Entities.Lexer;
 
 namespace VkScriptAnalyzer.Lexer.Mashines
 {

@@ -1,4 +1,6 @@
 ﻿using System.Collections.Generic;
+using Entities.Lexer;
+using Entities.Parser;
 using VkScriptAnalyzer.Lexer;
 
 namespace VkScriptAnalyzer.Parser

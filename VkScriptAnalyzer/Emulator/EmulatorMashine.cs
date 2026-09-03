@@ -1,47 +1,31 @@
-﻿using VkScriptAnalyzer.Lexer;
-using VkScriptAnalyzer.Parser;
-using System.Linq;
+﻿using System.Linq;
+using Entities.Emulator;
+using Entities.Lexer;
+using Entities.Parser;
 
 namespace VkScriptAnalyzer.Emulator
 {
-    public class CalculateResult
-    {
-        private object value;
-        public DataType DataType { get; set; }
-
-        public CalculateResult(object val, DataType type)
-        {
-            value = val;
-            DataType = type;
-        }
-
-        public object GetResult()
-        {
-            return value;
-        }
-    }
-
     public class EmulatorMashine
     {
-        private Node ast;
-        private Env env;
-        private string[] existing_api_methods = new string[] { "account_setOffline" };
-        private int api_calls_count;
+        private Node _ast;
+        private Env _env;
+        private string[] _existingApiMethods = new string[] { "account_setOffline" };
+        private int _apiCallsCount;
 
         public string ErrorMessage { get; private set; }
 
         public EmulatorMashine(Node ast)
         {
-            this.ast = ast;
-            api_calls_count = 0;
+            _ast = ast;
+            _apiCallsCount = 0;
         }
 
         public CalculateResult StartEmulate()
         {
-            env = new Env();
-            env.CreateScope();
+            _env = new Env();
+            _env.CreateScope();
 
-            return Emulate(ast);
+            return Emulate(_ast);
         }
 
         /// <summary>
@@ -55,15 +39,15 @@ namespace VkScriptAnalyzer.Emulator
             {
                 foreach (var field in node.Fields)
                 {
-                    CalculateResult field_value = ExprInterpret(field.Expression);
+                    CalculateResult fieldValue = ExprInterpret(field.Expression);
 
-                    if (field_value == null)
+                    if (fieldValue == null)
                         return null;
 
                     res.Add(new VariableSymbol(
                         name: field.Name.Value,
-                        value: field_value.GetResult(),
-                        type: field_value.DataType,
+                        value: fieldValue.GetResult(),
+                        type: fieldValue.DataType,
                         scope: null
                     ));
                 }
@@ -86,29 +70,29 @@ namespace VkScriptAnalyzer.Emulator
             }
             if (node is IfNode)
             {
-                env.CreateScope();
+                _env.CreateScope();
 
-                var if_result = IfInterpret(node as IfNode);// результат может быть только при Return
+                var ifResult = IfInterpret(node as IfNode);// результат может быть только при Return
 
-                env.CloseScope();   
+                _env.CloseScope();   
                 
-                if (if_result == null)
+                if (ifResult == null)
                     return Emulate(node.Next);
                 else
-                    return if_result;
+                    return ifResult;
             }
             if (node is WhileNode)
             {
-                env.CreateScope();
+                _env.CreateScope();
 
-                var while_result = WhileInterpret(node as WhileNode);// результат может быть только при Return
+                var whileResult = WhileInterpret(node as WhileNode);// результат может быть только при Return
 
-                env.CloseScope();
+                _env.CloseScope();
 
-                if (while_result == null)
+                if (whileResult == null)
                     return Emulate(node.Next);
                 else
-                    return while_result;
+                    return whileResult;
             }
             if (node is ReturnNode)
             {
@@ -122,7 +106,7 @@ namespace VkScriptAnalyzer.Emulator
         {
             if(node != null)
             {
-                var symbol = env.GetSymbolLocal(node.Id.Value);
+                var symbol = _env.GetSymbolLocal(node.Id.Value);
                 if (symbol == null)
                 {
                     CalculateResult expr_val = ExprInterpret(node.Expression);                    
@@ -130,9 +114,9 @@ namespace VkScriptAnalyzer.Emulator
                     if (expr_val != null)
                     {
                         var result = expr_val.GetResult();
-                        var scope = env.GetCurrentScope();
+                        var scope = _env.GetCurrentScope();
 
-                        env.AddSymbol(new VariableSymbol(
+                        _env.AddSymbol(new VariableSymbol(
                             name:  node.Id.Value, 
                             value: result,
                             type:  expr_val.DataType,
@@ -151,7 +135,7 @@ namespace VkScriptAnalyzer.Emulator
                     if (expr_val != null)
                     {
                         (symbol as VariableSymbol).Value = expr_val.GetResult();
-                        env.UpdateSymbolValue(symbol);
+                        _env.UpdateSymbolValue(symbol);
 
                         if (node.NextVar == null)
                             return true;
@@ -194,22 +178,22 @@ namespace VkScriptAnalyzer.Emulator
         {
             if (node is KvalidentNode)
             {
-                var left_symbol = env.GetSymbol(node.Left.Token.Value) as VariableSymbol;
-                if (left_symbol == null)
+                var leftSymbol = _env.GetSymbol(node.Left.Token.Value) as VariableSymbol;
+                if (leftSymbol == null)
                 {
                     ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.Left.Token.Value}' \nСтрока: {node.Left.Token.PosNumber}";
                     return null;
                 }
 
-                if (left_symbol.Value is ObjectSymbol)
+                if (leftSymbol.Value is ObjectSymbol)
                 {
                     if(node.Right is KvalidentNode == false)// базовый случай, когда потомки узла - идентификаторы. Ниже идти не нужно
                     {
-                        var res = (left_symbol.Value as ObjectSymbol).GetMember(node.Right.Token.Value) as VariableSymbol;
+                        var res = (leftSymbol.Value as ObjectSymbol).GetMember(node.Right.Token.Value) as VariableSymbol;
                         return new CalculateResult(res.Value, res.DataType);
                     }
 
-                    return KvalidentInterpret(node.Right as KvalidentNode, left_symbol.Value as ObjectSymbol);
+                    return KvalidentInterpret(node.Right as KvalidentNode, leftSymbol.Value as ObjectSymbol);
                 }
                 else
                 {
@@ -227,7 +211,7 @@ namespace VkScriptAnalyzer.Emulator
 
                 return new CalculateResult(new ObjectSymbol(
                         name:   null,
-                        scope:  env.GetCurrentScope(),
+                        scope:  _env.GetCurrentScope(),
                         fields: fields
                         ),
                     type: DataType.Object
@@ -236,21 +220,21 @@ namespace VkScriptAnalyzer.Emulator
 
             if(node is CallNode)
             {
-                var call_node = node as CallNode;
-                if(existing_api_methods.Contains(call_node.SectionName.Value + "_" + call_node.Token.Value))
+                var callNode = node as CallNode;
+                if(_existingApiMethods.Contains(callNode.SectionName.Value + "_" + callNode.Token.Value))
                 {
                     var parameters = new System.Collections.Generic.List<VariableSymbol>();
 
-                    if(call_node.Parameter != null)
+                    if(callNode.Parameter != null)
                     {
-                        foreach (var field in call_node.Parameter.Fields)
+                        foreach (var field in callNode.Parameter.Fields)
                         {
-                            CalculateResult field_value = ExprInterpret(field.Expression);
+                            CalculateResult fieldValue = ExprInterpret(field.Expression);
 
                             parameters.Add(new VariableSymbol(
                                 name: field.Name.Value,
-                                value: field_value.GetResult(),
-                                type: field_value.DataType,
+                                value: fieldValue.GetResult(),
+                                type: fieldValue.DataType,
                                 scope: null
                             ));
                         }
@@ -258,31 +242,31 @@ namespace VkScriptAnalyzer.Emulator
 
                     try
                     {
-                        if(api_calls_count == 25)
+                        if(_apiCallsCount == 25)
                         {
                             ErrorMessage = $"Превышено количество вызовов методов API.";
                             return null;
                         }
 
                         var res = ApiMethodsExecutor.Instance.Execute(
-                            section_name: call_node.SectionName.Value,
-                            method_name: call_node.Token.Value,
+                            sectionName: callNode.SectionName.Value,
+                            methodname: callNode.Token.Value,
                             parameters: parameters
                         );
 
-                        api_calls_count++;
+                        _apiCallsCount++;
                         return res;
                     }
                     catch (System.Exception ex)
                     {
-                        ErrorMessage = $"Ошибка во время выполнения метода: '{call_node.SectionName.Value}.{call_node.Token.Value}' \nСтрока: {call_node.Token.PosNumber} \nОшибка: {ex.Message}";
+                        ErrorMessage = $"Ошибка во время выполнения метода: '{callNode.SectionName.Value}.{callNode.Token.Value}' \nСтрока: {callNode.Token.PosNumber} \nОшибка: {ex.Message}";
 
                         return null;
                     }
                 }
                 else
                 {
-                    ErrorMessage = $"Вызов несуществующего метода: '{call_node.SectionName.Value}.{call_node.Token.Value}' \nСтрока: {call_node.Token.PosNumber}";
+                    ErrorMessage = $"Вызов несуществующего метода: '{callNode.SectionName.Value}.{callNode.Token.Value}' \nСтрока: {callNode.Token.PosNumber}";
                     return null;
                 }
             }
@@ -383,7 +367,7 @@ namespace VkScriptAnalyzer.Emulator
             }
             else if (node.Token.Type == TokenType.Identifier)
             {
-                var var = env.GetSymbol(node.Token.Value);
+                var var = _env.GetSymbol(node.Token.Value);
                 if (var == null)
                 {
                     ErrorMessage = $"Обнаружен необъявленный идентификатор: '{node.Token.Value}' \nСтрока: {node.Token.PosNumber}";
@@ -413,14 +397,14 @@ namespace VkScriptAnalyzer.Emulator
 
         private bool AssignInterpret(AssignNode node)
         {
-            var var_sym = (VariableSymbol)env.GetSymbol(node.Id.Value);
+            var var_sym = (VariableSymbol)_env.GetSymbol(node.Id.Value);
             if(var_sym != null)
             {
                 var expr_val = ExprInterpret(node.Expression);
                 if(expr_val != null)
                 {
                     var_sym.Value = expr_val.GetResult();
-                    env.UpdateSymbolValue(var_sym);
+                    _env.UpdateSymbolValue(var_sym);
                     return true;
                 }
             }
@@ -437,15 +421,15 @@ namespace VkScriptAnalyzer.Emulator
             return ExprInterpret(node.Expression);
         }
 
-        private bool ExprValueToBool(CalculateResult expr_result)
+        private bool ExprValueToBool(CalculateResult exprResult)
         {
-            if(expr_result.DataType == DataType.Bool)
+            if(exprResult.DataType == DataType.Bool)
             {
-                return (bool)expr_result.GetResult();
+                return (bool)exprResult.GetResult();
             }
             else
             {
-                if (((double)expr_result.GetResult()) == 0)
+                if (((double)exprResult.GetResult()) == 0)
                     return false;
                 else
                     return true;

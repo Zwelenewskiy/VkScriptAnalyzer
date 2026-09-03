@@ -1,4 +1,4 @@
-﻿namespace VkScriptAnalyzer.Parser
+namespace Entities.Parser
 {
     public class ReturnNode : Node
     {

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using Entities.Emulator;
 using VkNet;
 using VkNet.Model;
 
@@ -30,11 +31,11 @@ namespace VkScriptAnalyzer.Emulator
             });
         }
 
-        public CalculateResult Execute(string section_name, string method_name, List<VariableSymbol> parameters)
+        public CalculateResult Execute(string sectionName, string methodname, List<VariableSymbol> parameters)
         {
-            if(section_name == "account")
+            if(sectionName == "account")
             {
-                if(method_name == "setOffline")
+                if(methodname == "setOffline")
                 {
                     if (api.Account.SetOffline())
                         return new CalculateResult(1, DataType.Double);

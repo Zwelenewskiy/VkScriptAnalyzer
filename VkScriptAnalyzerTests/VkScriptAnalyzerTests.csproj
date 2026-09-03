@@ -36,6 +36,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Entities\Entities.csproj" />
     <ProjectReference Include="..\VkScriptAnalyzer\VkScriptAnalyzer.csproj">
       <Project>{04ae1013-eab5-4a94-b5c0-d92f7e55a7a0}</Project>
       <Name>VkScriptAnalyzer</Name>

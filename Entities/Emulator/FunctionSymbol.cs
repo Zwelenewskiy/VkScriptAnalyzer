@@ -1,4 +1,4 @@
-﻿namespace VkScriptAnalyzer.Emulator
+namespace Entities.Emulator
 {
     public class FunctionSymbol : Symbol
     {
