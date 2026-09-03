@@ -25,10 +25,10 @@ namespace VkScriptAnalyzer
                 CalculateResult result = interpreter.StartEmulate();
                 if (result == null)
                 {
-                    string error_message = interpreter.ErrorMessage;
-                    if(error_message != null)
+                    string errorMessage = interpreter.ErrorMessage;
+                    if(errorMessage != null)
                     {
-                        Console.WriteLine(error_message);
+                        Console.WriteLine(errorMessage);
                     }
                     else
                     {
@@ -76,7 +76,7 @@ namespace VkScriptAnalyzer
             Console.ReadKey();
         }
 
-        static void PrintObject(ObjectSymbol node, int depth = 0, bool print_bracket = true)
+        static void PrintObject(ObjectSymbol node, int depth = 0, bool printBracket = true)
         {
             if (node.Fields.Keys.Count == 0)
             {
@@ -84,40 +84,40 @@ namespace VkScriptAnalyzer
                 return;
             }
 
-            if (print_bracket)
-                PrintString(depth, "{", print_comma: false);
+            if (printBracket)
+                PrintString(depth, "{", printComma: false);
 
             int i = 0;
 
-            foreach (string field_name in node.Fields.Keys)
+            foreach (string fieldName in node.Fields.Keys)
             {
-                bool print_comma = i < node.Fields.Keys.Count - 1;
+                bool printComma = i < node.Fields.Keys.Count - 1;
 
-                if ((node.Fields[field_name] as VariableSymbol).Value is ObjectSymbol)
+                if ((node.Fields[fieldName] as VariableSymbol).Value is ObjectSymbol)
                 {
-                    PrintString(depth + 2, field_name + ": {", print_comma: false);
+                    PrintString(depth + 2, fieldName + ": {", printComma: false);
 
-                    PrintObject(node: (node.Fields[field_name] as VariableSymbol).Value as ObjectSymbol, depth: depth + 2, print_bracket: false);
+                    PrintObject(node: (node.Fields[fieldName] as VariableSymbol).Value as ObjectSymbol, depth: depth + 2, printBracket: false);
 
-                    PrintString(depth + 2, "}", print_comma);
+                    PrintString(depth + 2, "}", printComma);
                 }
                 else
                 {
-                    PrintString(depth + 2, $"{field_name}: {(node.Fields[field_name] as VariableSymbol).Value}", print_comma);
+                    PrintString(depth + 2, $"{fieldName}: {(node.Fields[fieldName] as VariableSymbol).Value}", printComma);
                 }
 
                 i++;
             }
 
-            if (print_bracket)
+            if (printBracket)
                 Console.WriteLine(new string(' ', depth) + "}");
         }
 
-        static void PrintString(int indent, string value, bool print_comma)
+        static void PrintString(int indent, string value, bool printComma)
         {
             Console.Write($"{new string(' ', indent)}{value}");
 
-            if(print_comma)
+            if(printComma)
                 Console.Write(",");
 
             Console.WriteLine();

@@ -37,22 +37,22 @@ namespace VkScriptAnalyzer.Lexer.Mashines
     {
         public TokenType type { get; set; }
         public State state { get; set; }
-        public string lex_value { get; set; }
+        public string lexValue { get; set; }
 
-        private readonly Dictionary<Input_signal, Dictionary<State, State>> next_state;
-        private State[] finished_states;
+        private readonly Dictionary<Input_signal, Dictionary<State, State>> nextState;
+        private State[] finishedStates;
 
         public abstract Input_signal DefineSignal(char symbol);
 
         protected Machine() { }
 
-        protected Machine(Dictionary<Input_signal, Dictionary<State, State>> state_table, TokenType type, State[] finished_states)
+        protected Machine(Dictionary<Input_signal, Dictionary<State, State>> stateTable, TokenType type, State[] finishedStates)
         {
-            this.next_state = state_table;
+            this.nextState = stateTable;
             this.type = type;
-            this.finished_states = finished_states;
+            this.finishedStates = finishedStates;
             state = State.S0;
-            lex_value = string.Empty;
+            lexValue = string.Empty;
         }
 
         public void Parse(char symbol)
@@ -61,16 +61,16 @@ namespace VkScriptAnalyzer.Lexer.Mashines
 
             if (signal != Input_signal.End)
             {
-                if (!next_state.ContainsKey(signal))
+                if (!nextState.ContainsKey(signal))
                 {
                     state = State.S_error;
                 }
                 else if (state != State.S_error)
                 {
-                    state = next_state[signal][state];
+                    state = nextState[signal][state];
                 }
 
-                lex_value += symbol;
+                lexValue += symbol;
                 
                 if(state != State.S_error)
                 {
@@ -79,7 +79,7 @@ namespace VkScriptAnalyzer.Lexer.Mashines
                 }
 
                 /*if (signal != Input_signal.Other)
-                    lex_value += symbol;
+                    lexValue += symbol;
                 else
                     state = State.S0;*/
             }
@@ -92,13 +92,13 @@ namespace VkScriptAnalyzer.Lexer.Mashines
 
         public bool IsEnd()
         {
-            return state != State.S_error && finished_states.Contains(state);
+            return state != State.S_error && finishedStates.Contains(state);
         }
 
         public void Reset()
         {
             state = State.S0;
-            lex_value = null;
+            lexValue = null;
         }
     }
 }

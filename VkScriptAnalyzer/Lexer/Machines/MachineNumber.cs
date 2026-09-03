@@ -6,7 +6,7 @@ namespace VkScriptAnalyzer.Lexer.Mashines
     {
         public MashineNumber() :
             base(
-                    state_table: new Dictionary<Input_signal, Dictionary<State, State>>()
+                    stateTable: new Dictionary<Input_signal, Dictionary<State, State>>()
                     {
                         { Input_signal.Digit,
                             new Dictionary<State, State>() {
@@ -51,7 +51,7 @@ namespace VkScriptAnalyzer.Lexer.Mashines
                         },
                     },
                     type: TokenType.Number,
-                    finished_states: new State[] { State.S2, State.S4 }
+                    finishedStates: new State[] { State.S2, State.S4 }
                 )
         {
 

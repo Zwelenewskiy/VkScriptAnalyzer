@@ -6,7 +6,7 @@ namespace VkScriptAnalyzer.Lexer.Mashines
     {
         public MashineAssign() :
             base(
-                    state_table: new Dictionary<Input_signal, Dictionary<State, State>>()
+                    stateTable: new Dictionary<Input_signal, Dictionary<State, State>>()
                                 {
                                     { Input_signal.Colon,
                                         new Dictionary<State, State>() {
@@ -28,7 +28,7 @@ namespace VkScriptAnalyzer.Lexer.Mashines
                                     } },
                                 }, 
                     type: TokenType.Assign,
-                    finished_states: new State[] { State.S2 }
+                    finishedStates: new State[] { State.S2 }
                 )
         {
 

@@ -9,24 +9,24 @@ namespace VkScriptAnalyzer.Lexer
         /// <summary>
         /// Была ли проверка автоматов
         /// </summary>
-        private bool was_checked = false;
+        private bool wasChecked = false;
         /// <summary>
         /// Была ли лексема-разделитель
         /// </summary>
-        private bool was_dividing_lexem = false;
+        private bool wasDividingLexem = false;
 
         private string input;
         /// <summary>
         /// Токен, содержащий лексему-разделитель
         /// </summary>
-        private Token fast_token = null;
+        private Token fastToken = null;
 
         private readonly char[] DIVIDING_CHARS   = { '+', '-', '/', '*', ';', ',', '(', ')', '{', '}', '<', '>', '!', '=', '.', ':' };
         private readonly char[] WHITESPACE_CHARS = { ' ', '\t', '\n', '\r' };
 
-        private readonly MashineNumber     MashineNumber     = new MashineNumber();
-        private readonly MashineIdentifier MashineIdentifier = new MashineIdentifier();
-        private readonly MashineString     MashineString     = new MashineString();
+        private readonly MashineNumber     mashineNumber     = new MashineNumber();
+        private readonly MashineIdentifier mashineIdentifier = new MashineIdentifier();
+        private readonly MashineString     mashineString     = new MashineString();
 
 
         private readonly string[] KEY_WORDS =
@@ -55,9 +55,9 @@ namespace VkScriptAnalyzer.Lexer
             input = text.TrimStart().TrimEnd();
 
             PARSERS = new Machine[] {
-                MashineNumber,
-                MashineIdentifier,
-                MashineString
+                mashineNumber,
+                mashineIdentifier,
+                mashineString
             };
 
             PosNumber = 1;
@@ -85,26 +85,26 @@ namespace VkScriptAnalyzer.Lexer
             bool find = false;
             string value = null;
 
-            var temp_parsers = PARSERS
-                        .Where(p => p.lex_value != string.Empty && p.lex_value != null)
-                        .OrderByDescending(p => p.lex_value.Length)
+            var tempParsers = PARSERS
+                        .Where(p => p.lexValue != string.Empty && p.lexValue != null)
+                        .OrderByDescending(p => p.lexValue.Length)
                         .ToArray();
 
-            foreach (Machine parser in temp_parsers)
+            foreach (Machine parser in tempParsers)
             {
-                value = parser.lex_value;
+                value = parser.lexValue;
 
                 if (parser.IsEnd())
                 {
                     if (parser.type == TokenType.Identifier && KEY_WORDS.Contains(value))
-                        token.type = TokenType.KeyWord;
+                        token.Type = TokenType.KeyWord;
                     else if (parser.type == TokenType.Identifier && BOOL_DATA_TYPES.Contains(value))
-                        token.type = TokenType.BoolDataType;
+                        token.Type = TokenType.BoolDataType;
                     else
-                        token.type = parser.type;
+                        token.Type = parser.type;
 
-                    token.value = value;
-                    token.pos = PosNumber;
+                    token.Value = value;
+                    token.PosNumber = PosNumber;
 
                     find = true;
 
@@ -116,38 +116,38 @@ namespace VkScriptAnalyzer.Lexer
 
             if (!find)
             {
-                token.type = TokenType.Unknown;
-                token.value = value;
+                token.Type = TokenType.Unknown;
+                token.Value = value;
             }
 
-            if(token.type == TokenType.String)
+            if(token.Type == TokenType.String)
             {
-                token.value = token.value.Remove(0, 1);
-                token.value = token.value.Remove(token.value.Length - 1, 1);
+                token.Value = token.Value.Remove(0, 1);
+                token.Value = token.Value.Remove(token.Value.Length - 1, 1);
             }
 
             return token;
         }
 
-        private Token CheckDoubleDividingChars(char first_dividing_char, bool parse_not_dividing_lexem)
+        private Token CheckDoubleDividingChars(char firstDividingChar, bool parseNotDividingLexem)
         {
-            var second_dividing_char = CheckNextSymbol();
+            var secondDividingChar = CheckNextSymbol();
 
-            if (first_dividing_char == '=')
+            if (firstDividingChar == '=')
             {
-                if (second_dividing_char == '=')
+                if (secondDividingChar == '=')
                 {
                     ParseSymbol();
                     var token = new Token()
                     {
-                        type = TokenType.Equal,
-                        value = "==",
-                        pos = PosNumber
+                        Type = TokenType.Equal,
+                        Value = "==",
+                        PosNumber = PosNumber
                     };
 
-                    if (parse_not_dividing_lexem)
+                    if (parseNotDividingLexem)
                     {
-                        fast_token = token;
+                        fastToken = token;
                         return CheckParsers();
                     }
                     else
@@ -156,21 +156,21 @@ namespace VkScriptAnalyzer.Lexer
                     }
                 }
             }
-            else if (first_dividing_char == '!')
+            else if (firstDividingChar == '!')
             {
-                if (second_dividing_char == '=')
+                if (secondDividingChar == '=')
                 {
                     ParseSymbol();
                     var token = new Token()
                     {
-                        type = TokenType.NonEqual,
-                        value = "!=",
-                        pos = PosNumber
+                        Type = TokenType.NonEqual,
+                        Value = "!=",
+                        PosNumber = PosNumber
                     };
 
-                    if (parse_not_dividing_lexem)
+                    if (parseNotDividingLexem)
                     {
-                        fast_token = token;
+                        fastToken = token;
 
                         return CheckParsers();
                     }
@@ -194,26 +194,26 @@ namespace VkScriptAnalyzer.Lexer
 
         public Token GetToken()
         {
-            if (fast_token != null)
+            if (fastToken != null)
             {
-                var tmp = fast_token;
-                fast_token = null;
+                var tmp = fastToken;
+                fastToken = null;
                 return tmp;
             }
 
             if (input.Length == 0)
             {
-                if (fast_token != null)
-                    return fast_token;
+                if (fastToken != null)
+                    return fastToken;
                 else
                     return null;
             }
 
-            if (was_checked)
-                was_checked = false;
+            if (wasChecked)
+                wasChecked = false;
 
-            bool parse_not_dividing_lexem = false;
-            bool is_white_space = false;
+            bool parseNotDividingLexem = false;
+            bool isWhiteSpace = false;
             while (input.Length > 0)
             {
                 char symbol = ParseSymbol();
@@ -223,31 +223,31 @@ namespace VkScriptAnalyzer.Lexer
                     if(symbol == '\n')
                         PosNumber++;
 
-                    is_white_space = true;
+                    isWhiteSpace = true;
                 }
 
-                bool dividing_lexem = false;
+                bool dividingLexem = false;
                 var type = TokenType.Unknown;
 
                 if (DIVIDING_CHARS.Contains(symbol))
                 {
-                    var double_dividing_token = CheckDoubleDividingChars(symbol, parse_not_dividing_lexem);
-                    if (double_dividing_token != null)
-                        return double_dividing_token;
+                    var doubleDividingToken = CheckDoubleDividingChars(symbol, parseNotDividingLexem);
+                    if (doubleDividingToken != null)
+                        return doubleDividingToken;
 
-                    dividing_lexem = true;
+                    dividingLexem = true;
 
                     type = (TokenType)symbol;
                 }
 
-                if (dividing_lexem)
+                if (dividingLexem)
                 {
                     if(symbol == '.')
                     {
                         // если начали разбирать число, то точка не будет символом-"разделителем"
-                        bool is_error = MashineNumber.InError();
+                        bool isError = mashineNumber.InError();
 
-                        if (!is_error)
+                        if (!isError)
                         {
                             foreach (Machine parser in PARSERS)
                             {
@@ -258,44 +258,44 @@ namespace VkScriptAnalyzer.Lexer
                         }
                     }
 
-                    if (was_dividing_lexem || !parse_not_dividing_lexem)
+                    if (wasDividingLexem || !parseNotDividingLexem)
                     {
                         return new Token()
                         {
-                            type = type,
-                            value = Convert.ToString(symbol),
-                            pos = PosNumber
+                            Type = type,
+                            Value = Convert.ToString(symbol),
+                            PosNumber = PosNumber
                         };
                     }
 
-                    was_dividing_lexem = true;
+                    wasDividingLexem = true;
 
-                    fast_token = new Token()
+                    fastToken = new Token()
                     {
-                        type = type,
-                        value = Convert.ToString(symbol),
-                        pos = PosNumber
+                        Type = type,
+                        Value = Convert.ToString(symbol),
+                        PosNumber = PosNumber
                     };
 
-                    if (parse_not_dividing_lexem)
+                    if (parseNotDividingLexem)
                     {
                         return CheckParsers();
                     }
                 }
-                else if (is_white_space)
+                else if (isWhiteSpace)
                 {
-                    is_white_space = false; 
+                    isWhiteSpace = false; 
 
-                    if (parse_not_dividing_lexem)
+                    if (parseNotDividingLexem)
                     {
-                        was_checked = true;
+                        wasChecked = true;
                         return CheckParsers();
                     }
                 }
                 else
                 {
-                    was_dividing_lexem = false;
-                    parse_not_dividing_lexem = true;
+                    wasDividingLexem = false;
+                    parseNotDividingLexem = true;
 
                     foreach (Machine parser in PARSERS)
                     {
@@ -304,7 +304,7 @@ namespace VkScriptAnalyzer.Lexer
                 }
             }
 
-            if(!is_white_space)
+            if(!isWhiteSpace)
                 return CheckParsers();
 
             return null;
