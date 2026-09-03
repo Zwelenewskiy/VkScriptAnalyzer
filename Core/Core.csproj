@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <RootNamespace>Core</RootNamespace>
@@ -8,6 +8,5 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Entities\Entities.csproj" />
-    <ProjectReference Include="..\VkApi\VkApi.csproj" />
   </ItemGroup>
 </Project>

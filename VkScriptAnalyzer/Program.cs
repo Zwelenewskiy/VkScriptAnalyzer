@@ -3,12 +3,16 @@ using Core.Emulator;
 using Core.Parser;
 using Entities.Emulator;
 using Entities.Parser;
+using VkApi;
 
 namespace VkScriptAnalyzer
 {
     class Program
     {
-        private const string INPUT_FILE_NAME = "input.vkscript";
+        private readonly static string INPUT_FILE_NAME = "input.vkscript";
+        private readonly static string _vkLogin = "";
+        private readonly static string _vkPassword = "";
+        private readonly static ulong _applicationId = 0;
 
         static void Main()
         {
@@ -23,7 +27,7 @@ namespace VkScriptAnalyzer
             }
             else
             {
-                var interpreter = new EmulatorMashine(ast);
+                var interpreter = new EmulatorMashine(ast, new ApiMethodsExecutor(_vkLogin, _vkPassword, _applicationId));
                 CalculateResult result = interpreter.StartEmulate();
                 if (result == null)
                 {

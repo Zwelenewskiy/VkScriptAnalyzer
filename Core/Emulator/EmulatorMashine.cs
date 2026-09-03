@@ -2,23 +2,25 @@ using System.Linq;
 using Entities.Emulator;
 using Entities.Lexer;
 using Entities.Parser;
-using VkApi;
+using Core.ApiMethodsExecutor;
 
 namespace Core.Emulator
 {
     public class EmulatorMashine
     {
-        private Node _ast;
+        private readonly Node _ast;
+        private readonly IApiMethodsExecutor _api;
+        private readonly string[] _existingApiMethods = [ "account_setOffline" ];
         private Env _env;
-        private string[] _existingApiMethods = new string[] { "account_setOffline" };
         private int _apiCallsCount;
 
         public string ErrorMessage { get; private set; }
 
-        public EmulatorMashine(Node ast)
+        public EmulatorMashine(Node ast, IApiMethodsExecutor api)
         {
             _ast = ast;
             _apiCallsCount = 0;
+            _api = api;
         }
 
         public CalculateResult StartEmulate()
@@ -249,7 +251,7 @@ namespace Core.Emulator
                             return null;
                         }
 
-                        var res = ApiMethodsExecutor.Instance.Execute(
+                        var res = _api.Execute(
                             sectionName: callNode.SectionName.Value,
                             methodname: callNode.Token.Value,
                             parameters: parameters

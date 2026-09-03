@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using Entities.Emulator;
 
-namespace Entities.ApiMethodsExecutor
+namespace Core.ApiMethodsExecutor
 {
     public interface IApiMethodsExecutor
     {

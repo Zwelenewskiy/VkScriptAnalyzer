@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Entities.ApiMethodsExecutor;
+using Core.ApiMethodsExecutor;
 using Entities.Emulator;
 using VkNet.Model;
 
@@ -7,26 +7,17 @@ namespace VkApi
 {
     public class ApiMethodsExecutor : IApiMethodsExecutor
     {
-        private static ApiMethodsExecutor _instance;
         private readonly VkNet.VkApi _api;
 
-        public static ApiMethodsExecutor Instance
-        {
-            get
-            {
-                return _instance ?? (_instance = new ApiMethodsExecutor());
-            }
-        }
-
-        private ApiMethodsExecutor()
+        public ApiMethodsExecutor(string login, string password, ulong applicationId)
         {
             _api = new VkNet.VkApi();
 
             _api.Authorize(new ApiAuthParams
             {
-                ApplicationId = 7911433,
-                Login         = "89534798532",
-                Password      = "G9hvZxlynM{1~R3",
+                ApplicationId = applicationId,
+                Login         = login,
+                Password      = password,
                 Settings      = VkNet.Enums.Filters.Settings.All
             });
         }
