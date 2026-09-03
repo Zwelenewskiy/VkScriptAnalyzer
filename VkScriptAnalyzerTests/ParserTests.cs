@@ -113,22 +113,22 @@ namespace VkScriptAnalyzerTests
         private void DoTest(Node sample, string input, string errorMessage = null)
         {
             var parser = new SyntacticAnalyzer(input);
-            Node ast = parser.Parse();
+            ParseResult parseResult = parser.Parse();
 
             if (errorMessage == null)
             {
-                if (parser.ErrorMessage == null)
+                if (parseResult.IsSuccess)
                 {
-                    Assert.AreEqual(IsIdentical(sample, ast), true);
+                    Assert.AreEqual(IsIdentical(sample, parseResult.Program), true);
                 }
                 else
                 {
-                    throw new AssertFailedException($"Ошибка построения AST: {parser.ErrorMessage}");
+                    throw new AssertFailedException($"Ошибка построения AST: {parseResult.ErrorMessage}");
                 }
             }
             else
             {
-                Assert.AreEqual(errorMessage, parser.ErrorMessage);
+                Assert.AreEqual(errorMessage, parseResult.ErrorMessage);
             }
         }
 

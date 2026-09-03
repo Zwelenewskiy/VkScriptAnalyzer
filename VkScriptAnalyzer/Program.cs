@@ -26,15 +26,15 @@ namespace VkScriptAnalyzer
             string input = System.IO.File.ReadAllText(INPUT_FILE_NAME);
 
             var parser = new SyntacticAnalyzer(input);
-            Node ast = parser.Parse();
+            ParseResult parseResult = parser.Parse();
 
-            if(ast == null)
+            if(!parseResult.IsSuccess)
             {
-                Console.WriteLine(parser.ErrorMessage);
+                Console.WriteLine(parseResult.ErrorMessage);
             }
             else
             {
-                var interpreter = new EmulatorMashine(ast, new ApiMethodsExecutor(vkLogin, vkPassword, applicationId));
+                var interpreter = new EmulatorMashine(parseResult.Program, new ApiMethodsExecutor(vkLogin, vkPassword, applicationId));
                 CalculateResult result = interpreter.StartEmulate();
                 if (result != null && !result.IsSuccess)
                 {

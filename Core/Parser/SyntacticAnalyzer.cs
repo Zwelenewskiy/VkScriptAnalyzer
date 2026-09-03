@@ -7,37 +7,38 @@ namespace Core.Parser
 {
     public class SyntacticAnalyzer
     {
-        private LexicalAnalyzer lexer;
-        private Token currentToken;
-        private Token nextToken;
-        private Token predToken;
+        private readonly LexicalAnalyzer _lexer;
+        private Token _currentToken;
+        private Token _nextToken;
+        private Token _predToken;
+        private string _errorMessage { get; set; }
 
         private void GetToken()
         {
-            if(predToken != null)
+            if(_predToken != null)
             {
-                currentToken = predToken;
-                predToken = null;
+                _currentToken = _predToken;
+                _predToken = null;
             }
-            else if(nextToken != null)
+            else if(_nextToken != null)
             {
-                currentToken = nextToken;
-                nextToken = null;
+                _currentToken = _nextToken;
+                _nextToken = null;
             }
             else
             {
-                currentToken = lexer.GetToken();
+                _currentToken = _lexer.GetToken();
             }
         }
 
         private void GetNextToken()
         {
-            predToken = currentToken;
+            _predToken = _currentToken;
 
-            if(nextToken == null)
-                nextToken = lexer.GetToken();
+            if(_nextToken == null)
+                _nextToken = _lexer.GetToken();
 
-            currentToken = nextToken;
+            _currentToken = _nextToken;
         }
 
         /*private void GetToken()
@@ -47,22 +48,22 @@ namespace Core.Parser
 
         private bool CheckToken(string tokenValue, bool showError = true)
         {
-            if(currentToken == null)
+            if(_currentToken == null)
             {
                 if (showError)
-                    ErrorMessage = $"Обнаружен конец файла, но ожидалось'{tokenValue}' \nСтрока: {lexer.PosNumber}";
+                    _errorMessage = $"Обнаружен конец файла, но ожидалось'{tokenValue}' \nСтрока: {_lexer.PosNumber}";
 
                 return false;
             }
 
-            if (currentToken.Value == tokenValue)
+            if (_currentToken.Value == tokenValue)
             {
                 return true;
             }
             else
             {
                 if(showError)
-                    ErrorMessage = $"Обнаружен токен '{currentToken.Value}', но ожидалось '{tokenValue}'\nСтрока: {lexer.PosNumber}";
+                    _errorMessage = $"Обнаружен токен '{_currentToken.Value}', но ожидалось '{tokenValue}'\nСтрока: {_lexer.PosNumber}";
 
                 return false;
             }
@@ -70,29 +71,31 @@ namespace Core.Parser
 
         private bool CheckTokenType(TokenType type, bool showError = true)
         {
-            if (currentToken.Type == type)
+            if (_currentToken.Type == type)
             {
                 return true;
             }
             else
             {
                 if (showError)
-                    ErrorMessage = $"Обнаружен токен '{currentToken.Value}' с типом {currentToken.Type}, но ожидался {type}\nСтрока: {lexer.PosNumber}";
+                    _errorMessage = $"Обнаружен токен '{_currentToken.Value}' с типом {_currentToken.Type}, но ожидался {type}\nСтрока: {_lexer.PosNumber}";
 
                 return false;
             }
         }
 
-        public string ErrorMessage { get; private set; }
-
         public SyntacticAnalyzer(string input)
         {
-            lexer = new LexicalAnalyzer(input);
+            _lexer = new LexicalAnalyzer(input);
         }
 
-        public Node Parse()
+        public ParseResult Parse()
         {
-            return InstructionList();
+            Node node = InstructionList();
+            if (node == null)
+                return new ParseResult(_errorMessage ?? "Ошибка синтаксического разбора");
+
+            return new ParseResult(node);
         }
 
         private Node InstructionList()
@@ -113,7 +116,7 @@ namespace Core.Parser
 
         private Node Instruction()
         {
-            if(currentToken != null)
+            if(_currentToken != null)
             {
                 if (CheckToken("if", showError: false))
                 {
@@ -143,7 +146,7 @@ namespace Core.Parser
         #region Присвоение (выражение)
         private Node Assignment()
         {
-            var res = new AssignNode(currentToken);
+            var res = new AssignNode(_currentToken);
 
             GetToken();
             if (CheckToken("="))
@@ -169,7 +172,7 @@ namespace Core.Parser
 
             if (CheckToken("or", showError: false))
             {
-                var res = new ExprNode(currentToken);
+                var res = new ExprNode(_currentToken);
                 res.Left = t1;
                 res.Right = Expr();
 
@@ -192,7 +195,7 @@ namespace Core.Parser
 
             if (CheckToken("and", showError: false))
             {
-                var res = new ExprNode(currentToken);
+                var res = new ExprNode(_currentToken);
                 res.Left = t2;
 
                 GetToken();
@@ -215,7 +218,7 @@ namespace Core.Parser
 
             if (CheckToken("<", showError: false) || CheckToken(">", showError: false) || CheckToken("<=", showError: false) || CheckToken(">=", showError: false) || CheckToken("==", showError: false) || CheckToken("!=", showError: false))
             {
-                var res = new ExprNode(currentToken);
+                var res = new ExprNode(_currentToken);
                 res.Left = t3;
 
                 GetToken();
@@ -238,7 +241,7 @@ namespace Core.Parser
 
             if (CheckToken("+", showError: false) || CheckToken("-", showError: false))
             {
-                var res = new ExprNode(currentToken);
+                var res = new ExprNode(_currentToken);
                 res.Left = t4;
 
                 GetToken();
@@ -261,7 +264,7 @@ namespace Core.Parser
 
             if (CheckToken("*", showError: false) || CheckToken("/", showError: false))
             {
-                var res = new ExprNode(currentToken);
+                var res = new ExprNode(_currentToken);
                 res.Left = t5;
 
                 GetToken();
@@ -286,7 +289,7 @@ namespace Core.Parser
 
             if (CheckToken(".", showError: false))
             {
-                var res = new KvalidentNode(currentToken);
+                var res = new KvalidentNode(_currentToken);
                 res.Left = t6;
 
                 GetToken();
@@ -297,7 +300,7 @@ namespace Core.Parser
                     return res;
                 }
 
-                ErrorMessage = $"Ожидался идентификатор поля, но обнаружено: '{res.Right.Token.Value}'\nСтрока: {lexer.PosNumber}";
+                _errorMessage = $"Ожидался идентификатор поля, но обнаружено: '{res.Right.Token.Value}'\nСтрока: {_lexer.PosNumber}";
                 return null;
             }
             else
@@ -315,10 +318,10 @@ namespace Core.Parser
             if (CheckTokenType(TokenType.Identifier, showError: false) || CheckTokenType(TokenType.BoolDataType, showError: false) 
                 || CheckTokenType(TokenType.Number, showError: false) || CheckTokenType(TokenType.String, showError: false))
             {
-                if(currentToken.Value == "null")
+                if(_currentToken.Value == "null")
                     return new ObjectNode(new List<ObjectField>());
 
-                return new ExprNode(currentToken);
+                return new ExprNode(_currentToken);
             }
             else if (CheckToken("(", showError: false))
             {
@@ -334,7 +337,7 @@ namespace Core.Parser
                 return Object();
             }
 
-            ErrorMessage = $"Обнаружен неразрешённый символ: '{currentToken.Value}'\nСтрока: {lexer.PosNumber}";
+            _errorMessage = $"Обнаружен неразрешённый символ: '{_currentToken.Value}'\nСтрока: {_lexer.PosNumber}";
 
             return null;
         }
@@ -347,7 +350,7 @@ namespace Core.Parser
                 GetToken();
                 if (CheckTokenType(TokenType.Identifier))
                 {
-                    var sectionName = currentToken;
+                    var sectionName = _currentToken;
 
                     GetToken();
                     if (CheckToken("."))
@@ -355,7 +358,7 @@ namespace Core.Parser
                         GetToken();
                         if (CheckTokenType(TokenType.Identifier))
                         {
-                            var call = new CallNode(currentToken, sectionName);
+                            var call = new CallNode(_currentToken, sectionName);
                             GetToken();
 
                             if (CheckToken("("))
@@ -404,7 +407,7 @@ namespace Core.Parser
                 GetToken();
                 if (CheckTokenType(TokenType.String, showError: false))
                 {
-                    var field = new ObjectField(currentToken);
+                    var field = new ObjectField(_currentToken);
 
                     GetToken();
                     if (CheckToken(":"))
@@ -488,7 +491,7 @@ namespace Core.Parser
                 var res = Instruction();
                 if (res is EmptyNode)
                 {
-                    ErrorMessage = $"Ожидалась инструкция, но обнаружена пустота \nСтрока: {lexer.PosNumber}";
+                    _errorMessage = $"Ожидалась инструкция, но обнаружена пустота \nСтрока: {_lexer.PosNumber}";
                     return null;
                 }
                 else
@@ -526,7 +529,7 @@ namespace Core.Parser
             GetToken();
             if (CheckTokenType(TokenType.Identifier))
             {
-                var res = new VarNode(currentToken);
+                var res = new VarNode(_currentToken);
 
                 GetToken();
                 if (CheckToken("="))
@@ -559,7 +562,7 @@ namespace Core.Parser
                 GetToken();
                 if (CheckTokenType(TokenType.Identifier))
                 {
-                    var res = new VarNode(currentToken);
+                    var res = new VarNode(_currentToken);
 
                     GetToken();
                     if (CheckToken("="))
