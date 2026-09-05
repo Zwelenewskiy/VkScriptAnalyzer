@@ -1,0 +1,16 @@
+---
+description: Контекст VkScriptAnalyzer — читай AGENTS.md в каждом чате
+alwaysApply: true
+---
+
+# Проект
+
+Это интерпретатор VKScript (диалект `execute` VK API): лексер DFA → LL-парсер → обход AST. Не полный клон официального execute.
+
+Перед работой прочитай корневой `AGENTS.md`. Кратко:
+
+- Слои: **Entities** (модели) → **Core** (лексер/парсер/эмулятор + `IApiMethodsExecutor`) → **VkApi** (VkNet). Host — `VkScriptAnalyzer`. Core не ссылается на VkApi.
+- `ParseResult.Program`, ошибки парсера/эмулятора через result-типы, не через исключения как основной путь.
+- Credentials только из `appsettings.json`. Не хардкодить и не цитировать пароли.
+- DDD не раскатывать. Тесты не трогать без просьбы. Scope не расширять.
+- Поля/локали — camelCase, методы — PascalCase. Отвечать по-русски.
