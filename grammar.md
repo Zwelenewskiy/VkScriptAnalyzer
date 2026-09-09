@@ -68,13 +68,16 @@
 **T5_1** -> . T5 |
 	E
     
-**T6**** ->   NUM |
+**T6** ->   NUM |
   ID |
-  API CALL |
+  CALL |
   ( CONDITION ) |
   OBJECT
 
-**CALL** -> . ID ( OBJECT)	
+**CALL** -> API . ID . ID ( CALL_1 )
+
+**CALL_1** -> OBJECT ) |
+	)
 
 **OBJECT** -> { FIELDS }
 
