@@ -28,8 +28,11 @@
 
 **VAR** -> ID = EXPR VAR1 ;
 
-**VAR1** -> , ID = EXPR VAR1 |
-		        E
+**VAR1** -> , ID VAR1_1 VAR1 |
+	E
+
+**VAR1_1** -> = EXPR |
+	E
 
 **EXPR** -> T1 EXPR_1
 
